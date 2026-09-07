@@ -1,0 +1,155 @@
+<!-- Mobile Bottom Navigation Bar (Fixed on bottom for screens < md) -->
+<nav class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-xl border-t border-[#e2ece2] pt-1.5 pb-safe px-1.5 flex items-center justify-around shadow-[0_-4px_20px_rgba(0,0,0,0.06)] select-none">
+  @for (item of navItems; track item.path) {
+    <a [routerLink]="item.path"
+       (click)="closeMenu()"
+       [class]="isActive(item.path) && !showMenuDrawer()
+         ? 'relative flex flex-col items-center justify-center text-[#15803d] font-bold text-[10px] transition-all px-1.5 py-0.5 active:scale-90 flex-1 min-w-0'
+         : 'relative flex flex-col items-center justify-center text-slate-500 hover:text-emerald-700 font-semibold text-[10px] transition-all px-1.5 py-0.5 active:scale-90 flex-1 min-w-0'">
+      
+      <div [class]="isActive(item.path) && !showMenuDrawer() ? 'p-1 rounded-xl bg-emerald-100 text-[#15803d] transition-all' : 'p-1 transition-all'">
+        @if (item.icon === 'home') {
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        } @else if (item.icon === 'sprout') {
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M7 20h10"/><path d="M10 20c5.5-2.5.8-6.4 3-10"/><path d="M9.5 9.4c1.1.8 1.8 2.2 2.3 3.7-2 .4-3.5.4-4.8-.3-1.2-.6-2.3-1.9-3-4.2 2.8-.5 4.4 0 5.5.8z"/><path d="M14.1 6a7 7 0 0 0-1.1 4c1.9-.1 3.3-.6 4.3-1.4 1-1 1.6-2.3 1.7-4.6-2.7.1-4 1-4.9 2z"/></svg>
+        } @else if (item.icon === 'users') {
+          <!-- Team Icon with pulsing active indicator -->
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        } @else if (item.icon === 'wallet') {
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"/><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"/></svg>
+        } @else if (item.icon === 'coins') {
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="8" cy="8" r="6"/><path d="M18.09 10.37A6 6 0 1 1 10.34 18"/><path d="M7 6h1v4"/><path d="m16.71 13.88.7.71-2.82 2.82"/></svg>
+        }
+      </div>
+
+      <!-- Badge for Team / Income -->
+      @if (item.badge) {
+        <span class="absolute top-0 right-1.5 px-1 py-0.2 rounded-full bg-[#22c55e] text-[#061c11] text-[8px] font-black leading-tight shadow-xs">
+          {{ item.badge }}
+        </span>
+      }
+
+      <span class="mt-0.5 tracking-tight truncate">{{ item.label }}</span>
+    </a>
+  }
+
+  <!-- 'More Menu' Trigger Button -->
+  <button type="button"
+          (click)="toggleMenu()"
+          [class]="showMenuDrawer()
+            ? 'flex flex-col items-center justify-center text-[#15803d] font-bold text-[10px] transition-all px-1.5 py-0.5 active:scale-90 flex-1 min-w-0'
+            : 'flex flex-col items-center justify-center text-slate-500 hover:text-emerald-700 font-semibold text-[10px] transition-all px-1.5 py-0.5 active:scale-90 flex-1 min-w-0'">
+    <div [class]="showMenuDrawer() ? 'p-1 rounded-xl bg-emerald-100 text-[#15803d]' : 'p-1'">
+      <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>
+    </div>
+    <span class="mt-0.5 tracking-tight truncate">Menu</span>
+  </button>
+</nav>
+
+<!-- Full Mobile Navigation Slide-Over Sheet / Drawer -->
+@if (showMenuDrawer()) {
+  <div class="md:hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex justify-start animate-in fade-in duration-200" (click)="closeMenu()">
+    <div class="w-[85%] max-w-sm bg-[#0c3823] text-white h-full shadow-2xl flex flex-col justify-between p-5 overflow-y-auto animate-in slide-in-from-left duration-300 border-r border-[#145335]" (click)="$event.stopPropagation()">
+      
+      <!-- Top Brand Header & Farmer Info -->
+      <div class="space-y-4">
+        <!-- Logo & Close -->
+        <div class="flex items-center justify-between pb-3 border-b border-[#1b6d47]/40">
+          <div class="flex items-center gap-2.5">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-[#22c55e]/20 to-[#15803d]/40 flex items-center justify-center border border-[#22c55e]/40 p-1.5 shadow-inner">
+              <svg class="w-7 h-7 text-[#4ade80]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/>
+                <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>
+              </svg>
+            </div>
+            <div>
+              <h2 class="text-base font-black tracking-widest text-white uppercase font-sans">CARBONOVA</h2>
+              <p class="text-[10px] text-[#86efac] font-medium">Plant Today. Prosper Tomorrow.</p>
+            </div>
+          </div>
+          <button (click)="closeMenu()" class="text-emerald-300 hover:text-white p-2 rounded-full hover:bg-white/10">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6 6 18M6 6l12 12"/></svg>
+          </button>
+        </div>
+
+        <!-- Farmer Mini Profile Card in Drawer -->
+        <div class="p-3 bg-white/10 backdrop-blur-md rounded-2xl border border-white/15 flex items-center gap-3">
+          <img [src]="farmerService.farmer().avatar" alt="Sandeep" class="w-11 h-11 rounded-full object-cover border-2 border-[#22c55e]">
+          <div class="flex-1 min-w-0">
+            <h4 class="font-extrabold text-sm text-white truncate">{{ farmerService.farmer().name }}</h4>
+            <p class="text-[11px] text-emerald-200 font-mono">{{ farmerService.farmer().farmerId }}</p>
+            <span class="inline-flex items-center gap-1 text-[10px] font-bold text-[#86efac] mt-0.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-[#22c55e]"></span>
+              {{ farmerService.farmer().rank }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Full Navigation Links with Icons & Badges -->
+        <div class="space-y-1 pt-1 font-medium text-xs">
+          @for (item of allMenuItems; track item.path) {
+            <a [routerLink]="item.path"
+               (click)="closeMenu()"
+               [class]="isActive(item.path)
+                 ? 'flex items-center justify-between p-3 rounded-2xl bg-[#1e7e44] text-white font-bold shadow-md border border-[#4ade80]/30'
+                 : 'flex items-center justify-between p-3 rounded-2xl text-emerald-100 hover:bg-[#145335]/80 transition-all'">
+              
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-xl bg-black/20 flex items-center justify-center text-emerald-300 flex-shrink-0">
+                  @if (item.icon === 'home') {
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                  } @else if (item.icon === 'users') {
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                  } @else if (item.icon === 'wallet') {
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"/><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"/></svg>
+                  } @else if (item.icon === 'shopping-bag') {
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                  } @else if (item.icon === 'coins') {
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="8" r="6"/><path d="M18.09 10.37A6 6 0 1 1 10.34 18"/><path d="M7 6h1v4"/><path d="m16.71 13.88.7.71-2.82 2.82"/></svg>
+                  } @else if (item.icon === 'sprout') {
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 20h10"/><path d="M10 20c5.5-2.5.8-6.4 3-10"/><path d="M9.5 9.4c1.1.8 1.8 2.2 2.3 3.7-2 .4-3.5.4-4.8-.3-1.2-.6-2.3-1.9-3-4.2 2.8-.5 4.4 0 5.5.8z"/><path d="M14.1 6a7 7 0 0 0-1.1 4c1.9-.1 3.3-.6 4.3-1.4 1-1 1.6-2.3 1.7-4.6-2.7.1-4 1-4.9 2z"/></svg>
+                  } @else if (item.icon === 'camera') {
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
+                  } @else if (item.icon === 'user') {
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>
+                  } @else if (item.icon === 'lock') {
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                  }
+                </div>
+                <div>
+                  <span class="block font-bold">{{ item.label }}</span>
+                  <span class="block text-[10px] text-emerald-200/70 font-normal">{{ item.desc }}</span>
+                </div>
+              </div>
+
+              @if (item.badge) {
+                <span class="bg-[#22c55e]/20 text-[#86efac] text-[10px] font-bold px-2 py-0.5 rounded-full">
+                  {{ item.badge }}
+                </span>
+              }
+            </a>
+          }
+        </div>
+      </div>
+
+      <!-- Bottom Quick Referral & Support -->
+      <div class="space-y-2 pt-4 border-t border-[#1b6d47]/50 mt-4">
+        <!-- Copy Referral Button -->
+        <button (click)="copyReferralLink()" class="w-full py-2.5 px-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs flex items-center justify-center gap-2 border border-white/20">
+          @if (copyFeedback()) {
+            <span class="text-[#86efac]">✓ Referral Link Copied!</span>
+          } @else {
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+            <span>Copy Referral Link</span>
+          }
+        </button>
+
+        <a routerLink="/team" (click)="closeMenu()" class="w-full py-2.5 px-3 rounded-xl bg-[#22c55e] text-[#061c11] font-black text-xs flex items-center justify-center gap-1.5 shadow-md">
+          <span>Open Team Tree (128 Downlines)</span>
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg>
+        </a>
+      </div>
+
+    </div>
+  </div>
+}

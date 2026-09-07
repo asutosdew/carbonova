@@ -1,0 +1,85 @@
+﻿<div class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200" (click)="close.emit()">
+  <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-emerald-100 overflow-hidden" (click)="$event.stopPropagation()">
+    <!-- Header -->
+    <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-100">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
+        </div>
+        <div>
+          <h3 class="font-bold text-base text-slate-900">Upload Plantation Photo</h3>
+          <p class="text-xs text-slate-500">Geotagged growth audit & AI carbon verification</p>
+        </div>
+      </div>
+      <button (click)="close.emit()" class="text-slate-400 hover:text-slate-700 p-2 rounded-full hover:bg-slate-100">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+
+    @if (isSuccess()) {
+      <div class="py-8 text-center space-y-3 animate-in zoom-in-95 duration-200">
+        <div class="w-16 h-16 rounded-full bg-emerald-100 text-[#16a34a] flex items-center justify-center mx-auto text-3xl font-black shadow-inner">
+          ✓
+        </div>
+        <h4 class="text-lg font-black text-slate-900">Photo Uploaded & Verified!</h4>
+        <p class="text-xs text-slate-600 max-w-xs mx-auto">
+          AI foliage health score: <strong class="text-emerald-700">96% (Optimal)</strong>. Geotag logged at Ambikapur (23.1189° N, 83.1979° E).
+        </p>
+      </div>
+    } @else {
+      <!-- Image Preview -->
+      <div class="mb-4 space-y-2">
+        <div class="relative h-48 w-full rounded-2xl overflow-hidden border-2 border-dashed border-emerald-300 bg-slate-50 group">
+          <img [src]="selectedImage()" alt="Selected plantation photo" class="w-full h-full object-cover">
+          <div class="absolute bottom-2 left-2 px-2.5 py-1 bg-black/70 backdrop-blur-md rounded-lg text-[10px] text-white font-mono flex items-center gap-1">
+            <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+            <span>GPS: 23.1189° N, 83.1979° E • {{ farmerService.farmer().name }}</span>
+          </div>
+        </div>
+
+        <!-- Sample Switcher -->
+        <div>
+          <label class="text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1.5 block">Select Camera Feed / Uploaded Frame:</label>
+          <div class="grid grid-cols-3 gap-2">
+            @for (sample of sampleImages; track sample.url) {
+              <button type="button" 
+                      (click)="selectSample(sample.url)"
+                      [class]="selectedImage() === sample.url 
+                        ? 'p-1.5 rounded-xl border-2 border-[#16a34a] bg-emerald-50 text-[11px] font-bold text-emerald-900 text-left truncate' 
+                        : 'p-1.5 rounded-xl border border-slate-200 bg-white text-[11px] font-medium text-slate-600 text-left hover:border-emerald-300 truncate'">
+                {{ sample.label }}
+              </button>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Growth Notes -->
+      <div class="mb-5">
+        <label class="text-xs font-bold text-slate-700 block mb-1">Growth & Care Notes</label>
+        <textarea [(ngModel)]="notes" 
+                  rows="2" 
+                  class="w-full p-3 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                  placeholder="Describe sapling conditions, watering, fertilizer applied..."></textarea>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex items-center gap-3">
+        <button (click)="close.emit()" class="flex-1 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition-all">
+          Cancel
+        </button>
+        <button (click)="submitPhoto()" 
+                [disabled]="isSubmitting()"
+                class="flex-1 py-2.5 rounded-xl bg-[#0c3823] hover:bg-[#145335] text-white font-bold text-xs shadow-md transition-all flex items-center justify-center gap-2">
+          @if (isSubmitting()) {
+            <span class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+            <span>Auditing Foliage...</span>
+          } @else {
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            <span>Submit Verification</span>
+          }
+        </button>
+      </div>
+    }
+  </div>
+</div>

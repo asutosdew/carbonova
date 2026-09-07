@@ -1,0 +1,368 @@
+<div class="space-y-4 sm:space-y-6 max-w-7xl mx-auto pb-12">
+  <!-- Top Referral Hub & Direct Link -->
+  <div class="bg-gradient-to-br from-[#0c3823] via-[#10482c] to-[#15803d] rounded-3xl p-4 sm:p-8 text-white shadow-xl flex flex-col lg:flex-row items-center justify-between gap-5 border border-[#22c55e]/30">
+    <div class="space-y-2 text-center lg:text-left">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md text-emerald-200 text-xs font-bold border border-white/20">
+        <span>👥</span>
+        <span>AFFILIATE ONBOARDING & TEAM NETWORK</span>
+      </div>
+      <h2 class="text-xl sm:text-3xl font-black tracking-tight">Partner Network & Genealogy Tree</h2>
+      <p class="text-xs sm:text-sm text-emerald-100/80 max-w-xl">
+        Share your unique referral link to empower fellow farmers. Earn 10% direct sponsor commissions and unlock 10 depth levels of passive carbon royalty.
+      </p>
+    </div>
+
+    <!-- Referral Link Box -->
+    <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl p-4 sm:p-5 w-full lg:w-auto min-w-0 shadow-lg space-y-3">
+      <div>
+        <span class="text-xs font-bold text-emerald-200 uppercase tracking-wider block">Your Farmer Sponsor Link</span>
+        <div class="flex items-center gap-2 mt-1.5 bg-black/30 p-2 rounded-xl border border-white/10 font-mono text-xs text-emerald-300 select-all overflow-x-auto">
+          <span>{{ teamService.referralLink() }}</span>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button (click)="copyReferralLink()" class="flex-1 py-2 px-3 rounded-xl bg-[#22c55e] hover:bg-[#16a34a] text-[#061c11] font-black text-xs shadow-md transition-all flex items-center justify-center gap-1.5">
+          @if (copyFeedback()) {
+            <span>✓ Link Copied!</span>
+          } @else {
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+            <span>Copy Affiliate Link</span>
+          }
+        </button>
+
+        <button (click)="showQrModal.set(true)" class="py-2 px-3 rounded-xl bg-white/20 hover:bg-white/30 text-white font-bold text-xs shadow-md transition-all flex items-center justify-center gap-1">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="5" height="5" x="3" y="3" rx="1"/><rect width="5" height="5" x="16" y="3" rx="1"/><rect width="5" height="5" x="3" y="16" rx="1"/><path d="M21 16h-3a2 2 0 0 0-2 2v3"/><path d="M21 21v.01"/><path d="M12 7v3a2 2 0 0 1-2 2H7"/><path d="M3 12h.01"/><path d="M12 3h.01"/><path d="M12 16v.01"/><path d="M16 12h1"/><path d="M21 12v.01"/><path d="M12 21v-1"/></svg>
+          <span>QR Code</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Team KPI Stats -->
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="carbon-card p-4 sm:p-5">
+      <span class="text-xs font-bold text-slate-500 block">Direct Sponsors</span>
+      <div class="text-2xl font-black text-slate-900 font-mono mt-1">
+        {{ teamService.teamStats().totalDirects }} <span class="text-xs font-semibold text-emerald-700">Active</span>
+      </div>
+      <p class="text-[11px] text-slate-500 mt-1">100% active plantation rate</p>
+    </div>
+
+    <div class="carbon-card p-4 sm:p-5">
+      <span class="text-xs font-bold text-slate-500 block">Total Downline Network</span>
+      <div class="text-2xl font-black text-slate-900 font-mono mt-1">
+        {{ teamService.teamStats().totalDownlineTeam }} <span class="text-xs font-semibold text-slate-500">Farmers</span>
+      </div>
+      <p class="text-[11px] text-emerald-700 font-semibold mt-1">Spanning all 10 active levels</p>
+    </div>
+
+    <div class="carbon-card p-4 sm:p-5">
+      <span class="text-xs font-bold text-slate-500 block">Total Business Volume (BV)</span>
+      <div class="text-2xl font-black text-emerald-800 font-mono mt-1">
+        ₹{{ teamService.teamStats().totalNetworkVolume.toLocaleString() }}
+      </div>
+      <p class="text-[11px] text-slate-500 mt-1">Package sales across 10 levels</p>
+    </div>
+
+    <div class="carbon-card p-4 sm:p-5">
+      <span class="text-xs font-bold text-slate-500 block">10-Level Commission</span>
+      <div class="text-2xl font-black text-[#15803d] font-mono mt-1">
+        ₹{{ teamService.teamStats().totalLevelIncome.toLocaleString() }}
+      </div>
+      <p class="text-[11px] text-slate-500 mt-1">10-level dynamic affiliate income</p>
+    </div>
+  </div>
+
+  <!-- Interactive Partner Genealogy Tree Visualizer -->
+  <div class="carbon-card p-6 overflow-hidden">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 pb-3 border-b border-slate-100">
+      <div>
+        <h3 class="text-base sm:text-lg font-black text-slate-900 flex items-center gap-2">
+          <span>🌳</span>
+          <span>Interactive Visual Partner Genealogy Tree (10 Levels)</span>
+        </h3>
+        <p class="text-xs text-slate-500">Explore downline farmers, package tiers, and carbon points in your tree down to 10 generations.</p>
+      </div>
+      <span class="text-xs font-semibold text-emerald-800 bg-emerald-100 px-3 py-1 rounded-full border border-emerald-200">
+        10-Level Genealogy Active
+      </span>
+    </div>
+
+    <!-- Tree View Layout Container -->
+    <div class="overflow-x-auto py-6 min-h-[420px] flex justify-center">
+      <div class="flex flex-col items-center space-y-8 min-w-[700px]">
+        
+        <!-- ROOT NODE (Sandeep) -->
+        <div class="flex flex-col items-center">
+          <div (click)="inspectNode(teamService.genealogyRoot())"
+               class="p-4 rounded-3xl bg-gradient-to-br from-[#0c3823] to-[#15803d] text-white shadow-xl border-2 border-[#4ade80] cursor-pointer hover:scale-105 transition-all text-center w-56 relative group">
+            <span class="absolute -top-2.5 bg-[#22c55e] text-[#061c11] text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">
+              YOU (SPONSOR)
+            </span>
+            <div class="w-12 h-12 rounded-full overflow-hidden border-2 border-white mx-auto mb-2 shadow-md">
+              <img [src]="teamService.genealogyRoot().avatar" alt="Sandeep" class="w-full h-full object-cover">
+            </div>
+            <h4 class="font-extrabold text-sm">{{ teamService.genealogyRoot().name }}</h4>
+            <p class="text-[11px] text-emerald-200 font-mono">{{ teamService.genealogyRoot().farmerId }}</p>
+            <div class="mt-2 pt-2 border-t border-white/20 flex justify-around text-[10px] text-emerald-100 font-semibold">
+              <span>Directs: {{ teamService.genealogyRoot().directCount }}</span>
+              <span>•</span>
+              <span>Team: {{ teamService.genealogyRoot().teamCount }}</span>
+            </div>
+          </div>
+          <!-- Connecting Stem -->
+          <div class="w-0.5 h-8 bg-emerald-600"></div>
+        </div>
+
+        <!-- LEVEL 1 BRANCH (Direct Referrals) -->
+        <div class="relative w-full">
+          <!-- Horizontal connector bar -->
+          <div class="absolute top-0 left-12 right-12 h-0.5 bg-emerald-300"></div>
+          
+          <div class="grid grid-cols-5 gap-3 pt-6">
+            @for (child of teamService.genealogyRoot().children; track child.id) {
+              <div class="flex flex-col items-center">
+                <!-- Vertical branch hook -->
+                <div class="w-0.5 h-6 bg-emerald-300 -mt-6"></div>
+
+                <!-- Farmer Card -->
+                <div (click)="inspectNode(child)"
+                     class="p-3 bg-white hover:bg-emerald-50/60 border border-emerald-200 rounded-2xl shadow-sm hover:shadow-md transition-all cursor-pointer text-center w-full max-w-[130px] group">
+                  <div class="w-9 h-9 rounded-full overflow-hidden border border-emerald-500 mx-auto mb-1.5">
+                    <img [src]="child.avatar" [alt]="child.name" class="w-full h-full object-cover">
+                  </div>
+                  <h5 class="font-bold text-slate-900 text-xs truncate">{{ child.name }}</h5>
+                  <p class="text-[10px] text-slate-500 font-mono">{{ child.farmerId }}</p>
+                  <span class="inline-block mt-1 px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[9px] font-bold">
+                    {{ child.totalPlants }} Plants
+                  </span>
+                </div>
+
+                <!-- Level 2 Sub-branch indicator if has children -->
+                @if (child.children && child.children.length > 0) {
+                  <div class="w-0.5 h-4 bg-emerald-200 mt-1"></div>
+                  <button (click)="inspectNode(child)" class="px-2 py-0.5 rounded-full bg-emerald-100 hover:bg-emerald-200 text-[#15803d] text-[9px] font-bold mt-0.5 flex items-center gap-1 transition-all">
+                    <span>Downline Levels (2 to 10)</span>
+                    <span>→</span>
+                  </button>
+                }
+              </div>
+            }
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Level-wise Stats Breakdown (ALL 10 LEVELS) -->
+  <div class="carbon-card p-6">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 pb-3 border-b border-slate-100">
+      <div>
+        <h3 class="text-base sm:text-lg font-black text-slate-900 flex items-center gap-2">
+          <span>📈</span>
+          <span>10-Level Team Distribution & Volume</span>
+        </h3>
+        <p class="text-xs text-slate-500">Breakdown of network members, package volume, and commission rate across each of the 10 levels.</p>
+      </div>
+      <span class="text-xs font-mono font-bold text-emerald-800 bg-emerald-100 px-3 py-1 rounded-full">
+        Total: 128 Farmers • ₹12,80,000 BV
+      </span>
+    </div>
+
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+      @for (stat of teamService.levelStats(); track stat.level) {
+        <div class="p-3.5 bg-slate-50 hover:bg-emerald-50/50 border border-slate-200 hover:border-emerald-300 rounded-2xl text-center transition-all">
+          <div class="flex items-center justify-between text-[11px] font-bold mb-1">
+            <span class="text-slate-700">Level {{ stat.level }}</span>
+            <span class="bg-emerald-100 text-emerald-800 text-[10px] px-1.5 py-0.2 rounded font-black">{{ stat.commissionPercentage }}%</span>
+          </div>
+          <div class="text-xl font-black text-slate-900 font-mono my-0.5">{{ stat.totalMembers }} <span class="text-xs font-normal text-slate-500">Farmers</span></div>
+          <p class="text-[11px] text-emerald-800 font-bold">₹{{ stat.totalBusiness.toLocaleString() }} BV</p>
+          <div class="mt-1 pt-1 border-t border-slate-200 text-[10px] flex justify-between text-slate-500 font-medium">
+            <span>Income:</span>
+            <strong class="text-slate-900 font-mono">₹{{ stat.earnedAmount.toLocaleString() }}</strong>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Downline Members Directory Table -->
+  <div class="carbon-card p-6">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-5 pb-3 border-b border-slate-100">
+      <div>
+        <h3 class="text-base sm:text-lg font-black text-slate-900 flex items-center gap-2">
+          <span>📋</span>
+          <span>10-Level Downline Farmers Directory</span>
+        </h3>
+        <p class="text-xs text-slate-500">Search and filter active affiliate farmers across any of the 10 levels.</p>
+      </div>
+
+      <!-- Search & Filter Controls -->
+      <div class="flex flex-col sm:flex-row items-center gap-2.5">
+        <div class="relative w-full sm:w-60">
+          <input type="text" 
+                 [(ngModel)]="searchQuery"
+                 (ngModelChange)="onSearchChange()"
+                 placeholder="Search name, ID, location..."
+                 class="w-full pl-8 pr-3 py-1.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+          <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs">🔍</span>
+        </div>
+
+        <select [(ngModel)]="selectedLevelFilter" (ngModelChange)="onLevelChange()" class="w-full sm:w-auto px-3 py-1.5 rounded-xl border border-slate-200 text-xs bg-white font-medium text-slate-700 focus:outline-none">
+          <option [ngValue]="'ALL'">All 10 Levels (128 Farmers)</option>
+          <option [ngValue]="1">Level 1 (Directs • 10%)</option>
+          <option [ngValue]="2">Level 2 (5%)</option>
+          <option [ngValue]="3">Level 3 (3%)</option>
+          <option [ngValue]="4">Level 4 (2%)</option>
+          <option [ngValue]="5">Level 5 (2%)</option>
+          <option [ngValue]="6">Level 6 (1%)</option>
+          <option [ngValue]="7">Level 7 (1%)</option>
+          <option [ngValue]="8">Level 8 (1%)</option>
+          <option [ngValue]="9">Level 9 (0.5%)</option>
+          <option [ngValue]="10">Level 10 (0.5%)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Members Table -->
+    <div class="overflow-x-auto">
+      <table class="w-full text-xs">
+        <thead>
+          <tr class="text-slate-400 border-b border-slate-200 uppercase tracking-wider font-bold text-[11px]">
+            <th class="text-left py-2.5 font-bold">Farmer</th>
+            <th class="text-center py-2.5 font-bold">Level</th>
+            <th class="text-left py-2.5 font-bold">Package Active</th>
+            <th class="text-center py-2.5 font-bold">Plants (Active)</th>
+            <th class="text-center py-2.5 font-bold">Carbon Credits</th>
+            <th class="text-center py-2.5 font-bold">Team Size</th>
+            <th class="text-right py-2.5 font-bold">Location</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 font-medium">
+          @for (member of paginatedMembers(); track member.id) {
+            <tr class="hover:bg-slate-50/80 transition-colors">
+              <td class="py-3 flex items-center gap-3">
+                <img [src]="member.avatar" [alt]="member.name" class="w-8 h-8 rounded-full object-cover border border-slate-200">
+                <div>
+                  <h6 class="font-bold text-slate-900 text-xs">{{ member.name }}</h6>
+                  <p class="text-[10px] text-slate-500 font-mono">{{ member.farmerId }}</p>
+                </div>
+              </td>
+              <td class="py-3 text-center">
+                <span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 font-bold text-[10px]">
+                  L{{ member.level }}
+                </span>
+              </td>
+              <td class="py-3 text-slate-800 font-semibold">
+                {{ member.package }}
+              </td>
+              <td class="py-3 text-center font-bold font-mono text-emerald-800">
+                {{ member.activePlants }} / {{ member.totalPlants }}
+              </td>
+              <td class="py-3 text-center font-mono font-bold text-[#15803d]">
+                🪙 {{ member.carbonCredits.toLocaleString() }}
+              </td>
+              <td class="py-3 text-center text-slate-700">
+                {{ member.directCount }} Directs ({{ member.teamCount }} Team)
+              </td>
+              <td class="py-3 text-right text-slate-600">
+                📍 {{ member.location }}
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination Controls -->
+    <app-pagination [totalItems]="filteredMembers().length"
+                    [pageSize]="pageSize()"
+                    [currentPage]="currentPage()"
+                    [pageSizeOptions]="[5, 10, 20]"
+                    (pageChange)="onPageChange($event)"
+                    (pageSizeChange)="onPageSizeChange($event)">
+    </app-pagination>
+  </div>
+</div>
+
+<!-- QR Code Modal -->
+@if (showQrModal()) {
+  <div class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4" (click)="showQrModal.set(false)">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 text-center shadow-2xl border border-emerald-100" (click)="$event.stopPropagation()">
+      <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-[#16a34a] flex items-center justify-center mx-auto mb-3 text-xl font-bold">
+        🌿
+      </div>
+      <h3 class="font-black text-slate-900 text-base">Carbonova Referral QR</h3>
+      <p class="text-xs text-slate-500 mb-4">Scan with phone camera to join under Sandeep (CGC-157059)</p>
+
+      <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200 inline-block mb-4 shadow-inner">
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=https://carbonova.eco/join?ref=CGC-157059" 
+             alt="Referral QR Code" 
+             class="w-44 h-44 mx-auto rounded-lg">
+      </div>
+
+      <div class="p-2.5 bg-emerald-50 rounded-xl text-emerald-950 font-mono text-xs font-bold mb-4">
+        Referral Code: CGC-157059
+      </div>
+
+      <button (click)="showQrModal.set(false)" class="w-full py-2.5 rounded-xl bg-[#0c3823] text-white font-bold text-xs shadow-md">
+        Close
+      </button>
+    </div>
+  </div>
+}
+
+<!-- Node Inspector Modal -->
+@if (selectedNode()) {
+  <div class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4" (click)="selectedNode.set(null)">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-emerald-100" (click)="$event.stopPropagation()">
+      <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-100">
+        <h4 class="font-bold text-sm text-slate-900">Farmer Affiliate Card</h4>
+        <button (click)="selectedNode.set(null)" class="text-slate-400 hover:text-slate-700">✕</button>
+      </div>
+
+      <div class="flex items-center gap-4 mb-4">
+        <div class="w-16 h-16 rounded-full overflow-hidden border-2 border-emerald-500 shadow-md">
+          <img [src]="selectedNode()?.avatar" [alt]="selectedNode()?.name" class="w-full h-full object-cover">
+        </div>
+        <div>
+          <h3 class="font-black text-base text-slate-900">{{ selectedNode()?.name }}</h3>
+          <p class="text-xs text-slate-500 font-mono">ID: {{ selectedNode()?.farmerId }}</p>
+          <span class="inline-block mt-1 px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-black">
+            {{ selectedNode()?.rank }}
+          </span>
+        </div>
+      </div>
+
+      <div class="space-y-2 text-xs bg-slate-50 p-3.5 rounded-2xl border border-slate-200 mb-4">
+        <div class="flex justify-between">
+          <span class="text-slate-500">Package Tier:</span>
+          <strong class="text-slate-900">{{ selectedNode()?.package }}</strong>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-slate-500">Total Planted Saplings:</span>
+          <strong class="text-slate-900">{{ selectedNode()?.totalPlants }} Trees</strong>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-slate-500">Direct Sponsored:</span>
+          <strong class="text-slate-900">{{ selectedNode()?.directCount }} Farmers</strong>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-slate-500">Total Downline Team:</span>
+          <strong class="text-slate-900">{{ selectedNode()?.teamCount }} Farmers</strong>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-slate-500">Carbon Credits Earned:</span>
+          <strong class="text-emerald-700">🪙 {{ selectedNode()?.carbonCredits }} Pts</strong>
+        </div>
+      </div>
+
+      <button (click)="selectedNode.set(null)" class="w-full py-2.5 rounded-xl bg-[#0c3823] text-white font-bold text-xs shadow-md">
+        Close Inspector
+      </button>
+    </div>
+  </div>
+}

@@ -1,0 +1,135 @@
+﻿<div class="space-y-6 max-w-7xl mx-auto pb-12">
+  <!-- Farm Header Banner -->
+  <div class="bg-gradient-to-br from-[#0c3823] via-[#10482c] to-[#15803d] rounded-3xl p-6 sm:p-8 text-white shadow-xl flex flex-col md:flex-row items-center justify-between gap-6 border border-[#22c55e]/30">
+    <div class="space-y-2 text-center md:text-left">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md text-emerald-200 text-xs font-bold border border-white/20">
+        <span>📍</span>
+        <span>GEO-MAPPED AGROFORESTRY PLOT</span>
+      </div>
+      <h2 class="text-2xl sm:text-3xl font-black tracking-tight">Sandeep's Carbonova Farm Plot</h2>
+      <p class="text-xs sm:text-sm text-emerald-100/80 max-w-xl">
+        Ambikapur, Surguja District, Chhattisgarh • 0.25 Acre High-Density Multi-Tier Agroforestry Model.
+      </p>
+    </div>
+
+    <!-- Farm Quick Stat -->
+    <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl p-5 text-center min-w-[220px] shadow-lg">
+      <span class="text-xs font-bold text-emerald-200 uppercase tracking-wider block">Survival Metric</span>
+      <div class="text-3xl font-black text-white font-mono my-1">
+        38 / 40 <span class="text-xs font-normal text-emerald-200">Trees</span>
+      </div>
+      <span class="text-xs font-bold text-[#86efac] bg-emerald-950/60 px-3 py-0.5 rounded-full inline-block mt-1">
+        95% Optimal Survival
+      </span>
+    </div>
+  </div>
+
+  <!-- Farm Map & Soil Vitals Grid -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Visual Farm Map Layout -->
+    <div class="lg:col-span-2 carbon-card p-6">
+      <h3 class="text-base sm:text-lg font-black text-slate-900 flex items-center gap-2 mb-4">
+        <span>🗺️</span>
+        <span>Geotagged Plantation Layout</span>
+      </h3>
+
+      <div class="relative h-64 sm:h-80 w-full rounded-2xl overflow-hidden mb-4 border border-emerald-200 bg-slate-900 group">
+        <img src="https://images.unsplash.com/photo-1500937386664-56d1dfef3854?w=800&auto=format&fit=crop&q=80" 
+             alt="Farm Plot Satellite" 
+             class="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-700">
+        
+        <!-- Plot Overlay Grid -->
+        <div class="absolute inset-0 p-4 grid grid-cols-3 gap-2 pointer-events-none">
+          <div class="border border-dashed border-emerald-400/80 bg-emerald-950/40 rounded-xl p-2 text-white text-[10px] flex flex-col justify-between">
+            <span class="font-bold bg-emerald-600/80 px-1.5 py-0.5 rounded self-start">Zone A: Jackfruit</span>
+            <span class="font-mono">10 Trees • 10 Active</span>
+          </div>
+
+          <div class="border border-dashed border-emerald-400/80 bg-emerald-950/40 rounded-xl p-2 text-white text-[10px] flex flex-col justify-between">
+            <span class="font-bold bg-emerald-600/80 px-1.5 py-0.5 rounded self-start">Zone B: Lemon</span>
+            <span class="font-mono">10 Trees • 9 Active</span>
+          </div>
+
+          <div class="border border-dashed border-emerald-400/80 bg-emerald-950/40 rounded-xl p-2 text-white text-[10px] flex flex-col justify-between">
+            <span class="font-bold bg-emerald-600/80 px-1.5 py-0.5 rounded self-start">Zone C: Moringa</span>
+            <span class="font-mono">20 Trees • 19 Active</span>
+          </div>
+        </div>
+
+        <div class="absolute bottom-3 left-3 bg-black/70 backdrop-blur-md px-3 py-1 rounded-xl text-[10px] text-white font-mono flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+          <span>Lat: 23.1189° N • Lon: 83.1979° E • Elevation: 620m</span>
+        </div>
+      </div>
+
+      <!-- Soil Health Index -->
+      <div class="grid grid-cols-3 gap-3 text-center">
+        <div class="p-3 bg-slate-50 border border-slate-200 rounded-2xl">
+          <span class="text-[10px] text-slate-500 font-bold uppercase block">Soil pH</span>
+          <span class="text-base font-black text-slate-900 font-mono">6.8 (Neutral)</span>
+        </div>
+        <div class="p-3 bg-slate-50 border border-slate-200 rounded-2xl">
+          <span class="text-[10px] text-slate-500 font-bold uppercase block">Organic Carbon</span>
+          <span class="text-base font-black text-emerald-800 font-mono">0.85% (High)</span>
+        </div>
+        <div class="p-3 bg-slate-50 border border-slate-200 rounded-2xl">
+          <span class="text-[10px] text-slate-500 font-bold uppercase block">Moisture Level</span>
+          <span class="text-base font-black text-blue-700 font-mono">68% (Optimal)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tasks & Agronomy Schedule -->
+    <div class="carbon-card p-6 space-y-4">
+      <h3 class="text-base sm:text-lg font-black text-slate-900 flex items-center gap-2">
+        <span>🗓️</span>
+        <span>Agronomy & Care Schedule</span>
+      </h3>
+
+      <div class="space-y-3">
+        @for (task of farmTasks; track task.title) {
+          <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-2xl space-y-1.5">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
+                {{ task.tag }}
+              </span>
+              <span class="text-xs text-slate-500 font-medium">{{ task.due }}</span>
+            </div>
+            <h5 class="text-xs font-bold text-slate-900 flex items-center gap-2">
+              <span>{{ task.icon }}</span>
+              <span>{{ task.title }}</span>
+            </h5>
+          </div>
+        }
+      </div>
+
+      <div class="p-3 bg-emerald-50 rounded-2xl border border-emerald-200 text-xs text-emerald-900 font-medium">
+        💡 <strong>Pro Tip:</strong> Applying bio-fertilizers during the active vegetative stage increases root exudation and locks organic carbon in deep subsoil.
+      </div>
+    </div>
+  </div>
+
+  <!-- Plant Species Inventory Details -->
+  <div class="carbon-card p-6">
+    <h3 class="text-base sm:text-lg font-black text-slate-900 flex items-center gap-2 mb-4">
+      <span>🌿</span>
+      <span>Planted Batches Inventory</span>
+    </h3>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      @for (plant of farmerService.plants(); track plant.id) {
+        <div class="p-4 bg-slate-50 border border-slate-200 rounded-2xl flex gap-3.5 items-center">
+          <img [src]="plant.image" [alt]="plant.name" class="w-16 h-16 rounded-xl object-cover border border-slate-300">
+          <div class="flex-1">
+            <h4 class="font-bold text-slate-900 text-sm">{{ plant.name }}</h4>
+            <p class="text-[11px] text-slate-500 italic">{{ plant.scientificName }}</p>
+            <div class="flex items-center justify-between mt-2 pt-2 border-t border-slate-200 text-xs">
+              <span class="font-bold text-emerald-800">{{ plant.status }}</span>
+              <span class="font-mono text-slate-600">{{ plant.carbonRatePerYearKg }} kg CO₂/yr</span>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</div>

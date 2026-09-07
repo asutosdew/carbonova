@@ -1,0 +1,57 @@
+﻿<div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 pb-1 border-t border-slate-100 text-xs text-slate-600">
+  
+  <!-- Showing entries summary -->
+  <div class="flex items-center gap-3">
+    <span class="font-medium text-slate-500">
+      Showing <strong class="text-slate-900 font-bold">{{ startIndex }}</strong> to 
+      <strong class="text-slate-900 font-bold">{{ endIndex }}</strong> of 
+      <strong class="text-slate-900 font-bold">{{ totalItems }}</strong> entries
+    </span>
+
+    @if (showPageSize && pageSizeOptions.length > 0) {
+      <div class="flex items-center gap-1.5 text-xs">
+        <label class="text-slate-400 text-[11px]">Rows:</label>
+        <select [value]="pageSize" 
+                (change)="onPageSizeSelect($event)" 
+                class="py-1 px-2 rounded-lg border border-slate-200 bg-white text-slate-700 font-semibold text-xs focus:ring-1 focus:ring-[#22c55e] focus:outline-none">
+          @for (opt of pageSizeOptions; track opt) {
+            <option [value]="opt">{{ opt }}</option>
+          }
+        </select>
+      </div>
+    }
+  </div>
+
+  <!-- Page Navigation Controls -->
+  @if (totalPages > 1) {
+    <div class="flex items-center gap-1">
+      
+      <!-- Previous Button -->
+      <button (click)="goToPage(currentPage - 1)" 
+              [disabled]="currentPage === 1" 
+              class="p-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:pointer-events-none transition-all flex items-center justify-center"
+              title="Previous Page">
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m15 18-6-6 6-6"/></svg>
+      </button>
+
+      <!-- Page Numbers -->
+      @for (p of pages; track p) {
+        <button (click)="goToPage(p)" 
+                [class]="p === currentPage 
+                  ? 'w-7 h-7 rounded-lg bg-[#0c3823] text-white font-bold text-xs shadow-sm flex items-center justify-center' 
+                  : 'w-7 h-7 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-100 font-semibold text-xs flex items-center justify-center transition-all'">
+          {{ p }}
+        </button>
+      }
+
+      <!-- Next Button -->
+      <button (click)="goToPage(currentPage + 1)" 
+              [disabled]="currentPage === totalPages" 
+              class="p-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:pointer-events-none transition-all flex items-center justify-center"
+              title="Next Page">
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg>
+      </button>
+
+    </div>
+  }
+</div>

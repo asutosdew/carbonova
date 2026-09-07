@@ -1,0 +1,335 @@
+<div class="space-y-4 sm:space-y-6 max-w-7xl mx-auto pb-12">
+  <!-- Top Banner & Wallet Action -->
+  <div class="bg-gradient-to-br from-[#0c3823] via-[#10482c] to-[#15803d] rounded-3xl p-4 sm:p-8 text-white shadow-xl flex flex-col md:flex-row items-center justify-between gap-5 border border-[#22c55e]/30">
+    <div class="space-y-2 text-center md:text-left">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md text-emerald-200 text-xs font-bold border border-white/20">
+        <span>🪙</span>
+        <span>CARBONOVA PARTNER AFFILIATE COMPENSATION PLAN</span>
+      </div>
+      <h2 class="text-xl sm:text-3xl font-black tracking-tight">Income & Earnings Overview</h2>
+      <p class="text-xs sm:text-sm text-emerald-100/80 max-w-xl">
+        Transparent multi-tier revenue distribution from plant packages, bio-fertilizer repeat orders, global company autopools, and corporate carbon credit monetization.
+      </p>
+    </div>
+
+    <!-- Wallet Balance Box -->
+    <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl p-4 sm:p-5 text-center w-full md:w-auto min-w-0 shadow-lg">
+      <span class="text-xs font-bold text-emerald-200 uppercase tracking-wider block">Withdrawable Balance</span>
+      <div class="text-2xl sm:text-3xl font-black text-white font-mono my-1">
+        ₹{{ incomeService.breakdown().walletBalance.toLocaleString() }}
+      </div>
+      <p class="text-[11px] text-emerald-200/80 mb-3">TDS (5%) & Admin (5%) applicable</p>
+      <button (click)="showWithdrawalModal.set(true)" class="w-full py-2.5 px-4 rounded-xl bg-[#22c55e] hover:bg-[#16a34a] text-[#061c11] font-black text-xs shadow-md transition-all active:scale-95 flex items-center justify-center gap-2">
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"/><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"/></svg>
+        <span>Withdraw to Bank</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Income Metrics Grid (6 Main Pillars) -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <!-- Card 1: Total Earnings -->
+    <div class="carbon-card p-5 border-l-4 border-l-[#15803d]">
+      <div class="flex items-center justify-between text-slate-500 text-xs mb-1">
+        <span class="font-bold">Total Lifetime Income</span>
+        <span class="text-emerald-700 text-base">💰</span>
+      </div>
+      <div class="text-2xl font-black text-slate-900 font-mono">
+        ₹{{ incomeService.breakdown().totalEarned.toLocaleString() }}
+      </div>
+      <p class="text-[11px] text-slate-500 mt-1 font-medium">Accumulated across all tiers</p>
+    </div>
+
+    <!-- Card 2: Direct Referral -->
+    <div class="carbon-card p-5 border-l-4 border-l-emerald-500">
+      <div class="flex items-center justify-between text-slate-500 text-xs mb-1">
+        <span class="font-bold">Direct Referral Income</span>
+        <span class="text-emerald-700 text-base">🤝</span>
+      </div>
+      <div class="text-2xl font-black text-emerald-800 font-mono">
+        ₹{{ incomeService.breakdown().directIncome.toLocaleString() }}
+      </div>
+      <p class="text-[11px] text-slate-500 mt-1 font-medium">10% instant commission on direct packages</p>
+    </div>
+
+    <!-- Card 3: Level Income -->
+    <div class="carbon-card p-5 border-l-4 border-l-blue-600">
+      <div class="flex items-center justify-between text-slate-500 text-xs mb-1">
+        <span class="font-bold">10-Level Affiliate Income</span>
+        <span class="text-blue-600 text-base">📊</span>
+      </div>
+      <div class="text-2xl font-black text-slate-900 font-mono">
+        ₹{{ incomeService.breakdown().levelIncome.toLocaleString() }}
+      </div>
+      <p class="text-[11px] text-slate-500 mt-1 font-medium">Levels 1 to 10 downline commissions</p>
+    </div>
+
+    <!-- Card 4: Autopool Income -->
+    <div class="carbon-card p-5 border-l-4 border-l-amber-500">
+      <div class="flex items-center justify-between text-slate-500 text-xs mb-1">
+        <span class="font-bold">Global Autopool Income</span>
+        <span class="text-amber-500 text-base">🌐</span>
+      </div>
+      <div class="text-2xl font-black text-slate-900 font-mono">
+        ₹{{ incomeService.breakdown().autopoolIncome.toLocaleString() }}
+      </div>
+      <p class="text-[11px] text-slate-500 mt-1 font-medium">Company-wide non-working matrix spillover</p>
+    </div>
+
+    <!-- Card 5: Carbon Credit Royalty -->
+    <div class="carbon-card p-5 border-l-4 border-l-[#22c55e]">
+      <div class="flex items-center justify-between text-slate-500 text-xs mb-1">
+        <span class="font-bold">Carbon Credit Royalty</span>
+        <span class="text-emerald-600 text-base">🌍</span>
+      </div>
+      <div class="text-2xl font-black text-emerald-800 font-mono">
+        ₹{{ incomeService.breakdown().carbonRoyalty.toLocaleString() }}
+      </div>
+      <p class="text-[11px] text-slate-500 mt-1 font-medium">Monthly dividend per verified active plant</p>
+    </div>
+
+    <!-- Card 6: Fertilizer Cashback -->
+    <div class="carbon-card p-5 border-l-4 border-l-teal-600">
+      <div class="flex items-center justify-between text-slate-500 text-xs mb-1">
+        <span class="font-bold">Bio-Fertilizer Rebate</span>
+        <span class="text-teal-600 text-base">🧪</span>
+      </div>
+      <div class="text-2xl font-black text-slate-900 font-mono">
+        ₹{{ incomeService.breakdown().fertilizerRebate.toLocaleString() }}
+      </div>
+      <p class="text-[11px] text-slate-500 mt-1 font-medium">Repurchase BV bonus on nutrients & neem</p>
+    </div>
+
+    <!-- Card 7: Total Withdrawn -->
+    <div class="carbon-card p-5 border-l-4 border-l-purple-600">
+      <div class="flex items-center justify-between text-slate-500 text-xs mb-1">
+        <span class="font-bold">Total Disbursed to Bank</span>
+        <span class="text-purple-600 text-base">🏦</span>
+      </div>
+      <div class="text-2xl font-black text-purple-900 font-mono">
+        ₹{{ incomeService.breakdown().withdrawnTotal.toLocaleString() }}
+      </div>
+      <p class="text-[11px] text-slate-500 mt-1 font-medium">Net credited to SBI account</p>
+    </div>
+
+    <!-- Card 8: Active Downline Farmers -->
+    <div class="carbon-card p-5 border-l-4 border-l-emerald-600">
+      <div class="flex items-center justify-between text-slate-500 text-xs mb-1">
+        <span class="font-bold">Network Tree Strength</span>
+        <span class="text-emerald-600 text-base">👥</span>
+      </div>
+      <div class="text-2xl font-black text-slate-900 font-mono">
+        128 <span class="text-xs font-normal text-slate-500">Farmers</span>
+      </div>
+      <p class="text-[11px] text-slate-500 mt-1 font-medium">122 verified active plantation nodes</p>
+    </div>
+  </div>
+
+  <!-- Autopool Club Matrix Progression (Visual Tiers) -->
+  <div class="carbon-card p-6">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-6 pb-3 border-b border-slate-100">
+      <div>
+        <h3 class="text-base sm:text-lg font-black text-slate-900 flex items-center gap-2">
+          <span>🌐</span>
+          <span>Global Company Autopool Matrix Pools</span>
+        </h3>
+        <p class="text-xs text-slate-500">Company-wide automated 2x2 & 3x3 spillover queue. No direct selling needed to cycle.</p>
+      </div>
+      <span class="text-xs font-bold text-emerald-800 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
+        Total Earned: ₹15,000
+      </span>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      @for (pool of incomeService.autopoolTiers(); track pool.id) {
+        <div [class]="pool.status === 'Completed' ? 'p-4 rounded-2xl bg-emerald-50/70 border-2 border-emerald-400/80 shadow-sm relative overflow-hidden'
+                    : pool.status === 'In-Progress' ? 'p-4 rounded-2xl bg-amber-50/70 border-2 border-amber-400 shadow-sm relative overflow-hidden'
+                    : pool.status === 'Active' ? 'p-4 rounded-2xl bg-white border border-slate-200 shadow-sm'
+                    : 'p-4 rounded-2xl bg-slate-50 border border-slate-200 opacity-60'">
+          
+          <div class="flex items-center justify-between mb-3">
+            <span [class]="pool.status === 'Completed' ? 'px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-200 text-emerald-900'
+                         : pool.status === 'In-Progress' ? 'px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-200 text-amber-900'
+                         : 'px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-slate-200 text-slate-700'">
+              {{ pool.badge }} Pool
+            </span>
+            <span class="text-xs font-mono font-bold text-slate-700">Fee: ₹{{ pool.entryFee.toLocaleString() }}</span>
+          </div>
+
+          <h4 class="font-black text-slate-900 text-sm mb-1">{{ pool.name }}</h4>
+          <div class="text-xl font-black text-[#15803d] font-mono mb-3">
+            ₹{{ pool.poolPayout.toLocaleString() }} <span class="text-[10px] font-semibold text-slate-500">Payout</span>
+          </div>
+
+          <!-- Progress Bar -->
+          <div class="space-y-1 mb-3">
+            <div class="flex justify-between text-[11px] text-slate-600 font-semibold">
+              <span>Matrix Fill:</span>
+              <span>{{ pool.currentMembers }} / {{ pool.totalMembers }} Nodes</span>
+            </div>
+            <div class="h-2 w-full bg-slate-200 rounded-full overflow-hidden">
+              <div class="h-full bg-[#16a34a] rounded-full transition-all duration-500" [style.width.%]="pool.progressPercentage"></div>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between text-[11px] pt-2 border-t border-slate-200/60 font-medium">
+            <span class="text-slate-500">Status:</span>
+            <strong [class]="pool.status === 'Completed' ? 'text-emerald-700' : pool.status === 'In-Progress' ? 'text-amber-700' : 'text-slate-600'">
+              {{ pool.status }}
+            </strong>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- 10-Level Commission Structure Table -->
+  <div class="carbon-card p-6">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 pb-3 border-b border-slate-100">
+      <div>
+        <h3 class="text-base sm:text-lg font-black text-slate-900 flex items-center gap-2">
+          <span>📊</span>
+          <span>10-Level Partner Affiliate Structure</span>
+        </h3>
+        <p class="text-xs text-slate-500">Dynamic compression commission rates on downline package activations & repeat repurchases.</p>
+      </div>
+      <div class="text-xs font-mono font-bold text-slate-700">
+        Unlocked Levels: <span class="text-emerald-700 font-black">10 of 10 Active</span> (128 Farmers • ₹34,550 Level Income)
+      </div>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-xs">
+        <thead>
+          <tr class="text-slate-400 border-b border-slate-200 uppercase tracking-wider font-bold text-[11px]">
+            <th class="text-left py-2 font-bold">Level</th>
+            <th class="text-center py-2 font-bold">Commission %</th>
+            <th class="text-center py-2 font-bold">Req. Directs</th>
+            <th class="text-center py-2 font-bold">Downline Team</th>
+            <th class="text-right py-2 font-bold">Total BV</th>
+            <th class="text-right py-2 font-bold">Income Earned</th>
+            <th class="text-center py-2 font-bold">Status</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 font-medium">
+          @for (lvl of paginatedLevels(); track lvl.level) {
+            <tr [class]="lvl.unlocked ? 'hover:bg-slate-50/80 transition-colors' : 'opacity-40 bg-slate-50/40'">
+              <td class="py-3 font-bold text-slate-900">
+                Level {{ lvl.level }}
+              </td>
+              <td class="py-3 text-center font-mono font-black text-emerald-800">
+                {{ lvl.percentage }}%
+              </td>
+              <td class="py-3 text-center text-slate-600">
+                {{ lvl.requiredDirects }} Directs
+              </td>
+              <td class="py-3 text-center font-bold text-slate-800">
+                {{ lvl.teamCount }} Farmers
+              </td>
+              <td class="py-3 text-right font-mono text-slate-700">
+                ₹{{ lvl.businessVolume.toLocaleString() }}
+              </td>
+              <td class="py-3 text-right font-mono font-bold text-slate-900">
+                ₹{{ lvl.totalIncomeEarned.toLocaleString() }}
+              </td>
+              <td class="py-3 text-center">
+                @if (lvl.unlocked) {
+                  <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-black">
+                    ✓ Unlocked
+                  </span>
+                } @else {
+                  <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-slate-200 text-slate-600 text-[10px] font-bold">
+                    🔒 Locked
+                  </span>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Level Table Pagination -->
+    <app-pagination [totalItems]="incomeService.levelCommissionRates().length"
+                    [pageSize]="levelPageSize()"
+                    [currentPage]="levelPage()"
+                    [pageSizeOptions]="[5, 10]"
+                    (pageChange)="onLevelPageChange($event)"
+                    (pageSizeChange)="onLevelPageSizeChange($event)">
+    </app-pagination>
+  </div>
+
+  <!-- Income Ledger & Transactions -->
+  <div class="carbon-card p-6">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 pb-3 border-b border-slate-100">
+      <div>
+        <h3 class="text-base sm:text-lg font-black text-slate-900 flex items-center gap-2">
+          <span>📜</span>
+          <span>Income Ledger & Payout History</span>
+        </h3>
+        <p class="text-xs text-slate-500">Real-time audited transaction history.</p>
+      </div>
+
+      <!-- Filter Buttons -->
+      <div class="flex flex-wrap gap-1.5">
+        <button (click)="setFilter('ALL')" [class]="selectedFilter() === 'ALL' ? 'px-3 py-1 rounded-xl bg-[#0c3823] text-white text-xs font-bold' : 'px-3 py-1 rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 text-xs font-medium'">All</button>
+        <button (click)="setFilter('direct')" [class]="selectedFilter() === 'direct' ? 'px-3 py-1 rounded-xl bg-[#0c3823] text-white text-xs font-bold' : 'px-3 py-1 rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 text-xs font-medium'">Direct</button>
+        <button (click)="setFilter('level')" [class]="selectedFilter() === 'level' ? 'px-3 py-1 rounded-xl bg-[#0c3823] text-white text-xs font-bold' : 'px-3 py-1 rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 text-xs font-medium'">Level</button>
+        <button (click)="setFilter('autopool')" [class]="selectedFilter() === 'autopool' ? 'px-3 py-1 rounded-xl bg-[#0c3823] text-white text-xs font-bold' : 'px-3 py-1 rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 text-xs font-medium'">Autopool</button>
+        <button (click)="setFilter('carbon_royalty')" [class]="selectedFilter() === 'carbon_royalty' ? 'px-3 py-1 rounded-xl bg-[#0c3823] text-white text-xs font-bold' : 'px-3 py-1 rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 text-xs font-medium'">Carbon Royalty</button>
+      </div>
+    </div>
+
+    <!-- Transactions List -->
+    <div class="space-y-3">
+      @for (txn of paginatedTransactions(); track txn.id) {
+        <div class="p-4 bg-slate-50/80 hover:bg-white border border-slate-200/80 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition-all">
+          <div class="flex items-start gap-3.5">
+            <div class="w-10 h-10 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-base flex-shrink-0 mt-0.5">
+              @if (txn.type === 'direct') { 🤝 }
+              @else if (txn.type === 'level') { 📊 }
+              @else if (txn.type === 'autopool') { 🌐 }
+              @else if (txn.type === 'carbon_royalty') { 🍃 }
+              @else { 🧪 }
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <h5 class="text-xs sm:text-sm font-bold text-slate-900">{{ txn.title }}</h5>
+                <span class="text-[10px] px-2 py-0.5 rounded-md bg-slate-200 text-slate-700 font-mono font-bold">{{ txn.id }}</span>
+              </div>
+              <p class="text-xs text-slate-500 mt-0.5">{{ txn.description }}</p>
+              @if (txn.fromFarmerName) {
+                <p class="text-[11px] text-emerald-700 font-semibold mt-0.5">
+                  From: {{ txn.fromFarmerName }} ({{ txn.fromFarmerId }})
+                </p>
+              }
+            </div>
+          </div>
+
+          <div class="text-left sm:text-right flex sm:flex-col items-center sm:items-end justify-between border-t sm:border-t-0 pt-2 sm:pt-0 border-slate-200">
+            <span class="text-base font-black text-[#15803d] font-mono">+₹{{ txn.amount.toLocaleString() }}</span>
+            <div class="flex items-center gap-1.5 text-[11px] text-slate-400 mt-0.5">
+              <span>{{ txn.date }}</span>
+              <span>•</span>
+              <span class="text-emerald-700 font-bold">Completed</span>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Transactions Pagination -->
+    <app-pagination [totalItems]="filteredTransactions().length"
+                    [pageSize]="txnPageSize()"
+                    [currentPage]="txnPage()"
+                    [pageSizeOptions]="[5, 10, 20]"
+                    (pageChange)="onTxnPageChange($event)"
+                    (pageSizeChange)="onTxnPageSizeChange($event)">
+    </app-pagination>
+  </div>
+</div>
+
+<!-- Withdrawal Modal Component -->
+@if (showWithdrawalModal()) {
+  <app-withdrawal-modal (close)="showWithdrawalModal.set(false)"></app-withdrawal-modal>
+}

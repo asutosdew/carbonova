@@ -1,0 +1,322 @@
+<div class="space-y-6 max-w-7xl mx-auto pb-12">
+  <!-- Top Carbon Points & Impact Banner -->
+  <div class="bg-gradient-to-br from-[#0c3823] via-[#10482c] to-[#15803d] rounded-3xl p-6 sm:p-8 text-white shadow-xl flex flex-col lg:flex-row items-center justify-between gap-6 border border-[#22c55e]/30">
+    <div class="space-y-2 text-center lg:text-left">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md text-emerald-200 text-xs font-bold border border-white/20">
+        <span>🪙</span>
+        <span>VERIFIED VOLUNTARY CARBON STANDARD (VCS)</span>
+      </div>
+      <h2 class="text-2xl sm:text-3xl font-black tracking-tight">Green Credits & Carbon Sequestration</h2>
+      <p class="text-xs sm:text-sm text-emerald-100/80 max-w-xl">
+        Transform tree foliage and bio-fertilizer carbon absorption into globally tradeable carbon credits (VCUs) and passive monthly dividend payouts.
+      </p>
+    </div>
+
+    <!-- Carbon Points Box Matching Card 6 -->
+    <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl p-5 text-center min-w-[260px] shadow-lg">
+      <span class="text-xs font-bold text-emerald-200 uppercase tracking-wider block">Your Green Carbon Credits</span>
+      <div class="text-3xl sm:text-4xl font-black text-white font-mono my-1 flex items-center justify-center gap-2">
+        <span>🪙</span>
+        <span>{{ farmerService.greenCredits().points.toLocaleString() }}</span>
+      </div>
+      <div class="flex justify-around text-xs text-emerald-200/90 pt-2 border-t border-white/20 mt-2 font-medium">
+        <span>Offset: <strong>{{ farmerService.greenCredits().co2OffsetKg }} kg CO₂</strong></span>
+        <span>•</span>
+        <span>Status: <strong class="text-[#86efac]">Active</strong></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE DYNAMIC CARBON CALCULATOR -->
+  <div class="carbon-card p-6 sm:p-8">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 pb-4 border-b border-slate-100">
+      <div>
+        <h3 class="text-lg sm:text-xl font-black text-slate-900 flex items-center gap-2">
+          <span>🧮</span>
+          <span>Interactive Carbon Sequestration Engine & Yield Simulator</span>
+        </h3>
+        <p class="text-xs text-slate-500">Calculate annual CO₂ absorption, oxygen generation and revenue based on species count and bio-fertilization.</p>
+      </div>
+      <span class="text-xs font-bold text-emerald-800 bg-emerald-100 px-3 py-1 rounded-full">
+        Real-Time Model
+      </span>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      <!-- Left Inputs: Species Sliders & Bio-Inputs (7 Cols) -->
+      <div class="lg:col-span-7 space-y-5">
+        <h4 class="text-xs font-black text-slate-800 uppercase tracking-wider">1. Planted Tree Quantities</h4>
+
+        <!-- Species Sliders -->
+        <div class="space-y-4">
+          <!-- Jackfruit -->
+          <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-2xl">
+            <div class="flex justify-between items-center text-xs mb-1.5">
+              <span class="font-bold text-slate-800 flex items-center gap-1.5">
+                <span>🌱</span>
+                <span>Vietnam Super Early Jackfruit (28.5 kg CO₂/yr)</span>
+              </span>
+              <span class="font-black text-slate-900 font-mono text-sm">{{ carbonService.calculatorInput().speciesQuantities['jackfruit'] || 0 }} Trees</span>
+            </div>
+            <input type="range" min="0" max="100" step="5"
+                   [ngModel]="carbonService.calculatorInput().speciesQuantities['jackfruit'] || 0"
+                   (ngModelChange)="carbonService.updateSpeciesQuantity('jackfruit', $event)"
+                   class="w-full accent-[#16a34a] cursor-pointer">
+          </div>
+
+          <!-- Lemon -->
+          <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-2xl">
+            <div class="flex justify-between items-center text-xs mb-1.5">
+              <span class="font-bold text-slate-800 flex items-center gap-1.5">
+                <span>🍋</span>
+                <span>Kumbhkat Seedless Lemon (18.2 kg CO₂/yr)</span>
+              </span>
+              <span class="font-black text-slate-900 font-mono text-sm">{{ carbonService.calculatorInput().speciesQuantities['lemon'] || 0 }} Trees</span>
+            </div>
+            <input type="range" min="0" max="100" step="5"
+                   [ngModel]="carbonService.calculatorInput().speciesQuantities['lemon'] || 0"
+                   (ngModelChange)="carbonService.updateSpeciesQuantity('lemon', $event)"
+                   class="w-full accent-[#16a34a] cursor-pointer">
+          </div>
+
+          <!-- Moringa -->
+          <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-2xl">
+            <div class="flex justify-between items-center text-xs mb-1.5">
+              <span class="font-bold text-slate-800 flex items-center gap-1.5">
+                <span>🍃</span>
+                <span>PKM-1 Super Moringa (22.0 kg CO₂/yr)</span>
+              </span>
+              <span class="font-black text-slate-900 font-mono text-sm">{{ carbonService.calculatorInput().speciesQuantities['moringa'] || 0 }} Trees</span>
+            </div>
+            <input type="range" min="0" max="100" step="5"
+                   [ngModel]="carbonService.calculatorInput().speciesQuantities['moringa'] || 0"
+                   (ngModelChange)="carbonService.updateSpeciesQuantity('moringa', $event)"
+                   class="w-full accent-[#16a34a] cursor-pointer">
+          </div>
+
+          <!-- Teak -->
+          <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-2xl">
+            <div class="flex justify-between items-center text-xs mb-1.5">
+              <span class="font-bold text-slate-800 flex items-center gap-1.5">
+                <span>🌲</span>
+                <span>Tissue Culture Super Teak (35.0 kg CO₂/yr)</span>
+              </span>
+              <span class="font-black text-slate-900 font-mono text-sm">{{ carbonService.calculatorInput().speciesQuantities['teak'] || 0 }} Trees</span>
+            </div>
+            <input type="range" min="0" max="100" step="5"
+                   [ngModel]="carbonService.calculatorInput().speciesQuantities['teak'] || 0"
+                   (ngModelChange)="carbonService.updateSpeciesQuantity('teak', $event)"
+                   class="w-full accent-[#16a34a] cursor-pointer">
+          </div>
+
+          <!-- Bamboo -->
+          <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-2xl">
+            <div class="flex justify-between items-center text-xs mb-1.5">
+              <span class="font-bold text-slate-800 flex items-center gap-1.5">
+                <span>🎋</span>
+                <span>Giant Beema Bamboo (45.0 kg CO₂/yr)</span>
+              </span>
+              <span class="font-black text-slate-900 font-mono text-sm">{{ carbonService.calculatorInput().speciesQuantities['bamboo'] || 0 }} Clumps</span>
+            </div>
+            <input type="range" min="0" max="100" step="5"
+                   [ngModel]="carbonService.calculatorInput().speciesQuantities['bamboo'] || 0"
+                   (ngModelChange)="carbonService.updateSpeciesQuantity('bamboo', $event)"
+                   class="w-full accent-[#16a34a] cursor-pointer">
+          </div>
+        </div>
+
+        <h4 class="text-xs font-black text-slate-800 uppercase tracking-wider pt-2">2. Bio-Fertilization & Agronomy Modifiers</h4>
+
+        <!-- Toggles -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <label class="p-3 bg-emerald-50/70 border border-emerald-200 rounded-2xl flex items-center gap-3 cursor-pointer select-none">
+            <input type="checkbox" 
+                   [ngModel]="carbonService.calculatorInput().usingBioFertilizers"
+                   (ngModelChange)="carbonService.updateInput({ usingBioFertilizers: $event })"
+                   class="w-5 h-5 accent-[#16a34a] rounded">
+            <div>
+              <span class="text-xs font-bold text-emerald-950 block">Bio-NPK & Mycorrhiza</span>
+              <span class="text-[10px] text-emerald-700">+25% Sequestration Boost</span>
+            </div>
+          </label>
+
+          <label class="p-3 bg-emerald-50/70 border border-emerald-200 rounded-2xl flex items-center gap-3 cursor-pointer select-none">
+            <input type="checkbox" 
+                   [ngModel]="carbonService.calculatorInput().usingBioPesticides"
+                   (ngModelChange)="carbonService.updateInput({ usingBioPesticides: $event })"
+                   class="w-5 h-5 accent-[#16a34a] rounded">
+            <div>
+              <span class="text-xs font-bold text-emerald-950 block">Neem & Bio-Pesticides</span>
+              <span class="text-[10px] text-emerald-700">+10% Foliage Density</span>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <!-- Right Calculated Output Dashboard (5 Cols) -->
+      <div class="lg:col-span-5 bg-gradient-to-br from-[#0c3823] to-[#145335] text-white p-6 rounded-3xl shadow-xl border border-emerald-400/30 flex flex-col justify-between space-y-6">
+        <div>
+          <div class="flex items-center justify-between pb-3 border-b border-white/20 mb-4">
+            <span class="text-xs font-extrabold uppercase tracking-widest text-[#86efac]">Simulated Output</span>
+            <span class="text-xs font-mono text-emerald-200">{{ carbonService.calculationResult().activeTrees }} Active Trees</span>
+          </div>
+
+          <div class="space-y-4">
+            <!-- Metric 1: Annual CO2 -->
+            <div>
+              <span class="text-[11px] text-emerald-200 font-semibold block">Total Annual CO₂ Absorption</span>
+              <div class="text-3xl font-black text-white font-mono my-0.5">
+                {{ carbonService.calculationResult().totalKgCo2PerYear.toLocaleString() }} <span class="text-base font-medium text-emerald-300">kg CO₂e/yr</span>
+              </div>
+              <span class="text-xs text-[#86efac] font-bold">({{ carbonService.calculationResult().totalTonnesCo2PerYear }} Metric Tonnes CO₂e)</span>
+            </div>
+
+            <!-- Metric 2: Verified Carbon Units -->
+            <div class="p-3 bg-white/10 backdrop-blur-md rounded-2xl border border-white/15">
+              <div class="flex justify-between items-center text-xs">
+                <span class="text-emerald-200 font-semibold">Verified Carbon Units (VCUs):</span>
+                <strong class="text-white font-mono text-base font-black">{{ carbonService.calculationResult().estimatedCarbonCreditsVCU }} Credits</strong>
+              </div>
+            </div>
+
+            <!-- Metric 3: Estimated Revenue -->
+            <div class="p-3.5 bg-[#22c55e]/20 border border-[#22c55e]/40 rounded-2xl">
+              <span class="text-[10px] text-emerald-200 uppercase font-black tracking-wider block">Estimated Corporate Carbon Offsetting Payout</span>
+              <div class="text-2xl font-black text-white font-mono mt-0.5">
+                ₹{{ carbonService.calculationResult().estimatedAnnualRevenueInr.toLocaleString() }} <span class="text-xs font-semibold text-emerald-200">/ year</span>
+              </div>
+              <p class="text-[10px] text-emerald-200/90 mt-0.5">Calculated at ₹1,600 / Tonne voluntary carbon market rate</p>
+            </div>
+
+            <!-- Ecological Equivalencies -->
+            <div class="grid grid-cols-2 gap-2 text-xs pt-1">
+              <div class="p-2.5 bg-black/20 rounded-xl border border-white/10">
+                <span class="text-[10px] text-emerald-300 block">Oxygen Produced:</span>
+                <strong class="font-mono text-white text-sm">{{ carbonService.calculationResult().oxygenProducedKg.toLocaleString() }} kg</strong>
+              </div>
+              <div class="p-2.5 bg-black/20 rounded-xl border border-white/10">
+                <span class="text-[10px] text-emerald-300 block">Car Travel Offset:</span>
+                <strong class="font-mono text-white text-sm">{{ carbonService.calculationResult().equivalentCarEmissionsOffsetKm.toLocaleString() }} km</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-center pt-2">
+          <p class="text-[10px] text-emerald-200/80">
+            🌱 Bio-fertilizers and organic mycorrhiza boost soil carbon storage permanently into deep humus.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OFFICIAL PRINTABLE CARBON CERTIFICATE -->
+  <div class="carbon-card p-6 sm:p-8" id="certificate-print-area">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 pb-4 border-b border-slate-100">
+      <div>
+        <h3 class="text-lg sm:text-xl font-black text-slate-900 flex items-center gap-2">
+          <span>📜</span>
+          <span>Official Carbon Sequestration Certificate</span>
+        </h3>
+        <p class="text-xs text-slate-500">Tamper-proof verifiable digital certificate issued by Carbonova Carbon Registry.</p>
+      </div>
+
+      <button (click)="printCertificate()" class="px-4 py-2 rounded-xl bg-[#0c3823] hover:bg-[#145335] text-white font-bold text-xs shadow-md transition-all flex items-center gap-2 self-start sm:self-auto">
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg>
+        <span>Print / Download PDF</span>
+      </button>
+    </div>
+
+    <!-- Certificate Design -->
+    <div class="border-8 border-double border-[#0c3823] rounded-3xl p-6 sm:p-10 bg-gradient-to-b from-[#fafcfa] to-[#f4f8f4] relative shadow-inner text-center">
+      <!-- Watermark Background -->
+      <div class="absolute inset-0 flex items-center justify-center opacity-5 pointer-events-none">
+        <span class="text-9xl">🌿</span>
+      </div>
+
+      <!-- Top Certificate Header -->
+      <div class="space-y-1 mb-6">
+        <div class="w-14 h-14 mx-auto rounded-2xl bg-[#0c3823] text-[#4ade80] flex items-center justify-center mb-2 shadow-md">
+          <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/></svg>
+        </div>
+        <h2 class="text-2xl sm:text-3xl font-serif font-black tracking-widest text-[#0c3823] uppercase">CARBONOVA CERTIFICATE</h2>
+        <p class="text-xs font-bold text-[#15803d] uppercase tracking-widest">OF VERIFIED CARBON SEQUESTRATION & AFFILIATE STEWARDSHIP</p>
+        <p class="text-[11px] text-slate-400 font-mono">Serial No: {{ carbonService.activeCertificate().certificateNumber }}</p>
+      </div>
+
+      <!-- Certificate Body Text -->
+      <div class="max-w-2xl mx-auto space-y-4 text-xs sm:text-sm text-slate-700 leading-relaxed mb-8">
+        <p>This is to officially certify that registered farmer</p>
+        <h3 class="text-2xl sm:text-3xl font-serif font-black text-[#0c3823] underline decoration-emerald-500 decoration-2 underline-offset-4">
+          {{ farmerService.farmer().name }}
+        </h3>
+        <p class="font-mono text-xs text-slate-500">
+          Farmer ID: <strong>{{ farmerService.farmer().farmerId }}</strong> • Location: <strong>{{ farmerService.farmer().location }}</strong>
+        </p>
+
+        <p class="text-xs text-slate-600 max-w-xl mx-auto pt-2">
+          Has successfully planted, fertilized, and sustained <strong class="text-slate-900">{{ carbonService.activeCertificate().totalTreesVerified }} verified trees</strong> across <strong class="text-slate-900">{{ carbonService.activeCertificate().farmArea }}</strong> of bio-managed agroforestry land, sequestering an audited <strong class="text-emerald-800">{{ carbonService.activeCertificate().co2SequesteredTonnes }} metric tonnes of CO₂e</strong> and generating <strong class="text-[#15803d]">{{ farmerService.greenCredits().points }} Verified Green Credits</strong>.
+        </p>
+      </div>
+
+      <!-- Certificate Verification Footer & Signatories -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-6 border-t border-slate-200 items-end max-w-2xl mx-auto">
+        <!-- QR Code -->
+        <div class="flex flex-col items-center">
+          <img [src]="carbonService.activeCertificate().qrCodeUrl" alt="Verification QR" class="w-20 h-20 border border-slate-300 rounded-lg p-1 bg-white shadow-xs">
+          <span class="text-[9px] text-slate-400 font-mono mt-1">Scan to Verify Registry</span>
+        </div>
+
+        <!-- Issue Details -->
+        <div class="text-center text-xs space-y-0.5">
+          <p class="text-slate-500">Issue Date: <strong class="text-slate-800">{{ carbonService.activeCertificate().issueDate }}</strong></p>
+          <p class="text-slate-500">Valid Until: <strong class="text-slate-800">{{ carbonService.activeCertificate().validUntil }}</strong></p>
+          <p class="text-[10px] text-emerald-700 font-mono font-bold">Status: VERIFIED VCS ACTIVE</p>
+        </div>
+
+        <!-- Signatory -->
+        <div class="text-center sm:text-right text-xs">
+          <div class="font-serif italic font-bold text-base text-slate-800 font-mono">Dr. Alok Verma</div>
+          <p class="text-[10px] text-slate-500 font-semibold border-t border-slate-400 pt-0.5">Chief Carbon Auditor</p>
+          <p class="text-[9px] text-slate-400">Carbonova Environmental Board</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Verification Logs Timeline -->
+  <div class="carbon-card p-6">
+    <h3 class="text-base sm:text-lg font-black text-slate-900 flex items-center gap-2 mb-4">
+      <span>🛰️</span>
+      <span>Satellite & Field Verification Logs</span>
+    </h3>
+
+    <div class="space-y-3">
+      @for (log of carbonService.verificationLogs(); track log.id) {
+        <div class="p-4 bg-slate-50 border border-slate-200 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div class="flex items-start gap-3.5">
+            <img [src]="log.photoUrl" [alt]="log.stage" class="w-14 h-14 rounded-xl object-cover border border-slate-300 flex-shrink-0">
+            <div>
+              <div class="flex items-center gap-2">
+                <h5 class="text-xs font-bold text-slate-900">{{ log.stage }} Verification Audit</h5>
+                <span [class]="log.status === 'Approved' ? 'bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full' : 'bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded-full'">
+                  {{ log.status }}
+                </span>
+              </div>
+              <p class="text-xs text-slate-600 mt-1">{{ log.remarks }}</p>
+              <p class="text-[10px] text-slate-400 font-mono mt-0.5">GPS: {{ log.gpsCoordinates }} • Auditor: {{ log.auditorName }}</p>
+            </div>
+          </div>
+
+          <div class="text-right sm:self-center">
+            <span class="text-xs font-bold text-emerald-800 bg-emerald-100/70 px-2.5 py-1 rounded-xl block text-center sm:text-right">
+              Health: {{ log.healthIndex }}%
+            </span>
+            <span class="text-[10px] text-slate-400 mt-1 block">{{ log.timestamp }}</span>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</div>

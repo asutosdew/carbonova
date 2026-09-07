@@ -1,0 +1,199 @@
+<div class="space-y-6 max-w-7xl mx-auto pb-12">
+  <!-- Store Top Banner -->
+  <div class="bg-gradient-to-br from-[#0c3823] via-[#10482c] to-[#15803d] rounded-3xl p-6 sm:p-8 text-white shadow-xl flex flex-col md:flex-row items-center justify-between gap-6 border border-[#22c55e]/30">
+    <div class="space-y-2 text-center md:text-left">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md text-emerald-200 text-xs font-bold border border-white/20">
+        <span>🌱</span>
+        <span>CARBON-SINK SPECIES & BIO-INPUTS</span>
+      </div>
+      <h2 class="text-2xl sm:text-3xl font-black tracking-tight">Eco Store: Plants, Nutrients & Bio-Shields</h2>
+      <p class="text-xs sm:text-sm text-emerald-100/80 max-w-xl">
+        Every plant purchased generates real Partner Business Volume (BV) and directly accelerates your verified Carbon Credits through organic bio-fertilization!
+      </p>
+    </div>
+
+    <!-- Cart Quick View -->
+    <button (click)="showCartDrawer.set(true)" class="bg-white hover:bg-emerald-50 text-[#0c3823] px-5 py-3.5 rounded-2xl shadow-xl font-extrabold text-xs transition-all flex items-center gap-3">
+      <div class="relative">
+        <svg class="w-6 h-6 text-emerald-800" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        @if (storeService.cartTotalItems() > 0) {
+          <span class="absolute -top-2 -right-2 w-5 h-5 bg-[#22c55e] text-white font-black text-[11px] rounded-full flex items-center justify-center shadow-md animate-pulse">
+            {{ storeService.cartTotalItems() }}
+          </span>
+        }
+      </div>
+      <div class="text-left">
+        <span class="text-[10px] text-slate-500 uppercase tracking-wider block leading-none">Your Cart</span>
+        <span class="text-sm font-black font-mono">₹{{ storeService.cartSubtotal().toLocaleString() }}</span>
+      </div>
+    </button>
+  </div>
+
+  <!-- Added Notification Toast -->
+  @if (addedNotification()) {
+    <div class="fixed top-6 right-6 z-50 p-4 bg-emerald-900 text-white rounded-2xl shadow-2xl border border-emerald-500/50 flex items-center gap-3 animate-in slide-in-from-top-4 duration-200">
+      <span class="text-xl">🌿</span>
+      <p class="text-xs font-bold">{{ addedNotification() }}</p>
+    </div>
+  }
+
+  <!-- Category Filter Tabs -->
+  <div class="flex items-center gap-2 overflow-x-auto pb-1">
+    <button (click)="setCategory('ALL')" [class]="selectedCategory() === 'ALL' ? 'px-4 py-2 rounded-2xl bg-[#0c3823] text-white font-bold text-xs shadow-md' : 'px-4 py-2 rounded-2xl bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 font-semibold text-xs'">
+      All Catalog ({{ storeService.products().length }})
+    </button>
+    <button (click)="setCategory('Package')" [class]="selectedCategory() === 'Package' ? 'px-4 py-2 rounded-2xl bg-[#0c3823] text-white font-bold text-xs shadow-md' : 'px-4 py-2 rounded-2xl bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 font-semibold text-xs'">
+      📦 Starter Packages
+    </button>
+    <button (click)="setCategory('Plant')" [class]="selectedCategory() === 'Plant' ? 'px-4 py-2 rounded-2xl bg-[#0c3823] text-white font-bold text-xs shadow-md' : 'px-4 py-2 rounded-2xl bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 font-semibold text-xs'">
+      🌱 High-Carbon Plants
+    </button>
+    <button (click)="setCategory('Fertilizer')" [class]="selectedCategory() === 'Fertilizer' ? 'px-4 py-2 rounded-2xl bg-[#0c3823] text-white font-bold text-xs shadow-md' : 'px-4 py-2 rounded-2xl bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 font-semibold text-xs'">
+      🧪 Bio-Fertilizers & Booster
+    </button>
+    <button (click)="setCategory('Pesticide')" [class]="selectedCategory() === 'Pesticide' ? 'px-4 py-2 rounded-2xl bg-[#0c3823] text-white font-bold text-xs shadow-md' : 'px-4 py-2 rounded-2xl bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 font-semibold text-xs'">
+      🛡️ Bio-Pesticides & Neem
+    </button>
+  </div>
+
+  <!-- Products Grid -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    @for (product of filteredProducts(); track product.id) {
+      <div class="carbon-card overflow-hidden flex flex-col justify-between group hover:border-emerald-400 transition-all duration-300">
+        <div>
+          <!-- Product Image Banner -->
+          <div class="relative h-48 w-full bg-slate-100 overflow-hidden">
+            <img [src]="product.image" [alt]="product.name" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+            
+            @if (product.badge) {
+              <span class="absolute top-3 left-3 bg-[#0c3823] text-emerald-300 text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full shadow-md border border-emerald-400/40">
+                {{ product.badge }}
+              </span>
+            }
+
+            <span class="absolute bottom-3 right-3 bg-black/70 backdrop-blur-md text-white text-[11px] font-mono font-bold px-2 py-0.5 rounded-lg">
+              {{ product.category }}
+            </span>
+          </div>
+
+          <!-- Product Details -->
+          <div class="p-5 space-y-3">
+            <div class="flex items-start justify-between gap-2">
+              <h4 class="font-black text-slate-900 text-sm sm:text-base leading-snug group-hover:text-emerald-800 transition-colors">
+                {{ product.name }}
+              </h4>
+            </div>
+
+            <p class="text-xs text-slate-500 line-clamp-2 leading-relaxed">
+              {{ product.shortDesc }}
+            </p>
+
+            <!-- Carbon & Partner Badges -->
+            <div class="grid grid-cols-2 gap-2 pt-1 text-[11px]">
+              <div class="p-2 bg-emerald-50/80 rounded-xl border border-emerald-200/60 flex items-center gap-1.5">
+                <span class="text-emerald-700">🍃</span>
+                <div>
+                  <span class="text-[9px] text-emerald-800 font-bold uppercase block">Carbon Yield</span>
+                  <strong class="text-emerald-950 font-mono">+{{ product.carbonScoreKgPerYear }} kg/yr</strong>
+                </div>
+              </div>
+
+              <div class="p-2 bg-blue-50/80 rounded-xl border border-blue-200/60 flex items-center gap-1.5">
+                <span class="text-blue-600">📊</span>
+                <div>
+                  <span class="text-[9px] text-blue-800 font-bold uppercase block">Partner Volume</span>
+                  <strong class="text-blue-950 font-mono">{{ product.businessVolume }} BV</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Price & Action Footer -->
+        <div class="p-5 pt-0 border-t border-slate-100 mt-2">
+          <div class="flex items-center justify-between my-3">
+            <div>
+              <span class="text-lg font-black text-slate-900 font-mono">₹{{ product.price.toLocaleString() }}</span>
+              @if (product.originalPrice) {
+                <span class="text-xs text-slate-400 line-through ml-1.5 font-mono">₹{{ product.originalPrice.toLocaleString() }}</span>
+              }
+            </div>
+            <span class="text-[11px] font-bold text-emerald-700 bg-emerald-100/60 px-2 py-0.5 rounded-md">
+              🪙 +{{ product.affiliatePoints }} Pts
+            </span>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <button (click)="openDetails(product)" class="py-2.5 px-3 rounded-xl border border-slate-300 hover:bg-slate-100 text-slate-700 font-bold text-xs transition-all">
+              Details
+            </button>
+            <button (click)="addToCart(product)" class="flex-1 py-2.5 px-3 rounded-xl bg-[#0c3823] hover:bg-[#145335] text-white font-bold text-xs shadow-md transition-all flex items-center justify-center gap-1.5 active:scale-95">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+              <span>Add to Cart</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</div>
+
+<!-- Product Details Modal -->
+@if (selectedProduct()) {
+  <div class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200" (click)="closeDetails()">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-emerald-100 max-h-[90vh] overflow-y-auto" (click)="$event.stopPropagation()">
+      <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-100">
+        <span class="text-xs font-bold text-emerald-700 uppercase tracking-wider">{{ selectedProduct()?.category }} Spec Sheet</span>
+        <button (click)="closeDetails()" class="text-slate-400 hover:text-slate-700 text-lg font-bold">✕</button>
+      </div>
+
+      <div class="relative h-48 w-full rounded-2xl overflow-hidden mb-4 border border-slate-200">
+        <img [src]="selectedProduct()?.image" [alt]="selectedProduct()?.name" class="w-full h-full object-cover">
+      </div>
+
+      <h3 class="font-black text-lg text-slate-900 mb-1">{{ selectedProduct()?.name }}</h3>
+      <p class="text-xs text-slate-600 leading-relaxed mb-4">{{ selectedProduct()?.description }}</p>
+
+      @if (selectedProduct()?.packageContents) {
+        <div class="p-3.5 bg-emerald-50 rounded-2xl border border-emerald-200/80 mb-4">
+          <h5 class="text-xs font-bold text-emerald-950 mb-2">Package Items Included:</h5>
+          <ul class="text-xs text-emerald-900 space-y-1">
+            @for (item of selectedProduct()?.packageContents; track item) {
+              <li class="flex items-center gap-1.5">
+                <span class="text-[#16a34a] font-bold">✓</span>
+                <span>{{ item }}</span>
+              </li>
+            }
+          </ul>
+        </div>
+      }
+
+      <div class="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 space-y-2 text-xs mb-5">
+        <div class="flex justify-between">
+          <span class="text-slate-500">Price:</span>
+          <strong class="text-slate-900 font-mono text-sm">₹{{ selectedProduct()?.price?.toLocaleString() }}</strong>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-slate-500">Partner Business Volume (BV):</span>
+          <strong class="text-blue-700 font-mono">{{ selectedProduct()?.businessVolume }} BV</strong>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-slate-500">Carbon Sequestration Potential:</span>
+          <strong class="text-emerald-700 font-mono">+{{ selectedProduct()?.carbonScoreKgPerYear }} kg CO₂/yr</strong>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <button (click)="closeDetails()" class="flex-1 py-2.5 rounded-xl bg-slate-100 text-slate-700 font-bold text-xs">Close</button>
+        <button (click)="addToCart(selectedProduct()!); closeDetails()" class="flex-1 py-2.5 rounded-xl bg-[#0c3823] text-white font-bold text-xs shadow-md">
+          Add to Cart (₹{{ selectedProduct()?.price?.toLocaleString() }})
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Cart Drawer Component -->
+@if (showCartDrawer()) {
+  <app-cart-drawer (close)="showCartDrawer.set(false)"></app-cart-drawer>
+}

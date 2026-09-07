@@ -1,0 +1,18 @@
+<div class="flex min-h-screen bg-[#f4f7f4] text-slate-800 antialiased font-sans">
+  <!-- Desktop Sidebar (Hidden on small screens) -->
+  <app-sidebar class="hidden md:block flex-shrink-0 sticky top-0 h-screen overflow-y-auto"></app-sidebar>
+
+  <!-- Main Content Container -->
+  <div class="flex-1 flex flex-col min-w-0 pb-20 md:pb-0">
+    <!-- Top Header -->
+    <app-header class="sticky top-0 z-30"></app-header>
+
+    <!-- Page Body Outlet -->
+    <main class="flex-1 p-3 sm:p-6 lg:p-8 max-w-full overflow-x-hidden">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+
+  <!-- Mobile Bottom Navigation (Visible only on small screens) -->
+  <app-mobile-nav></app-mobile-nav>
+</div>

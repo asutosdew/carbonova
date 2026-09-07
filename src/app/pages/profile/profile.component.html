@@ -1,0 +1,493 @@
+<div class="space-y-6 max-w-5xl mx-auto pb-12">
+  
+  <!-- Success Toast -->
+  @if (toastMessage()) {
+    <div class="fixed top-6 right-6 z-50 p-4 bg-[#0c3823] text-white rounded-2xl shadow-2xl border border-[#4ade80]/40 flex items-center gap-3 animate-in slide-in-from-top-4 duration-200">
+      <span class="text-xl">✅</span>
+      <p class="text-xs font-bold">{{ toastMessage() }}</p>
+    </div>
+  }
+
+  <!-- Profile Header Banner -->
+  <div class="bg-gradient-to-br from-[#0c3823] via-[#10482c] to-[#15803d] rounded-3xl p-4 sm:p-8 text-white shadow-xl flex flex-col md:flex-row items-center gap-5 border border-[#22c55e]/30">
+    <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden border-4 border-white shadow-xl flex-shrink-0">
+      <img [src]="farmerService.farmer().avatar" alt="Sandeep" class="w-full h-full object-cover">
+    </div>
+
+    <div class="space-y-1.5 text-center md:text-left flex-1 min-w-0">
+      <div class="flex flex-wrap items-center justify-center md:justify-start gap-2">
+        <h2 class="text-xl sm:text-2xl font-black text-white">{{ farmerService.farmer().name }}</h2>
+        <span class="bg-[#22c55e] text-[#061c11] text-xs font-black px-2.5 py-0.5 rounded-full">
+          {{ farmerService.farmer().rank }}
+        </span>
+        <span class="bg-emerald-900/80 text-emerald-200 text-xs font-bold px-2.5 py-0.5 rounded-full border border-emerald-400/30">
+          ID: {{ farmerService.farmer().farmerId }}
+        </span>
+      </div>
+      
+      <p class="text-xs text-emerald-100">
+        📞 <strong class="font-mono">{{ farmerService.farmer().phone }}</strong> • 📍 {{ farmerService.farmer().location }}
+      </p>
+
+      <!-- Profile Completion Meter -->
+      <div class="pt-2 max-w-md mx-auto md:mx-0">
+        <div class="flex justify-between text-[11px] font-bold text-emerald-200 mb-1">
+          <span>Profile & KYC Completion:</span>
+          <span>{{ farmerService.farmer().profileCompletionPercentage }}% Complete</span>
+        </div>
+        <div class="h-2 w-full bg-black/30 rounded-full overflow-hidden border border-white/10">
+          <div class="h-full bg-gradient-to-r from-[#86efac] to-[#22c55e] rounded-full transition-all duration-500" 
+               [style.width.%]="farmerService.farmer().profileCompletionPercentage"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Status Badges -->
+    <div class="flex flex-col gap-2 w-full md:w-auto min-w-0 text-xs">
+      <div class="p-2.5 bg-white/10 backdrop-blur-md rounded-xl border border-white/15 flex items-center justify-between">
+        <span class="text-emerald-200 text-[11px]">Aadhaar / PAN</span>
+        <span class="text-[#86efac] font-bold text-xs">✓ Verified</span>
+      </div>
+      <div class="p-2.5 bg-white/10 backdrop-blur-md rounded-xl border border-white/15 flex items-center justify-between">
+        <span class="text-emerald-200 text-[11px]">Bank Payout</span>
+        <span class="text-[#86efac] font-bold text-xs">✓ Active</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Onboarding Guide Notice -->
+  <div class="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs text-emerald-950">
+    <div class="flex items-center gap-3">
+      <span class="text-2xl">📝</span>
+      <div>
+        <h4 class="font-bold text-emerald-950">Farmer Profile & Bank Setup</h4>
+        <p class="text-[11px] text-emerald-800">
+          You registered with your Name and Mobile Number. Please complete your Bank Account & KYC below to enable instant partner commission withdrawals!
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navigation Tabs -->
+  <div class="flex items-center gap-2 overflow-x-auto pb-1">
+    <button (click)="setTab('profile')" 
+            [class]="activeTab() === 'profile' ? 'px-4 py-2.5 rounded-2xl bg-[#0c3823] text-white font-bold text-xs shadow-md flex items-center gap-2' : 'px-4 py-2.5 rounded-2xl bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 font-semibold text-xs flex items-center gap-2'">
+      <span>👤</span>
+      <span>1. Personal & Farm Info</span>
+    </button>
+
+    <button (click)="setTab('bank')" 
+            [class]="activeTab() === 'bank' ? 'px-4 py-2.5 rounded-2xl bg-[#0c3823] text-white font-bold text-xs shadow-md flex items-center gap-2' : 'px-4 py-2.5 rounded-2xl bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 font-semibold text-xs flex items-center gap-2'">
+      <span>🏦</span>
+      <span>2. Bank Details & Payouts</span>
+    </button>
+
+    <button (click)="setTab('kyc')" 
+            [class]="activeTab() === 'kyc' ? 'px-4 py-2.5 rounded-2xl bg-[#0c3823] text-white font-bold text-xs shadow-md flex items-center gap-2' : 'px-4 py-2.5 rounded-2xl bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 font-semibold text-xs flex items-center gap-2'">
+      <span>🆔</span>
+      <span>3. Aadhaar, PAN & Land KYC</span>
+    </button>
+
+    <button (click)="setTab('session')" 
+            [class]="activeTab() === 'session' ? 'px-4 py-2.5 rounded-2xl bg-[#0c3823] text-white font-bold text-xs shadow-md flex items-center gap-2' : 'px-4 py-2.5 rounded-2xl bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 font-semibold text-xs flex items-center gap-2'">
+      <span>🔐</span>
+      <span>4. Session & Security</span>
+    </button>
+  </div>
+
+  <!-- ==================== TAB 1: PERSONAL & FARM DETAILS ==================== -->
+  @if (activeTab() === 'profile') {
+    <div class="carbon-card p-6 sm:p-8 space-y-6">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div>
+          <h3 class="text-base sm:text-lg font-black text-slate-900 flex items-center gap-2">
+            <span>👤</span>
+            <span>Personal & Agroforestry Land Information</span>
+          </h3>
+          <p class="text-xs text-slate-500">Update personal demographics, location, and farm area.</p>
+        </div>
+      </div>
+
+      <form (ngSubmit)="savePersonalProfile()" class="space-y-4 text-xs">
+        <!-- Row 1: Name & Mobile (Initial signup info) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">Full Name (Farmer Name) *</label>
+            <input type="text" [(ngModel)]="profileForm.name" name="name" required class="w-full p-2.5 rounded-xl border border-slate-300 font-bold text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+          </div>
+
+          <div>
+            <div class="flex justify-between items-center mb-1">
+              <label class="font-bold text-slate-700">Mobile Number (Signup ID) *</label>
+              <span class="text-[10px] text-emerald-700 font-bold bg-emerald-100 px-1.5 py-0.2 rounded">✓ Verified OTP</span>
+            </div>
+            <input type="text" [(ngModel)]="profileForm.phone" name="phone" required class="w-full p-2.5 rounded-xl border border-slate-300 font-mono text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+          </div>
+        </div>
+
+        <!-- Row 2: Email & Father/Spouse Name -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">Email Address</label>
+            <input type="email" [(ngModel)]="profileForm.email" name="email" class="w-full p-2.5 rounded-xl border border-slate-300 text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+          </div>
+
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">Father / Spouse Name</label>
+            <input type="text" [(ngModel)]="profileForm.fatherOrSpouseName" name="fatherOrSpouseName" class="w-full p-2.5 rounded-xl border border-slate-300 text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+          </div>
+        </div>
+
+        <!-- Row 3: Gender & DOB -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">Gender</label>
+            <select [(ngModel)]="profileForm.gender" name="gender" class="w-full p-2.5 rounded-xl border border-slate-300 text-slate-900 bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">Date of Birth</label>
+            <input type="date" [(ngModel)]="profileForm.dateOfBirth" name="dateOfBirth" class="w-full p-2.5 rounded-xl border border-slate-300 text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+          </div>
+        </div>
+
+        <!-- Row 4: State, District, Village, PinCode -->
+        <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 pt-2">
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">State</label>
+            <input type="text" [(ngModel)]="profileForm.state" name="state" class="w-full p-2.5 rounded-xl border border-slate-300 text-slate-900 focus:outline-none">
+          </div>
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">District</label>
+            <input type="text" [(ngModel)]="profileForm.district" name="district" class="w-full p-2.5 rounded-xl border border-slate-300 text-slate-900 focus:outline-none">
+          </div>
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">Village / Post</label>
+            <input type="text" [(ngModel)]="profileForm.village" name="village" class="w-full p-2.5 rounded-xl border border-slate-300 text-slate-900 focus:outline-none">
+          </div>
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">PIN Code</label>
+            <input type="text" [(ngModel)]="profileForm.pinCode" name="pinCode" class="w-full p-2.5 rounded-xl border border-slate-300 font-mono text-slate-900 focus:outline-none">
+          </div>
+        </div>
+
+        <!-- Row 5: Farm Land & Soil Characteristics -->
+        <div class="pt-3 border-t border-slate-100">
+          <h4 class="font-bold text-slate-800 text-xs mb-3">Farm Land & Agro-Characteristics</h4>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label class="font-bold text-slate-700 block mb-1">Farm Area (Acre)</label>
+              <select [(ngModel)]="profileForm.farmArea" name="farmArea" class="w-full p-2.5 rounded-xl border border-slate-300 text-slate-900 bg-white focus:outline-none">
+                <option value="0.25 Acre">0.25 Acre (Starter)</option>
+                <option value="0.5 Acre">0.5 Acre</option>
+                <option value="1.0 Acre">1.0 Acre (Commercial)</option>
+                <option value="2.0 Acre">2.0+ Acres (Estate)</option>
+              </select>
+            </div>
+            <div>
+              <label class="font-bold text-slate-700 block mb-1">Soil Type</label>
+              <select [(ngModel)]="profileForm.soilType" name="soilType" class="w-full p-2.5 rounded-xl border border-slate-300 text-slate-900 bg-white focus:outline-none">
+                <option value="Red & Yellow Loamy">Red & Yellow Loamy</option>
+                <option value="Black Cotton Soil">Black Cotton Soil</option>
+                <option value="Alluvial Soil">Alluvial Soil</option>
+                <option value="Sandy Loam">Sandy Loam</option>
+              </select>
+            </div>
+            <div>
+              <label class="font-bold text-slate-700 block mb-1">Irrigation Source</label>
+              <select [(ngModel)]="profileForm.irrigationSource" name="irrigationSource" class="w-full p-2.5 rounded-xl border border-slate-300 text-slate-900 bg-white focus:outline-none">
+                <option value="Borewell & Drip Line">Borewell & Drip Line</option>
+                <option value="Canal Irrigation">Canal Irrigation</option>
+                <option value="Farm Pond">Farm Pond</option>
+                <option value="Rainfed">Rainfed</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="pt-4 flex justify-end">
+          <button type="submit" [disabled]="isSaving()" class="px-6 py-3 rounded-xl bg-[#0c3823] hover:bg-[#145335] text-white font-bold text-xs shadow-md transition-all flex items-center gap-2">
+            @if (isSaving()) {
+              <span class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+              <span>Saving Profile...</span>
+            } @else {
+              <span>Save Personal & Farm Details</span>
+            }
+          </button>
+        </div>
+      </form>
+    </div>
+  }
+
+  <!-- ==================== TAB 2: BANK DETAILS & PAYOUTS ==================== -->
+  @if (activeTab() === 'bank') {
+    <div class="carbon-card p-6 sm:p-8 space-y-6">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div>
+          <h3 class="text-base sm:text-lg font-black text-slate-900 flex items-center gap-2">
+            <span>🏦</span>
+            <span>Bank Account & Payout Details</span>
+          </h3>
+          <p class="text-xs text-slate-500">Your direct, level and autopool affiliate income will be disbursed to this bank account.</p>
+        </div>
+
+        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold">
+          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+          <span>Penny Drop Verified</span>
+        </div>
+      </div>
+
+      <form (ngSubmit)="saveBankDetails()" class="space-y-4 text-xs">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">Account Holder Name (Must match farmer name) *</label>
+            <input type="text" [(ngModel)]="bankForm.accountHolderName" name="accountHolderName" required class="w-full p-2.5 rounded-xl border border-slate-300 font-bold text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+          </div>
+
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">Bank Name *</label>
+            <input type="text" [(ngModel)]="bankForm.bankName" name="bankName" required class="w-full p-2.5 rounded-xl border border-slate-300 text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">Bank Account Number *</label>
+            <input type="password" [(ngModel)]="bankForm.accountNumber" name="accountNumber" required class="w-full p-2.5 rounded-xl border border-slate-300 font-mono text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+          </div>
+
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">Confirm Account Number *</label>
+            <input type="text" [(ngModel)]="bankForm.confirmAccountNumber" name="confirmAccountNumber" required class="w-full p-2.5 rounded-xl border border-slate-300 font-mono text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <div class="flex justify-between items-center mb-1">
+              <label class="font-bold text-slate-700">IFSC Code *</label>
+              <button type="button" (click)="lookupIfsc()" class="text-[10px] text-emerald-700 font-bold hover:underline">Lookup Branch</button>
+            </div>
+            <input type="text" [(ngModel)]="bankForm.ifscCode" name="ifscCode" (blur)="lookupIfsc()" required class="w-full p-2.5 rounded-xl border border-slate-300 font-mono uppercase text-slate-900 focus:outline-none">
+          </div>
+
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">Branch Name</label>
+            <input type="text" [(ngModel)]="bankForm.branchName" name="branchName" class="w-full p-2.5 rounded-xl border border-slate-300 text-slate-900 focus:outline-none">
+          </div>
+
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">UPI ID / VPA (Optional)</label>
+            <input type="text" [(ngModel)]="bankForm.upiId" name="upiId" placeholder="e.g. name@upi" class="w-full p-2.5 rounded-xl border border-slate-300 font-mono text-slate-900 focus:outline-none">
+          </div>
+        </div>
+
+        <!-- Bank Passbook Document Preview -->
+        <div class="pt-3 border-t border-slate-100">
+          <label class="font-bold text-slate-700 block mb-1.5">Passbook / Cancelled Cheque Photo (Document Proof)</label>
+          <div class="flex items-center gap-4">
+            <img [src]="bankForm.passbookPhotoUrl" alt="Passbook preview" class="w-28 h-20 rounded-xl object-cover border border-slate-300">
+            <div class="space-y-1 text-xs">
+              <p class="font-bold text-slate-800">Passbook photo attached</p>
+              <p class="text-[11px] text-slate-500">Penny drop ₹1 verification completed on 05 Aug 2026</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="pt-4 flex justify-end">
+          <button type="submit" [disabled]="isSaving()" class="px-6 py-3 rounded-xl bg-[#0c3823] hover:bg-[#145335] text-white font-bold text-xs shadow-md transition-all flex items-center gap-2">
+            @if (isSaving()) {
+              <span class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+              <span>Verifying Penny Drop...</span>
+            } @else {
+              <span>Save & Verify Bank Account</span>
+            }
+          </button>
+        </div>
+      </form>
+    </div>
+  }
+
+  <!-- ==================== TAB 3: AADHAAR, PAN & LAND KYC ==================== -->
+  @if (activeTab() === 'kyc') {
+    <div class="carbon-card p-6 sm:p-8 space-y-6">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div>
+          <h3 class="text-base sm:text-lg font-black text-slate-900 flex items-center gap-2">
+            <span>🆔</span>
+            <span>Aadhaar, PAN & Land KYC Verification</span>
+          </h3>
+          <p class="text-xs text-slate-500">Government ID & Farm Land ownership compliance for carbon crediting & TDS.</p>
+        </div>
+
+        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold">
+          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+          <span>KYC Verified</span>
+        </div>
+      </div>
+
+      <form (ngSubmit)="saveKycDetails()" class="space-y-5 text-xs">
+        <!-- Aadhaar & PAN -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-2">
+            <div class="flex justify-between items-center">
+              <label class="font-bold text-slate-800">Aadhaar Card Number *</label>
+              <span class="text-[10px] text-emerald-700 font-bold">✓ UIDAI Verified</span>
+            </div>
+            <input type="text" [(ngModel)]="kycForm.aadhaarNumber" name="aadhaarNumber" class="w-full p-2.5 rounded-xl border border-slate-300 font-mono text-slate-900 focus:outline-none">
+            
+            <div class="flex items-center gap-3 pt-2">
+              <img [src]="kycForm.aadhaarFrontUrl" alt="Aadhaar Front" class="w-20 h-14 rounded-lg object-cover border border-slate-300">
+              <span class="text-[11px] text-slate-500">Aadhaar document front/back verified</span>
+            </div>
+          </div>
+
+          <div class="p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-2">
+            <div class="flex justify-between items-center">
+              <label class="font-bold text-slate-800">PAN Card Number (5% TDS Compliance) *</label>
+              <span class="text-[10px] text-emerald-700 font-bold">✓ ITD Active</span>
+            </div>
+            <input type="text" [(ngModel)]="kycForm.panNumber" name="panNumber" class="w-full p-2.5 rounded-xl border border-slate-300 font-mono uppercase text-slate-900 focus:outline-none">
+            
+            <div class="flex items-center gap-3 pt-2">
+              <img [src]="kycForm.panCardUrl" alt="PAN Card" class="w-20 h-14 rounded-lg object-cover border border-slate-300">
+              <span class="text-[11px] text-slate-500">PAN linked for 5% TDS deductions</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Land Records -->
+        <div class="p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-3">
+          <h4 class="font-bold text-slate-900 text-xs">Farm Land Title / Khasra Document</h4>
+          
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="font-bold text-slate-700 block mb-1">Land Document Type</label>
+              <select [(ngModel)]="kycForm.landRecordType" name="landRecordType" class="w-full p-2.5 rounded-xl border border-slate-300 text-slate-900 bg-white focus:outline-none">
+                <option value="Khasra-B1">Khasra B-1 / P-II (Chhattisgarh)</option>
+                <option value="7/12 Record">7/12 Extract Record</option>
+                <option value="Patta">Revenue Patta Certificate</option>
+                <option value="Lease Deed">Registered Agroforestry Lease</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="font-bold text-slate-700 block mb-1">Plot / Khasra Number</label>
+              <input type="text" [(ngModel)]="kycForm.landKhasraNumber" name="landKhasraNumber" class="w-full p-2.5 rounded-xl border border-slate-300 text-slate-900 focus:outline-none">
+            </div>
+          </div>
+
+          <div class="flex items-center gap-3 pt-1">
+            <img [src]="kycForm.landRecordUrl" alt="Land Record" class="w-20 h-14 rounded-lg object-cover border border-slate-300">
+            <span class="text-[11px] text-slate-500">Land record approved for 0.25 Acre carbon offset contract</span>
+          </div>
+        </div>
+
+        <!-- Nominee Details -->
+        <div class="p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-3">
+          <h4 class="font-bold text-slate-900 text-xs">Partner Nominee Details</h4>
+          
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label class="font-bold text-slate-700 block mb-1">Nominee Full Name *</label>
+              <input type="text" [(ngModel)]="kycForm.nomineeName" name="nomineeName" class="w-full p-2.5 rounded-xl border border-slate-300 text-slate-900 focus:outline-none">
+            </div>
+
+            <div>
+              <label class="font-bold text-slate-700 block mb-1">Relationship</label>
+              <select [(ngModel)]="kycForm.nomineeRelation" name="nomineeRelation" class="w-full p-2.5 rounded-xl border border-slate-300 text-slate-900 bg-white focus:outline-none">
+                <option value="Spouse">Spouse</option>
+                <option value="Son">Son</option>
+                <option value="Daughter">Daughter</option>
+                <option value="Father">Father</option>
+                <option value="Mother">Mother</option>
+                <option value="Brother">Brother</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="font-bold text-slate-700 block mb-1">Nominee Age</label>
+              <input type="number" [(ngModel)]="kycForm.nomineeAge" name="nomineeAge" class="w-full p-2.5 rounded-xl border border-slate-300 text-slate-900 focus:outline-none">
+            </div>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="pt-4 flex justify-end">
+          <button type="submit" [disabled]="isSaving()" class="px-6 py-3 rounded-xl bg-[#0c3823] hover:bg-[#145335] text-white font-bold text-xs shadow-md transition-all flex items-center gap-2">
+            @if (isSaving()) {
+              <span class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+              <span>Submitting KYC Audit...</span>
+            } @else {
+              <span>Submit & Save KYC Details</span>
+            }
+          </button>
+        </div>
+      </form>
+    </div>
+  }
+
+  <!-- ==================== TAB 4: SESSION & AUTHGUARD ==================== -->
+  @if (activeTab() === 'session') {
+    <div class="carbon-card p-6 sm:p-8 space-y-6">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div>
+          <h3 class="text-base sm:text-lg font-black text-slate-900 flex items-center gap-2">
+            <span>🔐</span>
+            <span>Account Session & AuthGuard Security</span>
+          </h3>
+          <p class="text-xs text-slate-500">Stored in localStorage (<code class="bg-slate-100 px-1 py-0.5 rounded text-emerald-800 font-mono">authToken</code>) with 401 Unauthorized interceptor.</p>
+        </div>
+
+        <span class="text-xs font-mono font-bold text-emerald-800 bg-emerald-100 px-3 py-1 rounded-full">
+          Active JWT Session
+        </span>
+      </div>
+
+      <div class="space-y-4">
+        <div>
+          <label class="text-xs font-bold text-slate-700 block mb-1">Stored LocalStorage Token JSON (<code class="font-mono">authToken</code>):</label>
+          <pre class="bg-slate-900 text-emerald-400 p-4 rounded-2xl text-xs font-mono overflow-x-auto select-all border border-slate-800">{{ tokenJson }}</pre>
+        </div>
+
+        <!-- Change Password & Transaction PIN Link -->
+        <div class="p-4 bg-emerald-50 rounded-2xl border border-emerald-200 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div>
+            <h4 class="font-bold text-emerald-950 text-xs">Login Password & 4-Digit Wallet PIN</h4>
+            <p class="text-[11px] text-emerald-800">Update your account login password and partner payout authorization PIN.</p>
+          </div>
+          <a routerLink="/change-password" class="px-4 py-2 rounded-xl bg-[#0c3823] hover:bg-[#145335] text-white font-bold text-xs shadow-md transition-all flex items-center gap-1.5 flex-shrink-0">
+            <span>🔑</span>
+            <span>Change Password & PIN →</span>
+          </a>
+        </div>
+
+        <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200 text-xs text-slate-600 space-y-1">
+          <p class="font-bold text-slate-900">Direct External Logout URL:</p>
+          <p class="font-mono text-emerald-800">https://www.carbonovaworld.com/login.php</p>
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-3 pt-2">
+          <button (click)="logout()" 
+                  class="flex-1 py-3 px-4 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs shadow-md transition-all flex items-center justify-center gap-2">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            <span>Log Out & Redirect to Login Portal</span>
+          </button>
+
+          <button (click)="simulate401()" 
+                  class="py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-900 text-slate-200 font-bold text-xs shadow-sm transition-all flex items-center justify-center gap-2"
+                  title="Simulates 401 Unauthorized API error interceptor">
+            <span>⚡ Test 401 Error Auto-Logout</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+</div>

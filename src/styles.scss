@@ -1,0 +1,111 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  --primary-forest: #0c3823;
+  --primary-forest-dark: #082618;
+  --accent-green: #22c55e;
+  --accent-green-dark: #15803d;
+  --brand-bg: #f4f7f4;
+  --card-border: #e2ece2;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: var(--brand-bg);
+  color: #1e293b;
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Glass & Card styles */
+.carbon-card {
+  background: #ffffff;
+  border: 1px solid #e7efe7;
+  border-radius: 1.25rem;
+  box-shadow: 0 4px 18px -2px rgba(12, 56, 35, 0.04), 0 1px 3px rgba(0, 0, 0, 0.02);
+  transition: all 0.2s ease-in-out;
+}
+
+.carbon-card-interactive:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -5px rgba(12, 56, 35, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
+}
+
+/* Pulse animation for active indicators */
+@keyframes pulse-green {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.15);
+  }
+}
+
+.pulse-dot {
+  animation: pulse-green 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Printable Certificate styles */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #certificate-print-area, #certificate-print-area * {
+    visibility: visible;
+  }
+  #certificate-print-area {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+  }
+}
+
+/* Mobile-First Polish & Native App Experience */
+@media (max-width: 767px) {
+  html, body {
+    overflow-x: hidden !important;
+    max-width: 100vw;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .carbon-card {
+    border-radius: 1.25rem !important;
+    padding: 1.15rem !important;
+    border-color: #e5ede5 !important;
+    box-shadow: 0 2px 12px rgba(12, 56, 35, 0.03), 0 1px 3px rgba(0, 0, 0, 0.02) !important;
+  }
+
+  /* Optimize touch response */
+  button, a {
+    touch-action: manipulation;
+  }
+}
+
+/* Safe area padding for mobile gesture home bars */
+.pb-safe {
+  padding-bottom: calc(0.5rem + env(safe-area-inset-bottom, 0px));
+}
