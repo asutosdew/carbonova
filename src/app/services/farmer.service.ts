@@ -151,10 +151,13 @@ export class FarmerService {
           ...(pf?.email ? { email: pf.email } : {}),
           ...(pf?.userid ? { farmerId: 'CGC-' + pf.userid } : {}),
           ...(pf?.doj ? { joiningDate: new Date(pf.doj).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) } : {}),
+          ...(pf?.totalPlants !== undefined ? { totalPlants: Number(pf.totalPlants) } : {}),
+          ...(pf?.activePlants !== undefined ? { activePlants: Number(pf.activePlants) } : {}),
+          ...(pf?.survivalRate !== undefined ? { survivalRate: Number(pf.survivalRate) } : {}),
           ...(shipping?.address1 ? { village: shipping.address1 } : {}),
           ...(shipping?.city ? { district: shipping.city.trim() } : {}),
           ...(shipping?.pincode ? { pinCode: shipping.pincode } : {}),
-          location: shipping?.city ? `${shipping.city.trim()}, Chhattisgarh` : current.location,
+          location: shipping?.city ? `${shipping.city.trim()}, Chhattisgarh` : (pf?.location || current.location),
           bankDetails: {
             ...current.bankDetails,
             ...(pf?.acno ? { accountNumber: pf.acno } : {}),
@@ -168,6 +171,23 @@ export class FarmerService {
           accountNumber: pf?.acno ? `•••• •••• ${pf.acno.slice(-4)}` : current.accountNumber,
           ifscCode: pf?.ifsc || current.ifscCode
         };
+
+        // Dynamically update dashboard cards if API returns them
+        if (Array.isArray(pf?.plants) && pf.plants.length > 0) {
+          this.plants.set(pf.plants);
+        }
+        if (pf?.packageDetails) {
+          this.packageDetails.set({ ...this.packageDetails(), ...pf.packageDetails });
+        }
+        if (pf?.greenCredits) {
+          this.greenCredits.set({ ...this.greenCredits(), ...pf.greenCredits });
+        }
+        if (Array.isArray(pf?.verificationSteps) && pf.verificationSteps.length > 0) {
+          this.verificationSteps.set(pf.verificationSteps);
+        }
+        if (pf?.lastPlantationUpdate) {
+          this.lastPlantationUpdate.set({ ...this.lastPlantationUpdate(), ...pf.lastPlantationUpdate });
+        }
 
         this.saveProfile(updated);
         this.refreshWeather();
