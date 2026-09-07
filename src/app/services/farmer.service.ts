@@ -134,30 +134,30 @@ export class FarmerService {
 
   async initLiveBackendData(): Promise<void> {
     try {
-      // 1. Fetch personal information from live backend
-      const personalRes = await this.membersService.personalinfo();
-      const pf = personalRes?.result;
+      // Single unified API route for full Dashboard
+      const res = await this.membersService.downlinestatus();
+      const pf = res?.result || res?.data || res;
 
-      // 2. Fetch shipping & farm address from live backend
-      const shippingRes = await this.membersService.getShippingAddress();
-      const shipping = shippingRes?.data;
-
-      if (pf || shipping) {
+      if (pf) {
         const current = this.farmer();
         const updated: FarmerProfile = {
           ...current,
           ...(pf?.name ? { name: pf.name } : {}),
           ...(pf?.mobile ? { phone: pf.mobile } : {}),
+          ...(pf?.phone ? { phone: pf.phone } : {}),
           ...(pf?.email ? { email: pf.email } : {}),
           ...(pf?.userid ? { farmerId: 'CGC-' + pf.userid } : {}),
+          ...(pf?.farmerId ? { farmerId: pf.farmerId } : {}),
           ...(pf?.doj ? { joiningDate: new Date(pf.doj).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) } : {}),
-          ...(pf?.totalPlants !== undefined ? { totalPlants: Number(pf.totalPlants) } : {}),
-          ...(pf?.activePlants !== undefined ? { activePlants: Number(pf.activePlants) } : {}),
-          ...(pf?.survivalRate !== undefined ? { survivalRate: Number(pf.survivalRate) } : {}),
-          ...(shipping?.address1 ? { village: shipping.address1 } : {}),
-          ...(shipping?.city ? { district: shipping.city.trim() } : {}),
-          ...(shipping?.pincode ? { pinCode: shipping.pincode } : {}),
-          location: shipping?.city ? `${shipping.city.trim()}, Chhattisgarh` : (pf?.location || current.location),
+          ...(pf?.joiningDate ? { joiningDate: pf.joiningDate } : {}),
+          ...(pf?.totalPlants !== undefined ? { totalPlants: Number(pf.totalPlants) } : (pf?.totalplants !== undefined ? { totalPlants: Number(pf.totalplants) } : {})),
+          ...(pf?.activePlants !== undefined ? { activePlants: Number(pf.activePlants) } : (pf?.activeplants !== undefined ? { activePlants: Number(pf.activeplants) } : {})),
+          ...(pf?.survivalRate !== undefined ? { survivalRate: Number(pf.survivalRate) } : (pf?.survivalrate !== undefined ? { survivalRate: Number(pf.survivalrate) } : {})),
+          ...(pf?.village ? { village: pf.village } : {}),
+          ...(pf?.district ? { district: pf.district } : {}),
+          ...(pf?.city ? { district: pf.city } : {}),
+          ...(pf?.pinCode ? { pinCode: pf.pinCode } : (pf?.pincode ? { pinCode: pf.pincode } : {})),
+          location: pf?.location || (pf?.city ? `${pf.city}, ${pf.state || 'Chhattisgarh'}` : current.location),
           bankDetails: {
             ...current.bankDetails,
             ...(pf?.acno ? { accountNumber: pf.acno } : {}),
@@ -172,7 +172,7 @@ export class FarmerService {
           ifscCode: pf?.ifsc || current.ifscCode
         };
 
-        // Dynamically update dashboard cards if API returns them
+        // Dynamically update dashboard cards from downlinestatus response
         if (Array.isArray(pf?.plants) && pf.plants.length > 0) {
           this.plants.set(pf.plants);
         }
@@ -193,7 +193,7 @@ export class FarmerService {
         this.refreshWeather();
       }
     } catch (e) {
-      console.warn('[FarmerService] Live backend data initialization skipped (offline or unauthenticated):', e);
+      console.warn('[FarmerService] Live backend data initialization from downlinestatus skipped:', e);
     }
   }
 

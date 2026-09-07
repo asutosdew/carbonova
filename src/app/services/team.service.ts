@@ -646,16 +646,17 @@ export class TeamService {
   async loadLiveTeamData(): Promise<void> {
     try {
       const res = await this.membersService.downlinestatus();
-      if (res) {
-        const uid = res.userid || '120873';
+      const data = res?.result || res?.data || res;
+      if (data) {
+        const uid = data.userid || '120873';
         this.referralCode.set('CGC-' + uid);
         const encoded = btoa(unescape(encodeURIComponent(String(uid))));
-        this.referralLink.set(`https://www.carbonovaworld.com/register.php?sid=${encodeURIComponent(encoded)}`);
+        this.referralLink.set(data.referrallink || `https://www.carbonovaworld.com/register.php?sid=${encodeURIComponent(encoded)}`);
 
-        const totalTeam = res.totalteam ? parseInt(res.totalteam, 10) : this.teamStats().totalDownlineTeam;
-        const totalActive = res.totalactive ? parseInt(res.totalactive, 10) : this.teamStats().activeDownlineTeam;
-        const directs = res.directs ? parseInt(res.directs, 10) : this.teamStats().totalDirects;
-        const levelIncome = res.levelincome ? parseFloat(res.levelincome) : this.teamStats().totalLevelIncome;
+        const totalTeam = data.totalteam ? parseInt(data.totalteam, 10) : this.teamStats().totalDownlineTeam;
+        const totalActive = data.totalactive ? parseInt(data.totalactive, 10) : this.teamStats().activeDownlineTeam;
+        const directs = data.directs ? parseInt(data.directs, 10) : this.teamStats().totalDirects;
+        const levelIncome = data.levelincome ? parseFloat(data.levelincome) : this.teamStats().totalLevelIncome;
 
         this.teamStats.update(s => ({
           ...s,

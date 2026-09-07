@@ -253,19 +253,24 @@ export class IncomeService {
   async loadLiveIncomeData(): Promise<void> {
     try {
       const res = await this.membersService.downlinestatus();
-      if (res) {
-        const direct = res.directincome ? parseFloat(res.directincome) : this.breakdown().directIncome;
-        const level = res.levelincome ? parseFloat(res.levelincome) : this.breakdown().levelIncome;
-        const autopool = res.autopoolincome ? parseFloat(res.autopoolincome) : this.breakdown().autopoolIncome;
+      const data = res?.result || res?.data || res;
+      if (data) {
+        const direct = data.directincome ? parseFloat(data.directincome) : this.breakdown().directIncome;
+        const level = data.levelincome ? parseFloat(data.levelincome) : this.breakdown().levelIncome;
+        const autopool = data.autopoolincome ? parseFloat(data.autopoolincome) : this.breakdown().autopoolIncome;
+        const carbonRoyalty = data.carbonroyalty !== undefined ? parseFloat(data.carbonroyalty) : (data.carbonRoyalty !== undefined ? parseFloat(data.carbonRoyalty) : this.breakdown().carbonRoyalty);
+        const fertilizerRebate = data.fertilizerrebate !== undefined ? parseFloat(data.fertilizerrebate) : (data.fertilizerRebate !== undefined ? parseFloat(data.fertilizerRebate) : this.breakdown().fertilizerRebate);
         const current = this.breakdown();
-        const totalEarned = direct + level + (autopool || 0) + current.carbonRoyalty + current.fertilizerRebate;
-        const walletBalance = totalEarned - current.withdrawnTotal > 0 ? (totalEarned - current.withdrawnTotal) : current.walletBalance;
+        const totalEarned = data.totalearned !== undefined ? parseFloat(data.totalearned) : (data.totalEarned !== undefined ? parseFloat(data.totalEarned) : (direct + level + (autopool || 0) + carbonRoyalty + fertilizerRebate));
+        const walletBalance = data.walletbalance !== undefined ? parseFloat(data.walletbalance) : (data.walletBalance !== undefined ? parseFloat(data.walletBalance) : (totalEarned - current.withdrawnTotal > 0 ? (totalEarned - current.withdrawnTotal) : current.walletBalance));
 
         this.breakdown.set({
           ...current,
           directIncome: direct,
           levelIncome: level,
           autopoolIncome: autopool || current.autopoolIncome,
+          carbonRoyalty,
+          fertilizerRebate,
           totalEarned,
           walletBalance
         });
