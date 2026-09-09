@@ -6,12 +6,21 @@ import { IncomeService } from '../../services/income.service';
 import { TeamService } from '../../services/team.service';
 import { PhotoModalComponent } from '../../components/photo-modal/photo-modal.component';
 import { PaginationComponent } from '../../components/pagination/pagination.component';
+import { PackagePlantsModalComponent } from '../../components/package-plants-modal/package-plants-modal.component';
+import { FarmDetailsModalComponent } from '../../components/farm-details-modal/farm-details-modal.component';
 import { PlantItem } from '../../models/farmer.model';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule, PhotoModalComponent, PaginationComponent],
+  imports: [
+    CommonModule,
+    RouterModule,
+    PhotoModalComponent,
+    PaginationComponent,
+    PackagePlantsModalComponent,
+    FarmDetailsModalComponent
+  ],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss']
 })
@@ -21,7 +30,24 @@ export class DashboardComponent {
   readonly teamService = inject(TeamService);
 
   readonly showPhotoModal = signal(false);
-  readonly showPackageModal = signal(false);
+  readonly showPackagePlantsModal = signal(false);
+  readonly showFarmDetailsModal = signal(false);
+
+  openPackagePlantsModal() {
+    this.showPackagePlantsModal.set(true);
+  }
+
+  closePackagePlantsModal() {
+    this.showPackagePlantsModal.set(false);
+  }
+
+  openFarmDetailsModal() {
+    this.showFarmDetailsModal.set(true);
+  }
+
+  closeFarmDetailsModal() {
+    this.showFarmDetailsModal.set(false);
+  }
 
   // Pagination for My Plants Table (Card 1)
   readonly plantPage = signal<number>(1);
@@ -72,6 +98,14 @@ export class DashboardComponent {
   }
 
   togglePackageModal() {
-    this.showPackageModal.update(v => !v);
+    this.openPackagePlantsModal();
+  }
+
+  switchToUnactivatedDemo() {
+    this.farmerService.setDemoUnactivatedState();
+  }
+
+  switchToActiveDemo() {
+    this.farmerService.setDemoActiveState();
   }
 }

@@ -1,4 +1,5 @@
 <div class="space-y-6 max-w-7xl mx-auto pb-12">
+  
   <!-- Top Carbon Points & Impact Banner -->
   <div class="bg-gradient-to-br from-[#0c3823] via-[#10482c] to-[#15803d] rounded-3xl p-6 sm:p-8 text-white shadow-xl flex flex-col lg:flex-row items-center justify-between gap-6 border border-[#22c55e]/30">
     <div class="space-y-2 text-center lg:text-left">
@@ -10,19 +11,36 @@
       <p class="text-xs sm:text-sm text-emerald-100/80 max-w-xl">
         Transform tree foliage and bio-fertilizer carbon absorption into globally tradeable carbon credits (VCUs) and passive monthly dividend payouts.
       </p>
+
+      @if (!farmerService.hasPlants()) {
+        <div class="pt-2">
+          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-amber-500/20 text-amber-200 border border-amber-400/30 text-xs font-bold">
+            <span>⚠️</span>
+            <span>Credits Inactive: No plants have been selected yet.</span>
+          </span>
+          <a routerLink="/" class="ml-2 inline-flex items-center gap-1 text-xs font-bold text-white bg-[#16a34a] hover:bg-[#15803d] px-3 py-1 rounded-xl transition-all shadow-xs">
+            Select Plants on Dashboard →
+          </a>
+        </div>
+      }
     </div>
 
-    <!-- Carbon Points Box Matching Card 6 -->
-    <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl p-5 text-center min-w-[260px] shadow-lg">
+    <!-- Carbon Points Box (Dynamic from Farmer Plants) -->
+    <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl p-5 text-center min-w-[260px] shadow-lg flex-shrink-0">
       <span class="text-xs font-bold text-emerald-200 uppercase tracking-wider block">Your Green Carbon Credits</span>
-      <div class="text-3xl sm:text-4xl font-black text-white font-mono my-1 flex items-center justify-center gap-2">
+      <div class="text-3xl sm:text-4xl font-black text-white font-mono my-1 flex items-center justify-center gap-2"
+           [class.text-amber-300]="!farmerService.hasPlants()">
         <span>🪙</span>
-        <span>{{ farmerService.greenCredits().points.toLocaleString() }}</span>
+        <span>{{ farmerService.dynamicGreenCredits().points.toLocaleString() }}</span>
       </div>
       <div class="flex justify-around text-xs text-emerald-200/90 pt-2 border-t border-white/20 mt-2 font-medium">
-        <span>Offset: <strong>{{ farmerService.greenCredits().co2OffsetKg }} kg CO₂</strong></span>
+        <span>Offset: <strong>{{ farmerService.dynamicGreenCredits().co2OffsetKg.toLocaleString() }} kg CO₂</strong></span>
         <span>•</span>
-        <span>Status: <strong class="text-[#86efac]">Active</strong></span>
+        <span>Status: 
+          <strong [class.text-[#86efac]]="farmerService.hasPlants()" [class.text-amber-300]="!farmerService.hasPlants()">
+            {{ farmerService.dynamicGreenCredits().verificationStatus }}
+          </strong>
+        </span>
       </div>
     </div>
   </div>
@@ -37,15 +55,36 @@
         </h3>
         <p class="text-xs text-slate-500">Calculate annual CO₂ absorption, oxygen generation and revenue based on species count and bio-fertilization.</p>
       </div>
-      <span class="text-xs font-bold text-emerald-800 bg-emerald-100 px-3 py-1 rounded-full">
-        Real-Time Model
-      </span>
+      <div class="flex items-center gap-2">
+        <button (click)="syncWithMyTrees()" 
+                class="text-xs font-bold text-[#15803d] hover:text-[#0c3823] bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-3 py-1 rounded-full transition-all shadow-2xs active:scale-95 flex items-center gap-1.5">
+          <span>🔄</span>
+          <span>Sync with My Trees ({{ farmerService.farmer().totalPlants || 0 }})</span>
+        </button>
+      </div>
     </div>
+
+    @if (!farmerService.hasPlants()) {
+      <div class="mb-5 p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs flex items-center justify-between gap-2">
+        <div class="flex items-center gap-2">
+          <span>💡</span>
+          <span><strong>Simulator Mode:</strong> You currently have 0 active trees selected. Adjust sliders below to model hypothetical carbon sequestration yields.</span>
+        </div>
+        <a routerLink="/" class="text-xs font-extrabold text-[#15803d] hover:underline whitespace-nowrap">
+          Go to Dashboard to Select Plants →
+        </a>
+      </div>
+    }
 
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
       <!-- Left Inputs: Species Sliders & Bio-Inputs (7 Cols) -->
       <div class="lg:col-span-7 space-y-5">
-        <h4 class="text-xs font-black text-slate-800 uppercase tracking-wider">1. Planted Tree Quantities</h4>
+        <div class="flex items-center justify-between">
+          <h4 class="text-xs font-black text-slate-800 uppercase tracking-wider">1. Planted Tree Quantities</h4>
+          <span class="text-[11px] font-mono text-emerald-800 font-bold bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+            Total in model: {{ carbonService.calculationResult().totalTrees }} Trees
+          </span>
+        </div>
 
         <!-- Species Sliders -->
         <div class="space-y-4">
@@ -58,7 +97,7 @@
               </span>
               <span class="font-black text-slate-900 font-mono text-sm">{{ carbonService.calculatorInput().speciesQuantities['jackfruit'] || 0 }} Trees</span>
             </div>
-            <input type="range" min="0" max="100" step="5"
+            <input type="range" min="0" max="100" step="1"
                    [ngModel]="carbonService.calculatorInput().speciesQuantities['jackfruit'] || 0"
                    (ngModelChange)="carbonService.updateSpeciesQuantity('jackfruit', $event)"
                    class="w-full accent-[#16a34a] cursor-pointer">
@@ -73,7 +112,7 @@
               </span>
               <span class="font-black text-slate-900 font-mono text-sm">{{ carbonService.calculatorInput().speciesQuantities['lemon'] || 0 }} Trees</span>
             </div>
-            <input type="range" min="0" max="100" step="5"
+            <input type="range" min="0" max="100" step="1"
                    [ngModel]="carbonService.calculatorInput().speciesQuantities['lemon'] || 0"
                    (ngModelChange)="carbonService.updateSpeciesQuantity('lemon', $event)"
                    class="w-full accent-[#16a34a] cursor-pointer">
@@ -88,7 +127,7 @@
               </span>
               <span class="font-black text-slate-900 font-mono text-sm">{{ carbonService.calculatorInput().speciesQuantities['moringa'] || 0 }} Trees</span>
             </div>
-            <input type="range" min="0" max="100" step="5"
+            <input type="range" min="0" max="100" step="1"
                    [ngModel]="carbonService.calculatorInput().speciesQuantities['moringa'] || 0"
                    (ngModelChange)="carbonService.updateSpeciesQuantity('moringa', $event)"
                    class="w-full accent-[#16a34a] cursor-pointer">
@@ -103,7 +142,7 @@
               </span>
               <span class="font-black text-slate-900 font-mono text-sm">{{ carbonService.calculatorInput().speciesQuantities['teak'] || 0 }} Trees</span>
             </div>
-            <input type="range" min="0" max="100" step="5"
+            <input type="range" min="0" max="100" step="1"
                    [ngModel]="carbonService.calculatorInput().speciesQuantities['teak'] || 0"
                    (ngModelChange)="carbonService.updateSpeciesQuantity('teak', $event)"
                    class="w-full accent-[#16a34a] cursor-pointer">
@@ -118,7 +157,7 @@
               </span>
               <span class="font-black text-slate-900 font-mono text-sm">{{ carbonService.calculatorInput().speciesQuantities['bamboo'] || 0 }} Clumps</span>
             </div>
-            <input type="range" min="0" max="100" step="5"
+            <input type="range" min="0" max="100" step="1"
                    [ngModel]="carbonService.calculatorInput().speciesQuantities['bamboo'] || 0"
                    (ngModelChange)="carbonService.updateSpeciesQuantity('bamboo', $event)"
                    class="w-full accent-[#16a34a] cursor-pointer">
@@ -222,14 +261,26 @@
         <p class="text-xs text-slate-500">Tamper-proof verifiable digital certificate issued by Carbonova Carbon Registry.</p>
       </div>
 
-      <button (click)="printCertificate()" class="px-4 py-2 rounded-xl bg-[#0c3823] hover:bg-[#145335] text-white font-bold text-xs shadow-md transition-all flex items-center gap-2 self-start sm:self-auto">
+      <button (click)="printCertificate()" 
+              [disabled]="!farmerService.hasPlants()"
+              class="px-4 py-2 rounded-xl bg-[#0c3823] hover:bg-[#145335] disabled:opacity-40 disabled:pointer-events-none text-white font-bold text-xs shadow-md transition-all flex items-center gap-2 self-start sm:self-auto">
         <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg>
         <span>Print / Download PDF</span>
       </button>
     </div>
 
     <!-- Certificate Design -->
-    <div class="border-8 border-double border-[#0c3823] rounded-3xl p-6 sm:p-10 bg-gradient-to-b from-[#fafcfa] to-[#f4f8f4] relative shadow-inner text-center">
+    <div class="border-8 border-double rounded-3xl p-6 sm:p-10 bg-gradient-to-b from-[#fafcfa] to-[#f4f8f4] relative shadow-inner text-center"
+         [class.border-[#0c3823]]="farmerService.hasPlants()"
+         [class.border-amber-700]="!farmerService.hasPlants()">
+      
+      @if (!farmerService.hasPlants()) {
+        <!-- Watermark notice for pending status -->
+        <div class="absolute top-4 right-4 bg-amber-100 text-amber-900 border border-amber-300 px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider shadow-xs z-20">
+          ⚠️ Pending Plant Selection
+        </div>
+      }
+
       <!-- Watermark Background -->
       <div class="absolute inset-0 flex items-center justify-center opacity-5 pointer-events-none">
         <span class="text-9xl">🌿</span>
@@ -242,37 +293,45 @@
         </div>
         <h2 class="text-2xl sm:text-3xl font-serif font-black tracking-widest text-[#0c3823] uppercase">CARBONOVA CERTIFICATE</h2>
         <p class="text-xs font-bold text-[#15803d] uppercase tracking-widest">OF VERIFIED CARBON SEQUESTRATION & AFFILIATE STEWARDSHIP</p>
-        <p class="text-[11px] text-slate-400 font-mono">Serial No: {{ carbonService.activeCertificate().certificateNumber }}</p>
+        <p class="text-[11px] text-slate-400 font-mono">Serial No: {{ carbonService.liveCertificate().certificateNumber }}</p>
       </div>
 
       <!-- Certificate Body Text -->
       <div class="max-w-2xl mx-auto space-y-4 text-xs sm:text-sm text-slate-700 leading-relaxed mb-8">
         <p>This is to officially certify that registered farmer</p>
         <h3 class="text-2xl sm:text-3xl font-serif font-black text-[#0c3823] underline decoration-emerald-500 decoration-2 underline-offset-4">
-          {{ farmerService.farmer().name }}
+          {{ carbonService.liveCertificate().farmerName }}
         </h3>
         <p class="font-mono text-xs text-slate-500">
-          Farmer ID: <strong>{{ farmerService.farmer().farmerId }}</strong> • Location: <strong>{{ farmerService.farmer().location }}</strong>
+          Farmer ID: <strong>{{ carbonService.liveCertificate().farmerId }}</strong> • Location: <strong>{{ carbonService.liveCertificate().location }}</strong>
         </p>
 
-        <p class="text-xs text-slate-600 max-w-xl mx-auto pt-2">
-          Has successfully planted, fertilized, and sustained <strong class="text-slate-900">{{ carbonService.activeCertificate().totalTreesVerified }} verified trees</strong> across <strong class="text-slate-900">{{ carbonService.activeCertificate().farmArea }}</strong> of bio-managed agroforestry land, sequestering an audited <strong class="text-emerald-800">{{ carbonService.activeCertificate().co2SequesteredTonnes }} metric tonnes of CO₂e</strong> and generating <strong class="text-[#15803d]">{{ farmerService.greenCredits().points }} Verified Green Credits</strong>.
-        </p>
+        @if (farmerService.hasPlants()) {
+          <p class="text-xs text-slate-600 max-w-xl mx-auto pt-2">
+            Has successfully planted, fertilized, and sustained <strong class="text-slate-900">{{ carbonService.liveCertificate().totalTreesVerified }} verified trees</strong> across <strong class="text-slate-900">{{ carbonService.liveCertificate().farmArea }}</strong> of bio-managed agroforestry land, sequestering an audited <strong class="text-emerald-800">{{ carbonService.liveCertificate().co2SequesteredTonnes }} metric tonnes of CO₂e</strong> and generating <strong class="text-[#15803d]">{{ carbonService.liveCertificate().creditsIssued }} Verified Green Credits</strong>.
+          </p>
+        } @else {
+          <div class="p-3 bg-amber-50 rounded-xl border border-amber-200 max-w-lg mx-auto text-amber-900 text-xs">
+            ⚠️ <strong>Provisional Status:</strong> This certificate is awaiting plant selection. Once tree saplings are confirmed on the Dashboard, official verification audits and credits will be generated.
+          </div>
+        }
       </div>
 
       <!-- Certificate Verification Footer & Signatories -->
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-6 border-t border-slate-200 items-end max-w-2xl mx-auto">
         <!-- QR Code -->
         <div class="flex flex-col items-center">
-          <img [src]="carbonService.activeCertificate().qrCodeUrl" alt="Verification QR" class="w-20 h-20 border border-slate-300 rounded-lg p-1 bg-white shadow-xs">
+          <img [src]="carbonService.liveCertificate().qrCodeUrl" alt="Verification QR" class="w-20 h-20 border border-slate-300 rounded-lg p-1 bg-white shadow-xs">
           <span class="text-[9px] text-slate-400 font-mono mt-1">Scan to Verify Registry</span>
         </div>
 
         <!-- Issue Details -->
         <div class="text-center text-xs space-y-0.5">
-          <p class="text-slate-500">Issue Date: <strong class="text-slate-800">{{ carbonService.activeCertificate().issueDate }}</strong></p>
-          <p class="text-slate-500">Valid Until: <strong class="text-slate-800">{{ carbonService.activeCertificate().validUntil }}</strong></p>
-          <p class="text-[10px] text-emerald-700 font-mono font-bold">Status: VERIFIED VCS ACTIVE</p>
+          <p class="text-slate-500">Issue Date: <strong class="text-slate-800">{{ carbonService.liveCertificate().issueDate }}</strong></p>
+          <p class="text-slate-500">Valid Until: <strong class="text-slate-800">{{ carbonService.liveCertificate().validUntil }}</strong></p>
+          <p class="text-[10px] font-mono font-bold" [class.text-emerald-700]="farmerService.hasPlants()" [class.text-amber-700]="!farmerService.hasPlants()">
+            Status: {{ carbonService.liveCertificate().statusText }}
+          </p>
         </div>
 
         <!-- Signatory -->
@@ -292,31 +351,47 @@
       <span>Satellite & Field Verification Logs</span>
     </h3>
 
-    <div class="space-y-3">
-      @for (log of carbonService.verificationLogs(); track log.id) {
-        <div class="p-4 bg-slate-50 border border-slate-200 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div class="flex items-start gap-3.5">
-            <img [src]="log.photoUrl" [alt]="log.stage" class="w-14 h-14 rounded-xl object-cover border border-slate-300 flex-shrink-0">
-            <div>
-              <div class="flex items-center gap-2">
-                <h5 class="text-xs font-bold text-slate-900">{{ log.stage }} Verification Audit</h5>
-                <span [class]="log.status === 'Approved' ? 'bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full' : 'bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded-full'">
-                  {{ log.status }}
-                </span>
+    @if (farmerService.hasPlants()) {
+      <div class="space-y-3">
+        @for (log of carbonService.verificationLogs(); track log.id) {
+          <div class="p-4 bg-slate-50 border border-slate-200 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div class="flex items-start gap-3.5">
+              <img [src]="log.photoUrl" [alt]="log.stage" class="w-14 h-14 rounded-xl object-cover border border-slate-300 flex-shrink-0">
+              <div>
+                <div class="flex items-center gap-2">
+                  <h5 class="text-xs font-bold text-slate-900">{{ log.stage }} Verification Audit</h5>
+                  <span [class]="log.status === 'Approved' ? 'bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full' : 'bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded-full'">
+                    {{ log.status }}
+                  </span>
+                </div>
+                <p class="text-xs text-slate-600 mt-1">
+                  @if (log.stage === 'Plantation') {
+                    <span>{{ farmerService.farmer().totalPlants }} saplings detected in {{ farmerService.farmer().farmArea || '0.25 acre' }} layout. Spacing verified.</span>
+                  } @else {
+                    <span>{{ log.remarks }}</span>
+                  }
+                </p>
+                <p class="text-[10px] text-slate-400 font-mono mt-0.5">Location: {{ farmerService.farmer().location }} • Auditor: {{ log.auditorName }}</p>
               </div>
-              <p class="text-xs text-slate-600 mt-1">{{ log.remarks }}</p>
-              <p class="text-[10px] text-slate-400 font-mono mt-0.5">GPS: {{ log.gpsCoordinates }} • Auditor: {{ log.auditorName }}</p>
+            </div>
+
+            <div class="text-right sm:self-center">
+              <span class="text-xs font-bold text-emerald-800 bg-emerald-100/70 px-2.5 py-1 rounded-xl block text-center sm:text-right">
+                Health: {{ log.healthIndex }}%
+              </span>
+              <span class="text-[10px] text-slate-400 mt-1 block">{{ log.timestamp }}</span>
             </div>
           </div>
-
-          <div class="text-right sm:self-center">
-            <span class="text-xs font-bold text-emerald-800 bg-emerald-100/70 px-2.5 py-1 rounded-xl block text-center sm:text-right">
-              Health: {{ log.healthIndex }}%
-            </span>
-            <span class="text-[10px] text-slate-400 mt-1 block">{{ log.timestamp }}</span>
-          </div>
-        </div>
-      }
-    </div>
+        }
+      </div>
+    } @else {
+      <div class="py-8 px-4 border-2 border-dashed border-emerald-200/70 rounded-2xl bg-slate-50 text-center space-y-2">
+        <span class="text-2xl">🛰️</span>
+        <h4 class="font-bold text-slate-800 text-sm">No Verification Logs Available</h4>
+        <p class="text-xs text-slate-500 max-w-sm mx-auto">
+          Satellite and field verification audits unlock after saplings are registered on the dashboard.
+        </p>
+      </div>
+    }
   </div>
 </div>

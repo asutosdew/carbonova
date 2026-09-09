@@ -1,10 +1,13 @@
-﻿import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, signal, computed, inject } from '@angular/core';
 import { TreeCarbonData, CarbonCalculationInput, CarbonCalculationOutput, CarbonCertificate, VerificationLog } from '../models/carbon.model';
+import { FarmerService } from './farmer.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CarbonCreditService {
+  private readonly farmerService = inject(FarmerService);
+
   // Tree Species Carbon Sequestration Database
   readonly speciesDatabase = signal<TreeCarbonData[]>([
     {
@@ -182,6 +185,58 @@ export class CarbonCreditService {
       photoUrl: 'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?w=500&auto=format&fit=crop&q=80'
     }
   ]);
+
+  constructor() {
+    this.syncFromFarmerPlants();
+  }
+
+  // Sync species quantities from farmer's current active plants
+  syncFromFarmerPlants() {
+    const plants = this.farmerService.plants();
+    const qtyMap: { [speciesId: string]: number } = {
+      jackfruit: 0,
+      lemon: 0,
+      moringa: 0,
+      teak: 0,
+      bamboo: 0
+    };
+
+    for (const p of plants) {
+      const lower = p.name.toLowerCase();
+      if (lower.includes('jackfruit')) qtyMap['jackfruit'] = (qtyMap['jackfruit'] || 0) + p.qty;
+      else if (lower.includes('lemon')) qtyMap['lemon'] = (qtyMap['lemon'] || 0) + p.qty;
+      else if (lower.includes('moringa')) qtyMap['moringa'] = (qtyMap['moringa'] || 0) + p.qty;
+      else if (lower.includes('teak')) qtyMap['teak'] = (qtyMap['teak'] || 0) + p.qty;
+      else if (lower.includes('bamboo')) qtyMap['bamboo'] = (qtyMap['bamboo'] || 0) + p.qty;
+    }
+
+    const hasPlants = this.farmerService.hasPlants();
+    this.calculatorInput.update(prev => ({
+      ...prev,
+      speciesQuantities: qtyMap,
+      survivalPercentage: hasPlants ? (this.farmerService.farmer().survivalRate || 95) : 0
+    }));
+  }
+
+  // Dynamic Certificate reflecting current farmer profile and verified plants
+  readonly liveCertificate = computed(() => {
+    const farmer = this.farmerService.farmer();
+    const credits = this.farmerService.dynamicGreenCredits();
+    const cert = this.activeCertificate();
+    const hasPlants = this.farmerService.hasPlants();
+
+    return {
+      ...cert,
+      farmerName: farmer.name,
+      farmerId: farmer.farmerId,
+      location: farmer.location || 'Ambikapur, Chhattisgarh, India',
+      farmArea: farmer.farmArea || '0.25 Acre',
+      totalTreesVerified: hasPlants ? (farmer.activePlants || farmer.totalPlants) : 0,
+      co2SequesteredTonnes: hasPlants ? Number((credits.co2OffsetKg / 1000).toFixed(2)) : 0,
+      creditsIssued: credits.points,
+      statusText: hasPlants ? 'VERIFIED VCS ACTIVE' : 'PENDING PLANT SELECTION'
+    };
+  });
 
   updateInput(partial: Partial<CarbonCalculationInput>) {
     this.calculatorInput.update(prev => ({ ...prev, ...partial }));

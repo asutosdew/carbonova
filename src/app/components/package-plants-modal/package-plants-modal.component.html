@@ -1,0 +1,336 @@
+<div class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
+  <div class="bg-white rounded-2xl sm:rounded-3xl shadow-2xl border border-emerald-100 max-w-3xl w-full overflow-hidden transition-all transform flex flex-col max-h-[92vh]">
+    
+    <!-- Modal Header -->
+    <div class="bg-gradient-to-r from-[#0c3823] via-[#124b2d] to-[#186039] p-4 sm:p-5 text-white flex items-center justify-between flex-shrink-0">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center text-xl border border-white/20">
+          🌱
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h3 class="text-base sm:text-lg font-black text-white leading-tight">
+              Package & Plants Selection
+            </h3>
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-[#22c55e]/20 text-[#86efac] border border-[#22c55e]/30">
+              Step {{ step() }} of 2
+            </span>
+          </div>
+          <p class="text-xs text-emerald-100/80 mt-0.5">
+            {{ step() === 1 ? 'Choose your carbon farming package & inspect compulsory bio-inputs' : 'Select your tree species up to package price budget' }}
+          </p>
+        </div>
+      </div>
+
+      <button (click)="close.emit()" 
+              class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center text-sm font-bold transition-all border border-white/15 active:scale-95"
+              aria-label="Close modal">
+        ✕
+      </button>
+    </div>
+
+    <!-- Modal Body (Scrollable) -->
+    <div class="overflow-y-auto flex-1 p-4 sm:p-6 space-y-5">
+
+      <!-- ================= STEP 1: PACKAGE SELECTION ================= -->
+      @if (step() === 1) {
+        <div>
+          <div class="mb-3">
+            <h4 class="text-sm font-black text-slate-900 flex items-center gap-1.5">
+              <span>1. Choose Farming Package</span>
+              <span class="text-xs font-normal text-slate-500">(Sets maximum plant allowance)</span>
+            </h4>
+          </div>
+
+          <!-- Package Selection Cards Grid -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4 mb-5">
+            @for (pkg of packageOptions; track pkg.id) {
+              <div (click)="selectPackage(pkg)"
+                   [class.ring-2]="selectedPackage().id === pkg.id"
+                   [class.ring-[#16a34a]]="selectedPackage().id === pkg.id"
+                   [class.bg-emerald-50/50]="selectedPackage().id === pkg.id"
+                   [class.border-[#16a34a]]="selectedPackage().id === pkg.id"
+                   class="cursor-pointer border rounded-2xl p-3.5 transition-all relative flex flex-col justify-between hover:border-emerald-300 hover:shadow-md bg-white">
+                
+                @if (pkg.badge) {
+                  <span class="absolute -top-2.5 right-3 px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider"
+                        [class.bg-amber-500]="pkg.id === 'PKG-01'"
+                        [class.bg-emerald-600]="pkg.id === 'PKG-02'"
+                        [class.bg-purple-600]="pkg.id === 'PKG-03'"
+                        class="text-white shadow-xs">
+                    {{ pkg.badge }}
+                  </span>
+                }
+
+                <div>
+                  <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-100 to-green-50 flex items-center justify-center mb-2 overflow-hidden border border-emerald-200">
+                    <img [src]="pkg.boxImage" [alt]="pkg.name" class="w-full h-full object-contain">
+                  </div>
+                  <h5 class="font-extrabold text-slate-900 text-xs sm:text-sm leading-tight">{{ pkg.name }}</h5>
+                  <p class="text-[11px] text-slate-500 mt-1 line-clamp-2">{{ pkg.description }}</p>
+                </div>
+
+                <div class="pt-3 mt-2 border-t border-slate-100 flex items-baseline justify-between">
+                  <div>
+                    <span class="text-[10px] uppercase font-bold text-slate-400 block">Package Price</span>
+                    <span class="text-base font-black text-[#15803d]">₹{{ pkg.price.toLocaleString() }}</span>
+                  </div>
+                  <span class="text-[10px] font-semibold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-md">
+                    {{ pkg.recommendedAcre }}
+                  </span>
+                </div>
+              </div>
+            }
+          </div>
+
+          <!-- Compulsory Items Section (Fertilizers & Pesticides) -->
+          <div class="bg-gradient-to-br from-amber-50/70 via-emerald-50/50 to-green-50/80 rounded-2xl p-4 border border-emerald-200/80 mb-4">
+            <div class="flex items-center justify-between mb-2.5">
+              <div class="flex items-center gap-2">
+                <span class="text-lg">🌿</span>
+                <div>
+                  <h5 class="text-xs sm:text-sm font-black text-slate-900 flex items-center gap-2">
+                    <span>Compulsory Inclusions (Included by Default)</span>
+                    <span class="bg-[#16a34a] text-white text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">
+                      Mandatory
+                    </span>
+                  </h5>
+                  <p class="text-[11px] text-slate-600 font-medium">
+                    As required by Carbonova agronomy standards, organic fertilizer and bio-pesticide protection kits are mandatory and bundled automatically with all packages.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 mt-3">
+              @for (item of compulsoryInclusions; track item.name) {
+                <div class="bg-white/90 backdrop-blur-xs rounded-xl p-2.5 border border-emerald-200/70 shadow-2xs flex items-start gap-2">
+                  <span class="text-lg flex-shrink-0 mt-0.5">{{ item.icon }}</span>
+                  <div>
+                    <span class="text-[10px] font-bold text-emerald-700 uppercase tracking-wide block">{{ item.type }}</span>
+                    <strong class="text-[11px] text-slate-800 font-bold block leading-snug">{{ item.name }}</strong>
+                    <span class="text-[10px] text-slate-500 block mt-0.5">{{ item.benefit }}</span>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- Bottom Action Bar for Step 1 -->
+          <div class="flex items-center justify-between pt-3 border-t border-slate-100">
+            <div class="text-xs text-slate-600">
+              Selected Package: <strong class="text-slate-900 font-bold">{{ selectedPackage().name }} (₹{{ selectedPackage().price.toLocaleString() }})</strong>
+            </div>
+            <button (click)="goToPlantsStep()"
+                    class="py-2.5 px-5 rounded-xl bg-[#16a34a] hover:bg-[#15803d] text-white font-bold text-xs transition-all flex items-center gap-2 shadow-sm active:scale-98">
+              <span>Continue to Plant Selection</span>
+              <span>→</span>
+            </button>
+          </div>
+        </div>
+      }
+
+      <!-- ================= STEP 2: PLANTS SELECTION & BUDGET ================= -->
+      @if (step() === 2) {
+        <div>
+          <!-- Budget & Allocation Summary Strip -->
+          <div class="bg-[#f8faf8] border border-[#d2e8d2] rounded-2xl p-3.5 sm:p-4 mb-4">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-2.5">
+              <div class="flex items-center gap-2">
+                <span class="text-xl">📦</span>
+                <div>
+                  <span class="text-[10px] uppercase font-bold text-slate-500 tracking-wider block">Active Package</span>
+                  <span class="text-xs sm:text-sm font-black text-slate-900">{{ selectedPackage().name }}</span>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-4 text-right">
+                <div>
+                  <span class="text-[10px] uppercase font-bold text-slate-400 block">Package Budget</span>
+                  <span class="text-sm sm:text-base font-black text-slate-900">₹{{ selectedPackage().price.toLocaleString() }}</span>
+                </div>
+                <div>
+                  <span class="text-[10px] uppercase font-bold text-slate-400 block">Selected Value</span>
+                  <span class="text-sm sm:text-base font-black" [class.text-[#16a34a]]="!isOverBudget()" [class.text-rose-600]="isOverBudget()">
+                    ₹{{ totalPlantsCost().toLocaleString() }}
+                  </span>
+                </div>
+                <div>
+                  <span class="text-[10px] uppercase font-bold text-slate-400 block">Remaining Balance</span>
+                  <span class="text-sm sm:text-base font-black" [class.text-emerald-700]="remainingBudget() >= 0" [class.text-rose-600]="remainingBudget() < 0">
+                    ₹{{ remainingBudget().toLocaleString() }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Budget Progress Bar -->
+            <div class="space-y-1">
+              <div class="w-full h-2.5 bg-slate-200 rounded-full overflow-hidden">
+                <div class="h-full transition-all duration-300"
+                     [style.width.%]="Math.min(100, (totalPlantsCost() / selectedPackage().price) * 100)"
+                     [class.bg-[#16a34a]]="!isOverBudget() && remainingBudget() > 0"
+                     [class.bg-emerald-600]="remainingBudget() === 0"
+                     [class.bg-rose-500]="isOverBudget()">
+                </div>
+              </div>
+
+              <div class="flex items-center justify-between text-[11px] font-semibold text-slate-600">
+                <div class="flex items-center gap-2">
+                  <span class="inline-flex items-center gap-1 font-bold text-[#15803d]">
+                    <span>🌱</span>
+                    <span>{{ totalPlantsCount() }} Trees Selected</span>
+                  </span>
+                  <span>•</span>
+                  <span class="text-slate-500">Est. {{ totalCarbonEst().toFixed(1) }} kg CO₂/yr absorption</span>
+                </div>
+                <span>Max allowed: ₹{{ selectedPackage().price.toLocaleString() }}</span>
+              </div>
+            </div>
+
+            @if (isOverBudget()) {
+              <div class="mt-2 text-[11px] font-bold text-rose-700 bg-rose-50 p-2 rounded-lg border border-rose-200 flex items-center gap-1.5">
+                <span>⚠️</span>
+                <span>You have exceeded the package budget by ₹{{ (totalPlantsCost() - selectedPackage().price).toLocaleString() }}. Please reduce plant quantities.</span>
+              </div>
+            }
+          </div>
+
+          <!-- Plants List Title & Quick Reset -->
+          <div class="flex items-center justify-between mb-3">
+            <h4 class="text-sm font-black text-slate-900 flex items-center gap-1.5">
+              <span>2. Choose Plants & Quantities</span>
+              <span class="text-xs font-normal text-slate-500">(Max plants up to package price)</span>
+            </h4>
+            <button (click)="resetPlants()" class="text-xs text-slate-500 hover:text-slate-800 underline font-medium">
+              Clear All
+            </button>
+          </div>
+
+          <!-- Plant Items Selection Cards -->
+          <div class="space-y-2.5 mb-4">
+            @for (plant of plantChoices(); track plant.id) {
+              <div class="border rounded-2xl p-3 sm:p-3.5 bg-white hover:border-emerald-300 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                   [class.bg-emerald-50/30]="plant.selectedQty > 0"
+                   [class.border-emerald-300]="plant.selectedQty > 0">
+                
+                <!-- Plant Info -->
+                <div class="flex items-center gap-3">
+                  <img [src]="plant.image" [alt]="plant.name" class="w-12 h-12 rounded-xl object-cover border border-slate-200 flex-shrink-0">
+                  <div>
+                    <div class="flex items-center gap-2">
+                      <h5 class="font-extrabold text-slate-900 text-xs sm:text-sm leading-tight">{{ plant.name }}</h5>
+                      <span class="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider bg-slate-100 text-slate-600">
+                        {{ plant.category }}
+                      </span>
+                    </div>
+                    <p class="text-[11px] text-slate-400 italic">{{ plant.scientificName }}</p>
+                    <div class="flex items-center gap-2 mt-0.5 text-[11px]">
+                      <span class="font-extrabold text-[#15803d]">₹{{ plant.unitPrice }} / sapling</span>
+                      <span class="text-slate-300">•</span>
+                      <span class="text-emerald-700 font-mono text-[10px] bg-emerald-50 px-1.5 py-0.5 rounded font-bold">
+                        🍃 {{ plant.carbonRatePerYearKg }} kg CO₂/yr
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Quantity Selector & Actions -->
+                <div class="flex items-center justify-between sm:justify-end gap-3 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100">
+                  <!-- Quick preset buttons -->
+                  <div class="flex items-center gap-1">
+                    <button (click)="incrementPlant(plant.id, 5)"
+                            [disabled]="!canAddPlant(plant, 5)"
+                            class="px-2 py-1 rounded-md text-[10px] font-bold bg-slate-100 hover:bg-emerald-100 hover:text-emerald-800 disabled:opacity-30 disabled:pointer-events-none transition-colors">
+                      +5
+                    </button>
+                    <button (click)="incrementPlant(plant.id, 10)"
+                            [disabled]="!canAddPlant(plant, 10)"
+                            class="px-2 py-1 rounded-md text-[10px] font-bold bg-slate-100 hover:bg-emerald-100 hover:text-emerald-800 disabled:opacity-30 disabled:pointer-events-none transition-colors">
+                      +10
+                    </button>
+                  </div>
+
+                  <!-- Counter -->
+                  <div class="flex items-center border border-slate-200 rounded-xl bg-white shadow-2xs overflow-hidden">
+                    <button (click)="decrementPlant(plant.id, 1)"
+                            [disabled]="plant.selectedQty === 0"
+                            class="w-8 h-8 flex items-center justify-center text-slate-600 hover:bg-slate-100 disabled:opacity-30 font-bold transition-colors">
+                      −
+                    </button>
+                    <span class="w-10 text-center font-mono font-black text-xs sm:text-sm text-slate-900">
+                      {{ plant.selectedQty }}
+                    </span>
+                    <button (click)="incrementPlant(plant.id, 1)"
+                            [disabled]="!canAddPlant(plant, 1)"
+                            class="w-8 h-8 flex items-center justify-center text-slate-600 hover:bg-slate-100 disabled:opacity-30 font-bold transition-colors">
+                      +
+                    </button>
+                  </div>
+
+                  <!-- Plant total cost -->
+                  <div class="text-right min-w-[70px]">
+                    <span class="text-[10px] text-slate-400 block">Subtotal</span>
+                    <strong class="text-xs sm:text-sm font-black text-slate-900">
+                      ₹{{ (plant.selectedQty * plant.unitPrice).toLocaleString() }}
+                    </strong>
+                  </div>
+                </div>
+
+              </div>
+            }
+          </div>
+
+          <!-- Locked Compulsory Reminder Strip -->
+          <div class="p-2.5 bg-emerald-50 rounded-xl border border-emerald-200 text-[11px] font-medium text-emerald-900 flex items-center justify-between mb-4">
+            <span class="flex items-center gap-1.5">
+              <span>✓</span>
+              <span><strong>Compulsory Bio-Inputs Included:</strong> 10kg Bio-NPK Granules + 1L Cold-Pressed Neem Bio-Pesticide</span>
+            </span>
+            <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-100/80 px-2 py-0.5 rounded-full">
+              Free with package
+            </span>
+          </div>
+
+          <!-- Bottom Action Buttons for Step 2 -->
+          <div class="flex items-center justify-between pt-3 border-t border-slate-100">
+            <button (click)="goToPackageStep()"
+                    class="py-2.5 px-4 rounded-xl border border-slate-300 hover:bg-slate-50 text-slate-700 font-bold text-xs transition-all">
+              ← Back to Packages
+            </button>
+
+            <button (click)="confirmAndActivate()"
+                    [disabled]="totalPlantsCount() === 0 || isOverBudget() || isSubmitting()"
+                    class="py-2.5 px-6 rounded-xl bg-[#16a34a] hover:bg-[#15803d] disabled:opacity-40 disabled:pointer-events-none text-white font-black text-xs sm:text-sm transition-all shadow-md active:scale-98 flex items-center gap-2">
+              @if (isSubmitting()) {
+                <svg class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span>Activating Farmer...</span>
+              } @else {
+                <span>✓ Confirm Plants & Activate Farm ({{ totalPlantsCount() }} Trees)</span>
+              }
+            </button>
+          </div>
+        </div>
+      }
+
+      <!-- Success Screen Banner -->
+      @if (isSuccess()) {
+        <div class="text-center py-8 space-y-3">
+          <div class="w-16 h-16 rounded-full bg-[#16a34a] text-white flex items-center justify-center text-3xl mx-auto shadow-lg animate-bounce">
+            ✓
+          </div>
+          <h4 class="text-xl font-black text-slate-900">Congratulations, Farm Activated! 🎉</h4>
+          <p class="text-xs text-slate-600 max-w-md mx-auto">
+            Your package and {{ totalPlantsCount() }} trees have been registered successfully with compulsory Bio-NPK and Bio-Pesticides. Your Green Credits and Impact tracking are now live!
+          </p>
+        </div>
+      }
+
+    </div>
+
+  </div>
+</div>
+

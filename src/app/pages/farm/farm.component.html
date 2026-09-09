@@ -1,26 +1,84 @@
-﻿<div class="space-y-6 max-w-7xl mx-auto pb-12">
+<div class="space-y-6 max-w-7xl mx-auto pb-12">
+  
   <!-- Farm Header Banner -->
   <div class="bg-gradient-to-br from-[#0c3823] via-[#10482c] to-[#15803d] rounded-3xl p-6 sm:p-8 text-white shadow-xl flex flex-col md:flex-row items-center justify-between gap-6 border border-[#22c55e]/30">
-    <div class="space-y-2 text-center md:text-left">
+    <div class="space-y-2 text-center md:text-left flex-1">
       <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md text-emerald-200 text-xs font-bold border border-white/20">
         <span>📍</span>
         <span>GEO-MAPPED AGROFORESTRY PLOT</span>
       </div>
-      <h2 class="text-2xl sm:text-3xl font-black tracking-tight">Sandeep's Carbonova Farm Plot</h2>
-      <p class="text-xs sm:text-sm text-emerald-100/80 max-w-xl">
-        Ambikapur, Surguja District, Chhattisgarh • 0.25 Acre High-Density Multi-Tier Agroforestry Model.
+      <h2 class="text-2xl sm:text-3xl font-black tracking-tight">
+        {{ farmerService.farmer().name }}'s Carbonova Farm Plot
+      </h2>
+      <p class="text-xs sm:text-sm text-emerald-100/90 max-w-2xl leading-relaxed">
+        @if (farmerService.hasFarmDetails()) {
+          <span>{{ farmerService.farmer().location }} • <strong>{{ farmerService.farmer().farmArea }}</strong> Plot • Soil: <strong>{{ farmerService.farmer().soilType }}</strong> • Irrigation: <strong>{{ farmerService.farmer().irrigationSource }}</strong></span>
+        } @else {
+          <span>{{ farmerService.farmer().location }} • <span class="text-amber-300 font-bold">⚠️ No land specifications recorded yet. Click below to add details.</span></span>
+        }
       </p>
+
+      <div class="pt-2">
+        <button (click)="openFarmDetailsModal()"
+                class="py-2 px-4 rounded-xl bg-white/15 hover:bg-white/25 text-white text-xs font-bold transition-all border border-white/25 shadow-sm inline-flex items-center gap-1.5 active:scale-95">
+          <span>{{ farmerService.hasFarmDetails() ? '✏️ Edit Farm Specifications' : '🌾 Add Farm Details' }}</span>
+        </button>
+      </div>
     </div>
 
     <!-- Farm Quick Stat -->
-    <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl p-5 text-center min-w-[220px] shadow-lg">
+    <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl p-5 text-center min-w-[220px] shadow-lg flex-shrink-0">
       <span class="text-xs font-bold text-emerald-200 uppercase tracking-wider block">Survival Metric</span>
-      <div class="text-3xl font-black text-white font-mono my-1">
-        38 / 40 <span class="text-xs font-normal text-emerald-200">Trees</span>
-      </div>
-      <span class="text-xs font-bold text-[#86efac] bg-emerald-950/60 px-3 py-0.5 rounded-full inline-block mt-1">
-        95% Optimal Survival
-      </span>
+      @if (farmerService.hasPlants()) {
+        <div class="text-3xl font-black text-white font-mono my-1">
+          {{ farmerService.farmer().activePlants }} / {{ farmerService.farmer().totalPlants }} <span class="text-xs font-normal text-emerald-200">Trees</span>
+        </div>
+        <span class="text-xs font-bold text-[#86efac] bg-emerald-950/60 px-3 py-0.5 rounded-full inline-block mt-1">
+          {{ farmerService.farmer().survivalRate }}% Optimal Survival
+        </span>
+      } @else {
+        <div class="text-2xl font-black text-white font-mono my-1">
+          0 / 0 <span class="text-xs font-normal text-emerald-200">Trees</span>
+        </div>
+        <span class="text-xs font-bold text-amber-300 bg-emerald-950/60 px-3 py-0.5 rounded-full inline-block mt-1">
+          Awaiting Plants
+        </span>
+      }
+    </div>
+  </div>
+
+  <!-- Farm Specifications Cards Strip -->
+  <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+    <div class="carbon-card p-3.5 sm:p-4 border border-emerald-100/80">
+      <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Farm Area</span>
+      <strong class="text-sm sm:text-base font-black text-slate-900 block mt-0.5">
+        {{ farmerService.farmer().farmArea || 'Pending Entry' }}
+      </strong>
+      <span class="text-[10px] text-emerald-700 font-medium">Agroforestry Plot</span>
+    </div>
+
+    <div class="carbon-card p-3.5 sm:p-4 border border-emerald-100/80">
+      <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Soil Type</span>
+      <strong class="text-sm sm:text-base font-black text-slate-900 block mt-0.5 truncate">
+        {{ farmerService.farmer().soilType || 'Pending Entry' }}
+      </strong>
+      <span class="text-[10px] text-emerald-700 font-medium">Carbon Retention Base</span>
+    </div>
+
+    <div class="carbon-card p-3.5 sm:p-4 border border-emerald-100/80">
+      <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Irrigation System</span>
+      <strong class="text-sm sm:text-base font-black text-slate-900 block mt-0.5 truncate">
+        {{ farmerService.farmer().irrigationSource || 'Pending Entry' }}
+      </strong>
+      <span class="text-[10px] text-emerald-700 font-medium">Water Security</span>
+    </div>
+
+    <div class="carbon-card p-3.5 sm:p-4 border border-emerald-100/80">
+      <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Plantation Date</span>
+      <strong class="text-sm sm:text-base font-black text-slate-900 block mt-0.5 truncate">
+        {{ farmerService.farmer().plantationDate || 'Not Scheduled' }}
+      </strong>
+      <span class="text-[10px] text-emerald-700 font-medium">Geotag Registered</span>
     </div>
   </div>
 
@@ -28,37 +86,46 @@
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
     <!-- Visual Farm Map Layout -->
     <div class="lg:col-span-2 carbon-card p-6">
-      <h3 class="text-base sm:text-lg font-black text-slate-900 flex items-center gap-2 mb-4">
-        <span>🗺️</span>
-        <span>Geotagged Plantation Layout</span>
-      </h3>
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-base sm:text-lg font-black text-slate-900 flex items-center gap-2">
+          <span>🗺️</span>
+          <span>Geotagged Plantation Layout</span>
+        </h3>
+        <span class="text-xs text-slate-500 font-medium">
+          Plot Area: <strong>{{ farmerService.farmer().farmArea || '0.25 Acre' }}</strong>
+        </span>
+      </div>
 
       <div class="relative h-64 sm:h-80 w-full rounded-2xl overflow-hidden mb-4 border border-emerald-200 bg-slate-900 group">
         <img src="https://images.unsplash.com/photo-1500937386664-56d1dfef3854?w=800&auto=format&fit=crop&q=80" 
              alt="Farm Plot Satellite" 
              class="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-700">
         
-        <!-- Plot Overlay Grid -->
-        <div class="absolute inset-0 p-4 grid grid-cols-3 gap-2 pointer-events-none">
-          <div class="border border-dashed border-emerald-400/80 bg-emerald-950/40 rounded-xl p-2 text-white text-[10px] flex flex-col justify-between">
-            <span class="font-bold bg-emerald-600/80 px-1.5 py-0.5 rounded self-start">Zone A: Jackfruit</span>
-            <span class="font-mono">10 Trees • 10 Active</span>
-          </div>
-
-          <div class="border border-dashed border-emerald-400/80 bg-emerald-950/40 rounded-xl p-2 text-white text-[10px] flex flex-col justify-between">
-            <span class="font-bold bg-emerald-600/80 px-1.5 py-0.5 rounded self-start">Zone B: Lemon</span>
-            <span class="font-mono">10 Trees • 9 Active</span>
-          </div>
-
-          <div class="border border-dashed border-emerald-400/80 bg-emerald-950/40 rounded-xl p-2 text-white text-[10px] flex flex-col justify-between">
-            <span class="font-bold bg-emerald-600/80 px-1.5 py-0.5 rounded self-start">Zone C: Moringa</span>
-            <span class="font-mono">20 Trees • 19 Active</span>
-          </div>
+        <!-- Plot Overlay Grid (Dynamic Zones based on Plants) -->
+        <div class="absolute inset-0 p-4 grid grid-cols-2 sm:grid-cols-3 gap-2 pointer-events-none overflow-y-auto">
+          @if (farmerService.hasPlants()) {
+            @for (plant of farmerService.plants(); track plant.id; let i = $index) {
+              <div class="border border-dashed border-emerald-400/80 bg-emerald-950/50 backdrop-blur-2xs rounded-xl p-2.5 text-white text-[10px] flex flex-col justify-between">
+                <span class="font-bold bg-emerald-600/90 px-1.5 py-0.5 rounded self-start truncate max-w-full">
+                  Zone {{ ['A', 'B', 'C', 'D', 'E'][i % 5] }}: {{ plant.name }}
+                </span>
+                <span class="font-mono mt-1 text-emerald-200">
+                  {{ plant.qty }} Saplings • {{ plant.status }}
+                </span>
+              </div>
+            }
+          } @else {
+            <div class="col-span-full border border-dashed border-amber-400/60 bg-black/60 rounded-xl p-4 text-white text-center flex flex-col items-center justify-center">
+              <span class="text-2xl mb-1">🌱</span>
+              <span class="font-bold text-xs">No active plant zones mapped yet</span>
+              <span class="text-[10px] text-slate-300 mt-0.5">Select your package and tree varieties to generate your plot grid</span>
+            </div>
+          }
         </div>
 
         <div class="absolute bottom-3 left-3 bg-black/70 backdrop-blur-md px-3 py-1 rounded-xl text-[10px] text-white font-mono flex items-center gap-2">
           <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-          <span>Lat: 23.1189° N • Lon: 83.1979° E • Elevation: 620m</span>
+          <span>Location: {{ farmerService.farmer().location }}</span>
         </div>
       </div>
 
@@ -111,25 +178,52 @@
 
   <!-- Plant Species Inventory Details -->
   <div class="carbon-card p-6">
-    <h3 class="text-base sm:text-lg font-black text-slate-900 flex items-center gap-2 mb-4">
-      <span>🌿</span>
-      <span>Planted Batches Inventory</span>
-    </h3>
-
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-      @for (plant of farmerService.plants(); track plant.id) {
-        <div class="p-4 bg-slate-50 border border-slate-200 rounded-2xl flex gap-3.5 items-center">
-          <img [src]="plant.image" [alt]="plant.name" class="w-16 h-16 rounded-xl object-cover border border-slate-300">
-          <div class="flex-1">
-            <h4 class="font-bold text-slate-900 text-sm">{{ plant.name }}</h4>
-            <p class="text-[11px] text-slate-500 italic">{{ plant.scientificName }}</p>
-            <div class="flex items-center justify-between mt-2 pt-2 border-t border-slate-200 text-xs">
-              <span class="font-bold text-emerald-800">{{ plant.status }}</span>
-              <span class="font-mono text-slate-600">{{ plant.carbonRatePerYearKg }} kg CO₂/yr</span>
-            </div>
-          </div>
-        </div>
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-base sm:text-lg font-black text-slate-900 flex items-center gap-2">
+        <span>🌿</span>
+        <span>Planted Batches Inventory</span>
+      </h3>
+      @if (farmerService.hasPlants()) {
+        <span class="text-xs font-bold text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-xl border border-emerald-200">
+          {{ farmerService.farmer().totalPlants }} Total Saplings
+        </span>
       }
     </div>
+
+    @if (farmerService.hasPlants()) {
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        @for (plant of farmerService.plants(); track plant.id) {
+          <div class="p-4 bg-slate-50 border border-slate-200 rounded-2xl flex gap-3.5 items-center">
+            <img [src]="plant.image" [alt]="plant.name" class="w-16 h-16 rounded-xl object-cover border border-slate-300 flex-shrink-0">
+            <div class="flex-1 min-w-0">
+              <h4 class="font-bold text-slate-900 text-sm truncate">{{ plant.name }}</h4>
+              <p class="text-[11px] text-slate-500 italic truncate">{{ plant.scientificName }}</p>
+              <div class="flex items-center justify-between mt-2 pt-2 border-t border-slate-200 text-xs">
+                <span class="font-bold text-emerald-800">{{ plant.status }}</span>
+                <span class="font-mono text-slate-600">{{ plant.carbonRatePerYearKg }} kg CO₂/yr</span>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    } @else {
+      <div class="py-8 px-4 border-2 border-dashed border-emerald-200/70 rounded-2xl bg-slate-50 text-center space-y-2">
+        <span class="text-2xl">🌱</span>
+        <h4 class="font-bold text-slate-800 text-sm">No Plant Batches Registered</h4>
+        <p class="text-xs text-slate-500 max-w-sm mx-auto">
+          Please select your package and trees from the Dashboard to populate your farm batches inventory.
+        </p>
+        <div class="pt-2">
+          <a routerLink="/" class="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-[#16a34a] hover:bg-[#15803d] px-4 py-2 rounded-xl transition-all shadow-sm">
+            Go to Dashboard →
+          </a>
+        </div>
+      </div>
+    }
   </div>
 </div>
+
+<!-- Farm Details Entry/Edit Modal -->
+@if (showFarmDetailsModal()) {
+  <app-farm-details-modal (close)="closeFarmDetailsModal()"></app-farm-details-modal>
+}

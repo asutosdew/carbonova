@@ -8,6 +8,8 @@ import { MembersService } from './members.service';
 })
 export class FarmerService {
   private readonly PROFILE_STORAGE_KEY = 'carbonova_farmer_profile';
+  private readonly PLANTS_STORAGE_KEY = 'carbonova_farmer_plants';
+  private readonly PACKAGE_STORAGE_KEY = 'carbonova_farmer_package';
   private readonly weatherService = inject(WeatherService);
   private readonly membersService = inject(MembersService);
 
@@ -15,42 +17,11 @@ export class FarmerService {
   readonly farmer = signal<FarmerProfile>(this.loadInitialProfile());
   readonly weather = this.weatherService.weather;
 
-  // Plants list matching Card 1
-  readonly plants = signal<PlantItem[]>([
-    {
-      id: 'PL-01',
-      name: 'Vietnam Jackfruit',
-      scientificName: 'Artocarpus heterophyllus',
-      image: 'https://images.unsplash.com/photo-1596707325255-7a315e966b96?w=120&auto=format&fit=crop&q=80',
-      qty: 10,
-      activeQty: 10,
-      status: '10 Active',
-      carbonRatePerYearKg: 28.5,
-      category: 'Fruit'
-    },
-    {
-      id: 'PL-02',
-      name: 'Kumbhkat Lemon',
-      scientificName: 'Citrus limon (Kumbhkat)',
-      image: 'https://images.unsplash.com/photo-1534856966150-c832f817a508?w=120&auto=format&fit=crop&q=80',
-      qty: 10,
-      activeQty: 9,
-      status: '9 Active',
-      carbonRatePerYearKg: 18.2,
-      category: 'Fruit'
-    },
-    {
-      id: 'PL-03',
-      name: 'Moringa',
-      scientificName: 'Moringa oleifera',
-      image: 'https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=120&auto=format&fit=crop&q=80',
-      qty: 20,
-      activeQty: 19,
-      status: '19 Active',
-      carbonRatePerYearKg: 22.0,
-      category: 'Medicinal'
-    }
-  ]);
+  // Plants list matching Card 1 (persisted in localStorage)
+  readonly plants = signal<PlantItem[]>(this.loadInitialPlants());
+
+  // Package details matching Card 5 (persisted in localStorage)
+  readonly packageDetails = signal(this.loadInitialPackageDetails());
 
   // Verification pipeline matching Card 3
   readonly verificationSteps = signal<VerificationStep[]>([
@@ -100,22 +71,7 @@ export class FarmerService {
     isVerified: true
   });
 
-  // Package details matching Card 5
-  readonly packageDetails = signal({
-    name: 'Green Starter Package',
-    price: 10000,
-    status: 'Active',
-    includedItems: [
-      '10 Jackfruit',
-      '10 Lemon',
-      '20 Moringa',
-      'Fertilizer Kit',
-      'Training & Support'
-    ],
-    boxImage: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=300&auto=format&fit=crop&q=80'
-  });
-
-  // Green Credits matching Card 6
+  // Green Credits matching Card 6 (base signal)
   readonly greenCredits = signal({
     points: 1250,
     verifiedPlantation: 40,
@@ -123,6 +79,69 @@ export class FarmerService {
     co2OffsetKg: 912,
     lifetimePoints: 1650,
     redeemedPoints: 400
+  });
+
+  // Computed state: Whether farmer has selected any plants
+  readonly hasPlants = computed(() => {
+    const list = this.plants();
+    return list.length > 0 && list.some(p => p.qty > 0);
+  });
+
+  // Computed state: Whether farmer has completed farm details (land size, soil type)
+  readonly hasFarmDetails = computed(() => {
+    const p = this.farmer();
+    return !!(p.farmArea && p.farmArea.trim() !== '' && p.soilType && p.soilType.trim() !== '');
+  });
+
+  // Computed state: Farmer activated only when plants are chosen and status is Active
+  readonly isFarmerActivated = computed(() => {
+    return this.hasPlants() && this.farmer().status === 'Active';
+  });
+
+  // Dynamic green credits reflecting selected plants (Inactive & 0 when no plants)
+  readonly dynamicGreenCredits = computed(() => {
+    if (!this.hasPlants()) {
+      return {
+        points: 0,
+        verifiedPlantation: 0,
+        verificationStatus: 'Inactive (No Plants)',
+        co2OffsetKg: 0,
+        lifetimePoints: 0,
+        redeemedPoints: 0
+      };
+    }
+    const totalPlants = this.farmer().totalPlants || this.plants().reduce((acc, p) => acc + p.qty, 0);
+    const pts = Math.round(totalPlants * 31.25);
+    const co2 = this.plants().reduce((acc, p) => acc + ((p.carbonRatePerYearKg || 25) * p.qty), 0);
+    return {
+      points: pts > 0 ? pts : 1250,
+      verifiedPlantation: totalPlants,
+      verificationStatus: 'Active',
+      co2OffsetKg: Math.round(co2) > 0 ? Math.round(co2) : 912,
+      lifetimePoints: (pts > 0 ? pts : 1250) + 400,
+      redeemedPoints: 400
+    };
+  });
+
+  // Dynamic green impact reflecting selected plants (Inactive & 0 when no plants)
+  readonly dynamicGreenImpact = computed(() => {
+    if (!this.hasPlants()) {
+      return {
+        plantsRegistered: 0,
+        plantsActive: 0,
+        co2OffsetKg: 0,
+        statusText: 'No plants selected yet. Choose a package to activate impact tracking.'
+      };
+    }
+    const registered = this.farmer().totalPlants || this.plants().reduce((acc, p) => acc + p.qty, 0);
+    const active = this.farmer().activePlants || registered;
+    const co2 = this.plants().reduce((acc, p) => acc + ((p.carbonRatePerYearKg || 25) * p.qty), 0);
+    return {
+      plantsRegistered: registered,
+      plantsActive: active,
+      co2OffsetKg: Math.round(co2) > 0 ? Math.round(co2) : 912,
+      statusText: 'Impact data will update as plantation grows.'
+    };
   });
 
   constructor() {
@@ -437,5 +456,281 @@ export class FarmerService {
       isVerified: true
     };
     this.lastPlantationUpdate.set(newUpdate);
+  }
+
+  private loadInitialPlants(): PlantItem[] {
+    try {
+      const stored = localStorage.getItem(this.PLANTS_STORAGE_KEY);
+      if (stored) {
+        return JSON.parse(stored);
+      }
+    } catch (e) {
+      console.warn('Error loading stored plants', e);
+    }
+    return [
+      {
+        id: 'PL-01',
+        name: 'Vietnam Jackfruit',
+        scientificName: 'Artocarpus heterophyllus',
+        image: 'https://images.unsplash.com/photo-1596707325255-7a315e966b96?w=120&auto=format&fit=crop&q=80',
+        qty: 10,
+        activeQty: 10,
+        status: '10 Active',
+        carbonRatePerYearKg: 28.5,
+        category: 'Fruit',
+        unitPrice: 220
+      },
+      {
+        id: 'PL-02',
+        name: 'Kumbhkat Lemon',
+        scientificName: 'Citrus limon (Kumbhkat)',
+        image: 'https://images.unsplash.com/photo-1534856966150-c832f817a508?w=120&auto=format&fit=crop&q=80',
+        qty: 10,
+        activeQty: 9,
+        status: '9 Active',
+        carbonRatePerYearKg: 18.2,
+        category: 'Fruit',
+        unitPrice: 180
+      },
+      {
+        id: 'PL-03',
+        name: 'Moringa',
+        scientificName: 'Moringa oleifera',
+        image: 'https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=120&auto=format&fit=crop&q=80',
+        qty: 20,
+        activeQty: 19,
+        status: '19 Active',
+        carbonRatePerYearKg: 22.0,
+        category: 'Medicinal',
+        unitPrice: 95
+      }
+    ];
+  }
+
+  private loadInitialPackageDetails() {
+    try {
+      const stored = localStorage.getItem(this.PACKAGE_STORAGE_KEY);
+      if (stored) {
+        return JSON.parse(stored);
+      }
+    } catch (e) {
+      console.warn('Error loading stored package details', e);
+    }
+    return {
+      name: 'Green Starter Package',
+      price: 10000,
+      status: 'Active',
+      includedItems: [
+        '10x Jackfruit Saplings',
+        '10x Lemon Saplings',
+        '20x Moringa Saplings',
+        '10kg Bio-NPK Microbial Granules (Compulsory)',
+        '1L Cold-Pressed Bio-Pesticide (Compulsory)',
+        'Training & Support License'
+      ],
+      boxImage: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=300&auto=format&fit=crop&q=80'
+    };
+  }
+
+  savePlants(plants: PlantItem[]) {
+    this.plants.set(plants);
+    try {
+      localStorage.setItem(this.PLANTS_STORAGE_KEY, JSON.stringify(plants));
+    } catch (e) {
+      console.warn('Error saving plants to localStorage', e);
+    }
+  }
+
+  savePackageDetails(pkg: any) {
+    this.packageDetails.set(pkg);
+    try {
+      localStorage.setItem(this.PACKAGE_STORAGE_KEY, JSON.stringify(pkg));
+    } catch (e) {
+      console.warn('Error saving package to localStorage', e);
+    }
+  }
+
+  // Activate farmer when packages and plants are selected
+  activateFarmerWithPackageAndPlants(
+    packageName: string,
+    packagePrice: number,
+    selectedPlants: PlantItem[],
+    boxImage: string
+  ) {
+    const totalPlants = selectedPlants.reduce((sum, p) => sum + p.qty, 0);
+    const activePlants = totalPlants;
+    const survivalRate = 100;
+
+    // Save plants list
+    this.savePlants(selectedPlants);
+
+    // Save package details with compulsory fertilizer and pesticide
+    const pkg = {
+      name: packageName,
+      price: packagePrice,
+      status: 'Active',
+      includedItems: [
+        ...selectedPlants.map(p => `${p.qty}x ${p.name}`),
+        '10kg Carbonova Bio-NPK Granules (Compulsory)',
+        '1L Cold-Pressed Bio-Pesticide (Compulsory)',
+        'Digital Certificate & Verification License'
+      ],
+      boxImage: boxImage || 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=300&auto=format&fit=crop&q=80'
+    };
+    this.savePackageDetails(pkg);
+
+    // Update farmer profile: status becomes Active now that plants are selected
+    const current = this.farmer();
+    const updated: FarmerProfile = {
+      ...current,
+      status: 'Active',
+      totalPlants,
+      activePlants,
+      survivalRate,
+      plantationDate: current.plantationDate || new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+    };
+
+    this.saveProfile(updated);
+
+    this.lastPlantationUpdate.update(u => ({
+      ...u,
+      statusText: `${totalPlants} saplings registered with Bio-NPK & Bio-Pesticide kit.`
+    }));
+  }
+
+  // Update Farm Details (Requirement 2)
+  updateFarmDetails(details: {
+    farmArea: string;
+    soilType: string;
+    irrigationSource: string;
+    plantationDate?: string;
+    village?: string;
+    district?: string;
+  }) {
+    const current = this.farmer();
+    const updated: FarmerProfile = {
+      ...current,
+      farmArea: details.farmArea,
+      soilType: details.soilType,
+      irrigationSource: details.irrigationSource,
+      ...(details.plantationDate ? { plantationDate: details.plantationDate } : {}),
+      ...(details.village ? { village: details.village } : {}),
+      ...(details.district ? { district: details.district } : {}),
+      location: details.village && details.district ? `${details.village}, ${details.district}, ${current.state}` : current.location,
+      profileCompletionPercentage: this.calculateProfileScore({ ...current, ...details })
+    };
+
+    this.saveProfile(updated);
+
+    // Sync to backend address if available
+    if (updated.village || updated.district) {
+      this.membersService.saveShippingAddress({
+        name: updated.name,
+        mobile: updated.phone,
+        address1: updated.village || '',
+        address2: '',
+        address3: '',
+        distt: updated.district || '',
+        city: updated.district || 'Ambikapur',
+        state: updated.state || 'Chhattisgarh',
+        pincode: updated.pinCode || '497001'
+      }).catch(err => console.warn('[FarmerService] Error saving shipping address:', err));
+    }
+  }
+
+  // Demo state: Simulate New Unactivated Farmer (no plants & no farm details)
+  setDemoUnactivatedState() {
+    this.savePlants([]);
+    this.savePackageDetails({
+      name: 'No Package Selected',
+      price: 0,
+      status: 'Inactive',
+      includedItems: [],
+      boxImage: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=300&auto=format&fit=crop&q=80'
+    });
+
+    const current = this.farmer();
+    const updated: FarmerProfile = {
+      ...current,
+      status: 'Pending',
+      totalPlants: 0,
+      activePlants: 0,
+      survivalRate: 0,
+      farmArea: '',
+      soilType: '',
+      irrigationSource: ''
+    };
+    this.saveProfile(updated);
+  }
+
+  // Demo state: Restore active state with sample plants & farm details
+  setDemoActiveState() {
+    const defaultPlants: PlantItem[] = [
+      {
+        id: 'PL-01',
+        name: 'Vietnam Jackfruit',
+        scientificName: 'Artocarpus heterophyllus',
+        image: 'https://images.unsplash.com/photo-1596707325255-7a315e966b96?w=120&auto=format&fit=crop&q=80',
+        qty: 10,
+        activeQty: 10,
+        status: '10 Active',
+        carbonRatePerYearKg: 28.5,
+        category: 'Fruit',
+        unitPrice: 220
+      },
+      {
+        id: 'PL-02',
+        name: 'Kumbhkat Lemon',
+        scientificName: 'Citrus limon (Kumbhkat)',
+        image: 'https://images.unsplash.com/photo-1534856966150-c832f817a508?w=120&auto=format&fit=crop&q=80',
+        qty: 10,
+        activeQty: 9,
+        status: '9 Active',
+        carbonRatePerYearKg: 18.2,
+        category: 'Fruit',
+        unitPrice: 180
+      },
+      {
+        id: 'PL-03',
+        name: 'Moringa',
+        scientificName: 'Moringa oleifera',
+        image: 'https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=120&auto=format&fit=crop&q=80',
+        qty: 20,
+        activeQty: 19,
+        status: '19 Active',
+        carbonRatePerYearKg: 22.0,
+        category: 'Medicinal',
+        unitPrice: 95
+      }
+    ];
+    this.savePlants(defaultPlants);
+
+    this.savePackageDetails({
+      name: 'Green Starter Package',
+      price: 10000,
+      status: 'Active',
+      includedItems: [
+        '10x Jackfruit Saplings',
+        '10x Lemon Saplings',
+        '20x Moringa Saplings',
+        '10kg Bio-NPK Microbial Granules (Compulsory)',
+        '1L Cold-Pressed Bio-Pesticide (Compulsory)',
+        'Training & Support License'
+      ],
+      boxImage: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=300&auto=format&fit=crop&q=80'
+    });
+
+    const current = this.farmer();
+    const updated: FarmerProfile = {
+      ...current,
+      status: 'Active',
+      totalPlants: 40,
+      activePlants: 38,
+      survivalRate: 95,
+      farmArea: '0.25 Acre',
+      soilType: 'Red & Yellow Loamy',
+      irrigationSource: 'Borewell & Drip Line'
+    };
+    this.saveProfile(updated);
   }
 }

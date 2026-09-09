@@ -1,41 +1,110 @@
 <div class="space-y-4 sm:space-y-6 max-w-7xl mx-auto pb-10">
-  <!-- Welcome Greeting Banner with Full Name & Informal Paragraph -->
-  <div class="bg-gradient-to-r from-[#0c3823] via-[#124b2d] to-[#186039] rounded-2xl sm:rounded-3xl p-5 sm:p-7 text-white shadow-md border border-[#4ade80]/20 flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6">
-    <div class="space-y-1.5 max-w-3xl">
-      <div class="inline-flex items-center gap-2 px-3 py-0.5 rounded-full bg-white/10 backdrop-blur-md text-[#86efac] text-[11px] font-black uppercase tracking-wider border border-white/15">
-        <span>🌱</span>
-        <span>Welcome Back</span>
-      </div>
-      <h2 class="text-xl sm:text-2xl font-black text-white tracking-tight">
-        Hello, {{ farmerService.farmer().name }}! 👋
-      </h2>
-      <p class="text-xs sm:text-sm text-emerald-100/90 leading-relaxed font-normal">
-        Glad to have you back! Your farm is looking healthy and your green efforts are making a real difference every day. Check out your live plant status, upcoming audit dates, and growing green credits below. Keep growing and taking care of the land!
-      </p>
+  
+  <!-- Demo Mode / Testing Switcher -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 px-4 py-2.5 bg-slate-100/90 rounded-2xl text-xs border border-slate-200">
+    <div class="flex items-center gap-2">
+      <span class="text-base">🧪</span>
+      <span class="font-black text-slate-800">Demo Testing Controls:</span>
+      <span class="text-slate-500 hidden md:inline">Test the dashboard in both unactivated and active states</span>
     </div>
-
-    <!-- Quick Plantation Status Pill -->
-    <div class="flex items-center md:flex-col items-start md:items-end justify-between gap-2 pt-2.5 md:pt-0 border-t md:border-t-0 border-white/15 flex-shrink-0">
-      <div class="text-left md:text-right">
-        <span class="text-[10px] uppercase font-bold text-emerald-300 block tracking-wider">Plantation State</span>
-        <span class="inline-flex items-center gap-1.5 text-xs font-black text-white mt-0.5">
-          <span class="w-2 h-2 rounded-full bg-[#22c55e] pulse-dot"></span>
-          Active & Growing
-        </span>
-      </div>
-      <div class="text-right">
-        <span class="text-[11px] text-emerald-200/80 font-mono">📍 {{ farmerService.farmer().location }}</span>
-      </div>
+    <div class="flex items-center gap-2 flex-wrap">
+      <button (click)="switchToUnactivatedDemo()"
+              [class.bg-amber-600]="!farmerService.hasPlants()"
+              [class.text-white]="!farmerService.hasPlants()"
+              [class.border-amber-600]="!farmerService.hasPlants()"
+              class="px-3 py-1.5 rounded-xl font-bold text-[11px] bg-white border border-slate-300 hover:bg-amber-50 hover:text-amber-800 transition-all shadow-2xs active:scale-95 flex items-center gap-1.5">
+        <span>⚠️</span>
+        <span>Simulate New Farmer (0 Plants / Inactive)</span>
+      </button>
+      <button (click)="switchToActiveDemo()"
+              [class.bg-[#16a34a]]="farmerService.hasPlants()"
+              [class.text-white]="farmerService.hasPlants()"
+              [class.border-[#16a34a]]="farmerService.hasPlants()"
+              class="px-3 py-1.5 rounded-xl font-bold text-[11px] bg-white border border-slate-300 hover:bg-emerald-50 hover:text-emerald-800 transition-all shadow-2xs active:scale-95 flex items-center gap-1.5">
+        <span>🌿</span>
+        <span>Simulate Active Farmer (40 Plants)</span>
+      </button>
     </div>
   </div>
 
-  <!-- Dashboard 2-Column Grid Matching Reference Image Exactly -->
+  <!-- Welcome Greeting Banner (Conditional on Activation) -->
+  @if (farmerService.hasPlants()) {
+    <!-- ACTIVE STATE BANNER -->
+    <div class="bg-gradient-to-r from-[#0c3823] via-[#124b2d] to-[#186039] rounded-2xl sm:rounded-3xl p-5 sm:p-7 text-white shadow-md border border-[#4ade80]/20 flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6">
+      <div class="space-y-1.5 max-w-3xl">
+        <div class="inline-flex items-center gap-2 px-3 py-0.5 rounded-full bg-white/10 backdrop-blur-md text-[#86efac] text-[11px] font-black uppercase tracking-wider border border-white/15">
+          <span>🌱</span>
+          <span>Welcome Back</span>
+        </div>
+        <h2 class="text-xl sm:text-2xl font-black text-white tracking-tight">
+          Hello, {{ farmerService.farmer().name }}! 👋
+        </h2>
+        <p class="text-xs sm:text-sm text-emerald-100/90 leading-relaxed font-normal">
+          Glad to have you back! Your farm is looking healthy and your green efforts are making a real difference every day. Check out your live plant status, upcoming audit dates, and growing green credits below. Keep growing and taking care of the land!
+        </p>
+      </div>
+
+      <!-- Quick Plantation Status Pill -->
+      <div class="flex items-center md:flex-col items-start md:items-end justify-between gap-2 pt-2.5 md:pt-0 border-t md:border-t-0 border-white/15 flex-shrink-0">
+        <div class="text-left md:text-right">
+          <span class="text-[10px] uppercase font-bold text-emerald-300 block tracking-wider">Plantation State</span>
+          <span class="inline-flex items-center gap-1.5 text-xs font-black text-white mt-0.5">
+            <span class="w-2 h-2 rounded-full bg-[#22c55e] pulse-dot"></span>
+            Active & Growing
+          </span>
+        </div>
+        <div class="text-right">
+          <span class="text-[11px] text-emerald-200/80 font-mono">📍 {{ farmerService.farmer().location }}</span>
+        </div>
+      </div>
+    </div>
+  } @else {
+    <!-- UNACTIVATED / PENDING STATE BANNER (Requirement 4) -->
+    <div class="bg-gradient-to-r from-amber-900 via-amber-800 to-emerald-950 rounded-2xl sm:rounded-3xl p-5 sm:p-7 text-white shadow-md border border-amber-500/30 flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6">
+      <div class="space-y-2 max-w-3xl">
+        <div class="inline-flex items-center gap-2 px-3 py-0.5 rounded-full bg-amber-500/20 backdrop-blur-md text-amber-200 text-[11px] font-black uppercase tracking-wider border border-amber-400/30">
+          <span>⚠️</span>
+          <span>Account Pending • Action Required</span>
+        </div>
+        <h2 class="text-xl sm:text-2xl font-black text-white tracking-tight">
+          Welcome, {{ farmerService.farmer().name }}! Please Select Your Plants
+        </h2>
+        <p class="text-xs sm:text-sm text-amber-100/90 leading-relaxed font-normal">
+          Your farmer profile has been created, but your account is <strong>not yet activated</strong>. You must choose a package and select your trees to activate your dashboard, unlock Green Credits, and start verified carbon auditing.
+        </p>
+        <div class="pt-1">
+          <button (click)="openPackagePlantsModal()" 
+                  class="py-2.5 px-5 rounded-xl bg-[#16a34a] hover:bg-[#15803d] text-white font-extrabold text-xs shadow-md transition-all active:scale-98 inline-flex items-center gap-2">
+            <span>🌱</span>
+            <span>Select Package & Plants (Activate Account)</span>
+            <span>→</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Inactive Status Pill -->
+      <div class="flex items-center md:flex-col items-start md:items-end justify-between gap-2 pt-2.5 md:pt-0 border-t md:border-t-0 border-white/15 flex-shrink-0">
+        <div class="text-left md:text-right">
+          <span class="text-[10px] uppercase font-bold text-amber-300 block tracking-wider">Farmer State</span>
+          <span class="inline-flex items-center gap-1.5 text-xs font-black text-white mt-0.5">
+            <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping"></span>
+            Pending Plant Selection
+          </span>
+        </div>
+        <div class="text-right">
+          <span class="text-[11px] text-amber-200/80 font-mono">ID: {{ farmerService.farmer().farmerId }}</span>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Dashboard 2-Column Grid -->
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
 
     <!-- ==================== LEFT COLUMN ==================== -->
     <div class="space-y-4 sm:space-y-6">
 
-      <!-- CARD 1: 1. 🌱 My Plants -->
+      <!-- CARD 1: 1. 🌱 My Plants (Requirement 1 & 4) -->
       <div class="carbon-card p-4 sm:p-6 relative overflow-hidden">
         <div class="flex items-center justify-between mb-3.5">
           <h3 class="text-base sm:text-lg font-extrabold text-slate-900 flex items-center gap-2">
@@ -43,91 +112,118 @@
             <span>🌱</span>
             <span>My Plants</span>
           </h3>
+
+          <button (click)="openPackagePlantsModal()"
+                  class="text-[11px] font-bold text-[#15803d] hover:text-[#0c3823] bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-3 py-1 rounded-xl transition-all flex items-center gap-1">
+            <span>{{ farmerService.hasPlants() ? '✏️ Manage Plants' : '🌱 Add Plants' }}</span>
+          </button>
         </div>
 
-        <!-- Top Stat & Circular Gauge -->
-        <div class="flex items-center justify-around py-3 px-3 sm:px-4 bg-[#f8faf8] rounded-2xl border border-[#e2ece2] mb-4">
-          <!-- Total Plants -->
-          <div class="text-center">
-            <span class="text-2xl sm:text-4xl font-black text-slate-900 leading-none">
-              {{ farmerService.farmer().totalPlants }}
-            </span>
-            <p class="text-[11px] sm:text-xs text-slate-500 font-semibold mt-1">Total Plants</p>
-          </div>
-
-          <!-- Circular Progress Ring (95% Survival Rate) -->
-          <div class="flex flex-col items-center">
-            <div class="relative w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center">
-              <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-                <!-- Background Circle -->
-                <path class="text-slate-200" stroke-width="3.5" stroke="currentColor" fill="none"
-                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                <!-- Progress Arc (95%) -->
-                <path class="text-[#16a34a]" stroke-dasharray="95, 100" stroke-width="3.5" stroke-linecap="round" stroke="currentColor" fill="none"
-                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-              </svg>
-              <div class="absolute inset-0 flex flex-col items-center justify-center">
-                <span class="text-sm sm:text-base font-black text-slate-900 leading-none">{{ farmerService.farmer().survivalRate }}%</span>
-              </div>
+        @if (farmerService.hasPlants()) {
+          <!-- Top Stat & Circular Gauge -->
+          <div class="flex items-center justify-around py-3 px-3 sm:px-4 bg-[#f8faf8] rounded-2xl border border-[#e2ece2] mb-4">
+            <!-- Total Plants -->
+            <div class="text-center">
+              <span class="text-2xl sm:text-4xl font-black text-slate-900 leading-none">
+                {{ farmerService.farmer().totalPlants }}
+              </span>
+              <p class="text-[11px] sm:text-xs text-slate-500 font-semibold mt-1">Total Plants</p>
             </div>
-            <span class="text-[10px] sm:text-[11px] font-bold text-slate-600 mt-1">Survival Rate</span>
-          </div>
-        </div>
 
-        <!-- Plants Table -->
-        <div class="overflow-x-auto mb-3.5 -mx-1 sm:mx-0">
-          <table class="w-full text-xs">
-            <thead>
-              <tr class="text-slate-400 border-b border-slate-100 uppercase tracking-wider font-bold text-[10px] sm:text-[11px]">
-                <th class="text-left pb-2 font-bold">Plant</th>
-                <th class="text-center pb-2 font-bold">Qty</th>
-                <th class="text-right pb-2 font-bold">Status</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-100">
-              @for (plant of paginatedPlants(); track plant.id) {
-                <tr class="hover:bg-slate-50/80 transition-colors">
-                  <td class="py-2.5 flex items-center gap-2">
-                    <img [src]="plant.image" [alt]="plant.name" class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg object-cover border border-slate-200 flex-shrink-0">
-                    <span class="font-bold text-slate-800 truncate max-w-[130px] sm:max-w-none">{{ plant.name }}</span>
-                  </td>
-                  <td class="py-2.5 text-center font-mono font-bold text-slate-700">
-                    {{ plant.qty }}
-                  </td>
-                  <td class="py-2.5 text-right font-medium text-slate-700">
-                    <span class="inline-flex items-center gap-1.5 font-bold text-emerald-800 text-[11px] sm:text-xs">
-                      <span class="w-2 h-2 rounded-full bg-[#16a34a] flex-shrink-0"></span>
-                      <span>{{ plant.status }}</span>
-                    </span>
-                  </td>
+            <!-- Circular Progress Ring -->
+            <div class="flex flex-col items-center">
+              <div class="relative w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center">
+                <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                  <path class="text-slate-200" stroke-width="3.5" stroke="currentColor" fill="none"
+                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                  <path class="text-[#16a34a]" [attr.stroke-dasharray]="(farmerService.farmer().survivalRate || 100) + ', 100'" stroke-width="3.5" stroke-linecap="round" stroke="currentColor" fill="none"
+                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                </svg>
+                <div class="absolute inset-0 flex flex-col items-center justify-center">
+                  <span class="text-sm sm:text-base font-black text-slate-900 leading-none">{{ farmerService.farmer().survivalRate }}%</span>
+                </div>
+              </div>
+              <span class="text-[10px] sm:text-[11px] font-bold text-slate-600 mt-1">Survival Rate</span>
+            </div>
+          </div>
+
+          <!-- Plants Table -->
+          <div class="overflow-x-auto mb-3.5 -mx-1 sm:mx-0">
+            <table class="w-full text-xs">
+              <thead>
+                <tr class="text-slate-400 border-b border-slate-100 uppercase tracking-wider font-bold text-[10px] sm:text-[11px]">
+                  <th class="text-left pb-2 font-bold">Plant</th>
+                  <th class="text-center pb-2 font-bold">Qty</th>
+                  <th class="text-right pb-2 font-bold">Status</th>
                 </tr>
-              }
-            </tbody>
-          </table>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                @for (plant of paginatedPlants(); track plant.id) {
+                  <tr class="hover:bg-slate-50/80 transition-colors">
+                    <td class="py-2.5 flex items-center gap-2">
+                      <img [src]="plant.image" [alt]="plant.name" class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg object-cover border border-slate-200 flex-shrink-0">
+                      <div>
+                        <span class="font-bold text-slate-800 truncate block max-w-[130px] sm:max-w-none">{{ plant.name }}</span>
+                        <span class="text-[10px] text-slate-400">{{ plant.category }}</span>
+                      </div>
+                    </td>
+                    <td class="py-2.5 text-center font-mono font-bold text-slate-700">
+                      {{ plant.qty }}
+                    </td>
+                    <td class="py-2.5 text-right font-medium text-slate-700">
+                      <span class="inline-flex items-center gap-1.5 font-bold text-emerald-800 text-[11px] sm:text-xs">
+                        <span class="w-2 h-2 rounded-full bg-[#16a34a] flex-shrink-0"></span>
+                        <span>{{ plant.status }}</span>
+                      </span>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
 
-          <!-- Plants Pagination -->
-          <app-pagination [totalItems]="farmerService.plants().length"
-                          [pageSize]="plantPageSize()"
-                          [currentPage]="plantPage()"
-                          [pageSizeOptions]="[3, 5]"
-                          (pageChange)="onPlantPageChange($event)"
-                          (pageSizeChange)="onPlantPageSizeChange($event)">
-          </app-pagination>
-        </div>
-
-        <!-- Summary Footer Strip Matching Screenshot -->
-        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-1.5 p-2.5 sm:p-3 bg-[#eef7ee] rounded-xl border border-[#cbe4cb] text-xs font-bold text-[#145335]">
-          <div class="flex items-center gap-1.5">
-            <span>🌱</span>
-            <span>{{ farmerService.farmer().activePlants }} / {{ farmerService.farmer().totalPlants }} Plants Surviving</span>
+            <!-- Plants Pagination -->
+            <app-pagination [totalItems]="farmerService.plants().length"
+                            [pageSize]="plantPageSize()"
+                            [currentPage]="plantPage()"
+                            [pageSizeOptions]="[3, 5]"
+                            (pageChange)="onPlantPageChange($event)"
+                            (pageSizeChange)="onPlantPageSizeChange($event)">
+            </app-pagination>
           </div>
-          <span class="bg-[#22c55e]/20 text-[#145335] px-2.5 py-0.5 rounded-full text-[10px] sm:text-[11px] font-extrabold">
-            {{ farmerService.farmer().survivalRate }}% Survival Rate
-          </span>
-        </div>
+
+          <!-- Summary Footer Strip -->
+          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-1.5 p-2.5 sm:p-3 bg-[#eef7ee] rounded-xl border border-[#cbe4cb] text-xs font-bold text-[#145335]">
+            <div class="flex items-center gap-1.5">
+              <span>🌱</span>
+              <span>{{ farmerService.farmer().activePlants }} / {{ farmerService.farmer().totalPlants }} Plants Surviving</span>
+            </div>
+            <span class="bg-[#22c55e]/20 text-[#145335] px-2.5 py-0.5 rounded-full text-[10px] sm:text-[11px] font-extrabold">
+              {{ farmerService.farmer().survivalRate }}% Survival Rate
+            </span>
+          </div>
+        } @else {
+          <!-- EMPTY STATE FOR NO PLANTS (Requirement 1 & 4) -->
+          <div class="py-8 px-4 border-2 border-dashed border-emerald-200/80 rounded-2xl bg-[#f8faf8] text-center space-y-3">
+            <div class="w-14 h-14 rounded-2xl bg-emerald-100/70 text-emerald-800 text-2xl flex items-center justify-center mx-auto shadow-2xs">
+              🌱
+            </div>
+            <div>
+              <h4 class="font-black text-slate-900 text-sm sm:text-base">No Plants Selected Yet</h4>
+              <p class="text-xs text-slate-500 max-w-sm mx-auto mt-1 leading-relaxed">
+                Choose a farming package to select your tree saplings (up to package budget). Compulsory bio-NPK fertilizer and bio-pesticides are included by default.
+              </p>
+            </div>
+            <button (click)="openPackagePlantsModal()"
+                    class="py-2.5 px-6 rounded-xl bg-[#16a34a] hover:bg-[#15803d] text-white font-black text-xs shadow-md transition-all active:scale-98 inline-flex items-center gap-2">
+              <span>🌱</span>
+              <span>Select Package & Add Plants</span>
+              <span>→</span>
+            </button>
+          </div>
+        }
       </div>
 
-      <!-- CARD 3: 3. 🔍 Verification -->
+      <!-- CARD 3: 3. 🔍 Verification (Subject to Plants - Requirement 3) -->
       <div class="carbon-card p-4 sm:p-6">
         <h3 class="text-base sm:text-lg font-extrabold text-slate-900 flex items-center gap-2 mb-4 sm:mb-5">
           <span>3.</span>
@@ -135,114 +231,154 @@
           <span>Verification</span>
         </h3>
 
-        <!-- Stepper Visual Matching Screenshot -->
-        <div class="flex items-center justify-between relative mb-5 sm:mb-6 px-2 sm:px-4">
-          <!-- Connecting Line -->
-          <div class="absolute left-6 right-6 top-1/2 -translate-y-1/2 h-0.5 bg-slate-200 -z-0"></div>
-          
-          <!-- Step 1: Plantation (Completed) -->
-          <div class="flex flex-col items-center relative z-10">
-            <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#16a34a] text-white flex items-center justify-center text-xs sm:text-sm font-black shadow-md border-2 border-white">
-              ✓
+        @if (farmerService.hasPlants()) {
+          <!-- Stepper Visual -->
+          <div class="flex items-center justify-between relative mb-5 sm:mb-6 px-2 sm:px-4">
+            <div class="absolute left-6 right-6 top-1/2 -translate-y-1/2 h-0.5 bg-slate-200 -z-0"></div>
+            
+            <!-- Step 1: Plantation -->
+            <div class="flex flex-col items-center relative z-10">
+              <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#16a34a] text-white flex items-center justify-center text-xs sm:text-sm font-black shadow-md border-2 border-white">
+                ✓
+              </div>
+              <span class="text-[11px] sm:text-xs font-bold text-slate-800 mt-1.5">Plantation</span>
             </div>
-            <span class="text-[11px] sm:text-xs font-bold text-slate-800 mt-1.5">Plantation</span>
+
+            <!-- Step 2: Growth -->
+            <div class="flex flex-col items-center relative z-10">
+              <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-amber-500 text-white flex items-center justify-center text-xs sm:text-sm font-bold shadow-md border-2 border-white">
+                <svg class="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 21h5v-5"/></svg>
+              </div>
+              <span class="text-[11px] sm:text-xs font-bold text-amber-700 mt-1.5">Growth</span>
+            </div>
+
+            <!-- Step 3: Care -->
+            <div class="flex flex-col items-center relative z-10">
+              <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-slate-300 text-slate-600 flex items-center justify-center text-xs sm:text-sm font-bold shadow-md border-2 border-white">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              </div>
+              <span class="text-[11px] sm:text-xs font-bold text-slate-400 mt-1.5">Care</span>
+            </div>
           </div>
 
-          <!-- Step 2: Growth (In-Progress / Pending) -->
-          <div class="flex flex-col items-center relative z-10">
-            <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-amber-500 text-white flex items-center justify-center text-xs sm:text-sm font-bold shadow-md border-2 border-white">
-              <svg class="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 21h5v-5"/></svg>
+          <!-- Current Status Banner -->
+          <div class="p-3 sm:p-3.5 bg-amber-50/90 border border-amber-200/80 rounded-2xl mb-4 flex items-center gap-2.5 sm:gap-3">
+            <div class="w-8 h-8 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center font-bold flex-shrink-0">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
             </div>
-            <span class="text-[11px] sm:text-xs font-bold text-amber-700 mt-1.5">Growth</span>
+            <div>
+              <span class="text-[10px] sm:text-[11px] text-amber-800 font-bold block">Current Status:</span>
+              <p class="text-xs font-extrabold text-amber-950">{{ farmerService.verificationStatusInfo().currentStatus }}</p>
+            </div>
           </div>
 
-          <!-- Step 3: Care (Locked) -->
-          <div class="flex flex-col items-center relative z-10">
-            <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-slate-300 text-slate-600 flex items-center justify-center text-xs sm:text-sm font-bold shadow-md border-2 border-white">
-              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <!-- Verification Dates Grid -->
+          <div class="grid grid-cols-2 gap-2 sm:gap-3 text-xs">
+            <div class="p-2.5 sm:p-3 bg-[#f8faf8] border border-[#e2ece2] rounded-xl">
+              <div class="flex items-center gap-1.5 text-slate-500 mb-1">
+                <svg class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                <span class="font-medium text-[11px] sm:text-xs">Last Verification</span>
+              </div>
+              <strong class="text-slate-900 font-bold text-xs sm:text-sm block">{{ farmerService.verificationStatusInfo().lastVerification }}</strong>
             </div>
-            <span class="text-[11px] sm:text-xs font-bold text-slate-400 mt-1.5">Care</span>
-          </div>
-        </div>
 
-        <!-- Current Status Banner (Matching Yellow Callout) -->
-        <div class="p-3 sm:p-3.5 bg-amber-50/90 border border-amber-200/80 rounded-2xl mb-4 flex items-center gap-2.5 sm:gap-3">
-          <div class="w-8 h-8 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center font-bold flex-shrink-0">
-            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-          </div>
-          <div>
-            <span class="text-[10px] sm:text-[11px] text-amber-800 font-bold block">Current Status:</span>
-            <p class="text-xs font-extrabold text-amber-950">{{ farmerService.verificationStatusInfo().currentStatus }}</p>
-          </div>
-        </div>
-
-        <!-- Verification Dates Grid -->
-        <div class="grid grid-cols-2 gap-2 sm:gap-3 text-xs">
-          <div class="p-2.5 sm:p-3 bg-[#f8faf8] border border-[#e2ece2] rounded-xl">
-            <div class="flex items-center gap-1.5 text-slate-500 mb-1">
-              <svg class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-              <span class="font-medium text-[11px] sm:text-xs">Last Verification</span>
+            <div class="p-2.5 sm:p-3 bg-[#f8faf8] border border-[#e2ece2] rounded-xl">
+              <div class="flex items-center gap-1.5 text-slate-500 mb-1">
+                <svg class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                <span class="font-medium text-[11px] sm:text-xs">Next Verification</span>
+              </div>
+              <strong class="text-slate-900 font-bold text-xs sm:text-sm block">{{ farmerService.verificationStatusInfo().nextVerification }}</strong>
             </div>
-            <strong class="text-slate-900 font-bold text-xs sm:text-sm block">{{ farmerService.verificationStatusInfo().lastVerification }}</strong>
           </div>
-
-          <div class="p-2.5 sm:p-3 bg-[#f8faf8] border border-[#e2ece2] rounded-xl">
-            <div class="flex items-center gap-1.5 text-slate-500 mb-1">
-              <svg class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-              <span class="font-medium text-[11px] sm:text-xs">Next Verification</span>
+        } @else {
+          <!-- INACTIVE VERIFICATION PLACEHOLDER (Requirement 3) -->
+          <div class="py-6 px-4 border border-slate-200 rounded-2xl bg-slate-50/70 text-center space-y-3">
+            <div class="w-12 h-12 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center text-xl mx-auto">
+              🔒
             </div>
-            <strong class="text-slate-900 font-bold text-xs sm:text-sm block">{{ farmerService.verificationStatusInfo().nextVerification }}</strong>
+            <div>
+              <h4 class="font-bold text-slate-800 text-xs sm:text-sm">Verification Inactive (Pending Plants)</h4>
+              <p class="text-[11px] text-slate-500 max-w-xs mx-auto mt-1">
+                Verification steps, geotagging, and growth audits will unlock once your saplings are selected and planted.
+              </p>
+            </div>
+            <button (click)="openPackagePlantsModal()" class="text-xs text-[#15803d] font-bold hover:underline inline-flex items-center gap-1">
+              <span>Select Plants to Unlock Verification</span>
+              <span>→</span>
+            </button>
           </div>
-        </div>
+        }
       </div>
 
-      <!-- CARD 5: 5. 📦 My Package -->
+      <!-- CARD 5: 5. 📦 My Package (Requirement 1 & 3) -->
       <div class="carbon-card p-4 sm:p-6">
-        <h3 class="text-base sm:text-lg font-extrabold text-slate-900 flex items-center gap-2 mb-3.5">
-          <span>5.</span>
-          <span>📦</span>
-          <span>My Package</span>
-        </h3>
+        <div class="flex items-center justify-between mb-3.5">
+          <h3 class="text-base sm:text-lg font-extrabold text-slate-900 flex items-center gap-2">
+            <span>5.</span>
+            <span>📦</span>
+            <span>My Package</span>
+          </h3>
+          @if (farmerService.hasPlants()) {
+            <button (click)="openPackagePlantsModal()" 
+                    class="text-[11px] font-bold text-[#15803d] hover:text-[#0c3823] bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-xl">
+              Change Package
+            </button>
+          }
+        </div>
 
-        <!-- Package Card Layout Matching Screenshot -->
-        <div class="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-5 mb-4">
-          <!-- Box Image Graphic -->
-          <div class="w-28 h-28 sm:w-32 sm:h-32 rounded-2xl bg-gradient-to-br from-amber-50 to-emerald-50 border border-emerald-200 p-2 flex items-center justify-center flex-shrink-0 shadow-inner">
-            <img [src]="farmerService.packageDetails().boxImage" alt="Carbonova Package Box" class="w-full h-full object-contain drop-shadow-md">
-          </div>
-
-          <!-- Included List -->
-          <div class="flex-1 w-full space-y-1">
-            <div class="flex items-center justify-between">
-              <h4 class="font-bold text-slate-900 text-sm">{{ farmerService.packageDetails().name }}</h4>
-              <span class="text-base font-black text-[#15803d]">₹{{ farmerService.packageDetails().price.toLocaleString() }}</span>
+        @if (farmerService.hasPlants()) {
+          <div class="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-5 mb-4">
+            <div class="w-28 h-28 sm:w-32 sm:h-32 rounded-2xl bg-gradient-to-br from-amber-50 to-emerald-50 border border-emerald-200 p-2 flex items-center justify-center flex-shrink-0 shadow-inner">
+              <img [src]="farmerService.packageDetails().boxImage" alt="Carbonova Package Box" class="w-full h-full object-contain drop-shadow-md">
             </div>
 
-            <p class="text-[11px] text-slate-500 font-medium">Included:</p>
-            <ul class="text-xs space-y-1 text-slate-700 font-medium">
-              @for (item of farmerService.packageDetails().includedItems; track item) {
-                <li class="flex items-center gap-1.5">
-                  <span class="text-[#16a34a] font-black text-xs">✓</span>
-                  <span>{{ item }}</span>
-                </li>
-              }
-            </ul>
+            <div class="flex-1 w-full space-y-1">
+              <div class="flex items-center justify-between">
+                <h4 class="font-bold text-slate-900 text-sm">{{ farmerService.packageDetails().name }}</h4>
+                <span class="text-base font-black text-[#15803d]">₹{{ farmerService.packageDetails().price.toLocaleString() }}</span>
+              </div>
+
+              <p class="text-[11px] text-slate-500 font-medium">Included in Package:</p>
+              <ul class="text-xs space-y-1 text-slate-700 font-medium">
+                @for (item of farmerService.packageDetails().includedItems; track item) {
+                  <li class="flex items-center gap-1.5">
+                    <span class="text-[#16a34a] font-black text-xs">✓</span>
+                    <span [class.font-bold]="item.includes('Compulsory')">{{ item }}</span>
+                  </li>
+                }
+              </ul>
+            </div>
           </div>
-        </div>
 
-        <!-- Package Status Badge -->
-        <div class="flex items-center justify-between p-2.5 bg-[#eef7ee] rounded-xl border border-[#cbe4cb] text-xs font-bold mb-3">
-          <span class="text-[#145335]">Package Status:</span>
-          <span class="inline-flex items-center gap-1 text-[#15803d] font-bold">
-            <span class="w-2 h-2 rounded-full bg-[#16a34a]"></span>
-            Active
-          </span>
-        </div>
+          <div class="flex items-center justify-between p-2.5 bg-[#eef7ee] rounded-xl border border-[#cbe4cb] text-xs font-bold mb-3">
+            <span class="text-[#145335]">Package Status:</span>
+            <span class="inline-flex items-center gap-1 text-[#15803d] font-bold">
+              <span class="w-2 h-2 rounded-full bg-[#16a34a]"></span>
+              Active
+            </span>
+          </div>
 
-        <!-- View Package Details Button -->
-        <a routerLink="/store" class="w-full py-2.5 px-4 rounded-xl border-2 border-[#16a34a] text-[#15803d] hover:bg-[#16a34a] hover:text-white font-bold text-xs transition-all text-center block shadow-2xs active:scale-98">
-          View Package Details →
-        </a>
+          <a routerLink="/store" class="w-full py-2.5 px-4 rounded-xl border-2 border-[#16a34a] text-[#15803d] hover:bg-[#16a34a] hover:text-white font-bold text-xs transition-all text-center block shadow-2xs active:scale-98">
+            View Package Details in Store →
+          </a>
+        } @else {
+          <!-- NO PACKAGE ACTIVE PLACEHOLDER -->
+          <div class="py-6 px-4 border border-slate-200 rounded-2xl bg-slate-50/70 text-center space-y-3">
+            <div class="w-12 h-12 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center text-xl mx-auto">
+              📦
+            </div>
+            <div>
+              <h4 class="font-bold text-slate-800 text-xs sm:text-sm">No Package Active</h4>
+              <p class="text-[11px] text-slate-500 max-w-xs mx-auto mt-1">
+                Choose a package to receive trees, compulsory Bio-NPK fertilizer, and cold-pressed bio-pesticide.
+              </p>
+            </div>
+            <button (click)="openPackagePlantsModal()" 
+                    class="py-2 px-4 rounded-xl bg-[#16a34a] text-white font-bold text-xs shadow-sm hover:bg-[#15803d] transition-all">
+              Choose Package & Add Trees →
+            </button>
+          </div>
+        }
       </div>
 
     </div>
@@ -250,69 +386,111 @@
     <!-- ==================== RIGHT COLUMN ==================== -->
     <div class="space-y-4 sm:space-y-6">
 
-      <!-- CARD 2: 2. 📍 Farm Overview -->
+      <!-- CARD 2: 2. 📍 Farm Overview (Requirement 2 - Add Farm Details Option) -->
       <div class="carbon-card p-4 sm:p-6">
-        <h3 class="text-base sm:text-lg font-extrabold text-slate-900 flex items-center gap-2 mb-3.5">
-          <span>2.</span>
-          <span>📍</span>
-          <span>Farm Overview</span>
-        </h3>
+        <div class="flex items-center justify-between mb-3.5">
+          <h3 class="text-base sm:text-lg font-extrabold text-slate-900 flex items-center gap-2">
+            <span>2.</span>
+            <span>📍</span>
+            <span>Farm Overview</span>
+          </h3>
 
-        <!-- Map Thumbnail Visual Matching Screenshot -->
-        <div class="relative h-28 sm:h-32 w-full rounded-2xl overflow-hidden mb-4 border border-emerald-200/80 bg-slate-100">
-          <img src="https://images.unsplash.com/photo-1500937386664-56d1dfef3854?w=600&auto=format&fit=crop&q=80" 
-               alt="Ambikapur Countryside" 
-               class="w-full h-full object-cover">
-          <!-- Pin Marker -->
-          <div class="absolute inset-0 flex items-center justify-center">
-            <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#15803d] text-white flex items-center justify-center shadow-lg border-2 border-white animate-bounce">
-              <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+          <button (click)="openFarmDetailsModal()"
+                  class="text-[11px] font-bold text-[#15803d] hover:text-[#0c3823] bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-3 py-1 rounded-xl transition-all flex items-center gap-1">
+            <span>{{ farmerService.hasFarmDetails() ? '✏️ Edit Farm Details' : '🌾 Add Farm Details' }}</span>
+          </button>
+        </div>
+
+        @if (farmerService.hasFarmDetails()) {
+          <!-- Map Visual -->
+          <div class="relative h-28 sm:h-32 w-full rounded-2xl overflow-hidden mb-4 border border-emerald-200/80 bg-slate-100">
+            <img src="https://images.unsplash.com/photo-1500937386664-56d1dfef3854?w=600&auto=format&fit=crop&q=80" 
+                 alt="Ambikapur Countryside" 
+                 class="w-full h-full object-cover">
+            <div class="absolute inset-0 flex items-center justify-center">
+              <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#15803d] text-white flex items-center justify-center shadow-lg border-2 border-white animate-bounce">
+                <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+              </div>
             </div>
           </div>
-        </div>
 
-        <!-- Farm Specs List with Icons -->
-        <div class="space-y-2.5 text-xs mb-4">
-          <div class="flex items-center justify-between pb-2 border-b border-slate-100">
-            <span class="text-slate-500 flex items-center gap-2">
-              <svg class="w-4 h-4 text-emerald-600 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-              <span>Location</span>
-            </span>
-            <strong class="text-slate-900 font-bold truncate max-w-[160px] sm:max-w-none text-right">{{ farmerService.farmer().location }}</strong>
+          <!-- Farm Specs List with Icons -->
+          <div class="space-y-2.5 text-xs mb-4">
+            <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+              <span class="text-slate-500 flex items-center gap-2">
+                <svg class="w-4 h-4 text-emerald-600 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                <span>Location</span>
+              </span>
+              <strong class="text-slate-900 font-bold truncate max-w-[160px] sm:max-w-none text-right">{{ farmerService.farmer().location }}</strong>
+            </div>
+
+            <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+              <span class="text-slate-500 flex items-center gap-2">
+                <svg class="w-4 h-4 text-emerald-600 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                <span>Plantation Date</span>
+              </span>
+              <strong class="text-slate-900 font-bold">{{ farmerService.farmer().plantationDate }}</strong>
+            </div>
+
+            <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+              <span class="text-slate-500 flex items-center gap-2">
+                <svg class="w-4 h-4 text-emerald-600 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 20h10"/><path d="M10 20c5.5-2.5.8-6.4 3-10"/><path d="M9.5 9.4c1.1.8 1.8 2.2 2.3 3.7-2 .4-3.5.4-4.8-.3-1.2-.6-2.3-1.9-3-4.2 2.8-.5 4.4 0 5.5.8z"/></svg>
+                <span>Total Plants</span>
+              </span>
+              <strong class="text-slate-900 font-bold font-mono">{{ farmerService.farmer().totalPlants }}</strong>
+            </div>
+
+            <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+              <span class="text-slate-500 flex items-center gap-2">
+                <svg class="w-4 h-4 text-emerald-600 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+                <span>Farm Area</span>
+              </span>
+              <strong class="text-slate-900 font-bold">{{ farmerService.farmer().farmArea }}</strong>
+            </div>
+
+            <div class="flex items-center justify-between">
+              <span class="text-slate-500 flex items-center gap-2">
+                <span class="text-emerald-600">🌱</span>
+                <span>Soil & Irrigation</span>
+              </span>
+              <strong class="text-slate-900 font-bold truncate max-w-[170px] sm:max-w-none text-right">
+                {{ farmerService.farmer().soilType }} • {{ farmerService.farmer().irrigationSource }}
+              </strong>
+            </div>
           </div>
 
-          <div class="flex items-center justify-between pb-2 border-b border-slate-100">
-            <span class="text-slate-500 flex items-center gap-2">
-              <svg class="w-4 h-4 text-emerald-600 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-              <span>Plantation Date</span>
-            </span>
-            <strong class="text-slate-900 font-bold">{{ farmerService.farmer().plantationDate }}</strong>
+          <div class="flex items-center gap-2">
+            <button (click)="openFarmDetailsModal()" 
+                    class="flex-1 py-2.5 px-3 rounded-xl border border-slate-300 hover:bg-slate-50 text-slate-700 font-bold text-xs transition-all text-center">
+              ✏️ Edit Details
+            </button>
+            <a routerLink="/farm" class="flex-1 py-2.5 px-3 rounded-xl bg-[#0c3823] hover:bg-[#145335] text-white font-bold text-xs transition-all text-center block shadow-sm active:scale-98">
+              View Farm →
+            </a>
           </div>
-
-          <div class="flex items-center justify-between pb-2 border-b border-slate-100">
-            <span class="text-slate-500 flex items-center gap-2">
-              <svg class="w-4 h-4 text-emerald-600 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 20h10"/><path d="M10 20c5.5-2.5.8-6.4 3-10"/><path d="M9.5 9.4c1.1.8 1.8 2.2 2.3 3.7-2 .4-3.5.4-4.8-.3-1.2-.6-2.3-1.9-3-4.2 2.8-.5 4.4 0 5.5.8z"/></svg>
-              <span>Total Plants</span>
-            </span>
-            <strong class="text-slate-900 font-bold font-mono">{{ farmerService.farmer().totalPlants }}</strong>
+        } @else {
+          <!-- EMPTY STATE FOR NO FARM DETAILS (Requirement 2) -->
+          <div class="py-8 px-4 border-2 border-dashed border-emerald-200/80 rounded-2xl bg-[#f8faf8] text-center space-y-3">
+            <div class="w-14 h-14 rounded-2xl bg-emerald-100/70 text-emerald-800 text-2xl flex items-center justify-center mx-auto shadow-2xs">
+              📍
+            </div>
+            <div>
+              <h4 class="font-black text-slate-900 text-sm sm:text-base">No Farm Details Available</h4>
+              <p class="text-xs text-slate-500 max-w-sm mx-auto mt-1 leading-relaxed">
+                System has no farm details recorded yet. Please add your land area size, soil type, and irrigation source to complete your setup.
+              </p>
+            </div>
+            <button (click)="openFarmDetailsModal()"
+                    class="py-2.5 px-6 rounded-xl bg-[#0c3823] hover:bg-[#145335] text-white font-black text-xs shadow-sm transition-all active:scale-98 inline-flex items-center gap-2">
+              <span>🌾</span>
+              <span>Add Farm Details</span>
+              <span>→</span>
+            </button>
           </div>
-
-          <div class="flex items-center justify-between">
-            <span class="text-slate-500 flex items-center gap-2">
-              <svg class="w-4 h-4 text-emerald-600 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
-              <span>Farm Area</span>
-            </span>
-            <strong class="text-slate-900 font-bold">{{ farmerService.farmer().farmArea }}</strong>
-          </div>
-        </div>
-
-        <!-- View Farm Details Button (Dark Green) -->
-        <a routerLink="/farm" class="w-full py-2.5 px-4 rounded-xl bg-[#0c3823] hover:bg-[#145335] text-white font-bold text-xs transition-all text-center block shadow-sm active:scale-98">
-          View Farm Details →
-        </a>
+        }
       </div>
 
-      <!-- CARD 4: 4. 📷 Last Plantation Update -->
+      <!-- CARD 4: 4. 📷 Last Plantation Update (Subject to Plants - Requirement 3) -->
       <div class="carbon-card p-4 sm:p-6">
         <h3 class="text-base sm:text-lg font-extrabold text-slate-900 flex items-center gap-2 mb-3.5">
           <span>4.</span>
@@ -320,37 +498,52 @@
           <span>Last Plantation Update</span>
         </h3>
 
-        <!-- Farm Rows Photo Matching Screenshot -->
-        <div class="relative h-40 sm:h-44 w-full rounded-2xl overflow-hidden mb-3 border border-slate-200 group">
-          <img [src]="farmerService.lastPlantationUpdate().image" 
-               alt="Plantation farm rows" 
-               class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
-          <div class="absolute top-2 right-2 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full text-[10px] text-white font-mono flex items-center gap-1">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-            Verified
+        @if (farmerService.hasPlants()) {
+          <div class="relative h-40 sm:h-44 w-full rounded-2xl overflow-hidden mb-3 border border-slate-200 group">
+            <img [src]="farmerService.lastPlantationUpdate().image" 
+                 alt="Plantation farm rows" 
+                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+            <div class="absolute top-2 right-2 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full text-[10px] text-white font-mono flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+              Verified
+            </div>
           </div>
-        </div>
 
-        <!-- Caption & Date -->
-        <div class="space-y-1 text-xs mb-3.5">
-          <p class="text-slate-500 font-medium">
-            Last Photo: <strong class="text-slate-800">{{ farmerService.lastPlantationUpdate().date }}</strong>
-          </p>
-          <p class="text-slate-800 font-bold flex items-center gap-1.5">
-            <span>🌱</span>
-            <span>{{ farmerService.lastPlantationUpdate().statusText }}</span>
-          </p>
-        </div>
+          <div class="space-y-1 text-xs mb-3.5">
+            <p class="text-slate-500 font-medium">
+              Last Photo: <strong class="text-slate-800">{{ farmerService.lastPlantationUpdate().date }}</strong>
+            </p>
+            <p class="text-slate-800 font-bold flex items-center gap-1.5">
+              <span>🌱</span>
+              <span>{{ farmerService.lastPlantationUpdate().statusText }}</span>
+            </p>
+          </div>
 
-        <!-- Upload New Photo Button (White with Green Border) -->
-        <button (click)="openPhotoModal()" 
-                class="w-full py-2.5 px-4 rounded-xl border border-[#16a34a] bg-white hover:bg-emerald-50 text-[#15803d] font-bold text-xs transition-all flex items-center justify-center gap-2 shadow-2xs active:scale-98">
-          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
-          <span>Upload New Photo</span>
-        </button>
+          <button (click)="openPhotoModal()" 
+                  class="w-full py-2.5 px-4 rounded-xl border border-[#16a34a] bg-white hover:bg-emerald-50 text-[#15803d] font-bold text-xs transition-all flex items-center justify-center gap-2 shadow-2xs active:scale-98">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
+            <span>Upload New Photo</span>
+          </button>
+        } @else {
+          <!-- INACTIVE PHOTO UPDATE PLACEHOLDER (Requirement 3) -->
+          <div class="py-6 px-4 border border-slate-200 rounded-2xl bg-slate-50/70 text-center space-y-3">
+            <div class="w-12 h-12 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center text-xl mx-auto">
+              📷
+            </div>
+            <div>
+              <h4 class="font-bold text-slate-800 text-xs sm:text-sm">No Plantation Photos Yet</h4>
+              <p class="text-[11px] text-slate-500 max-w-xs mx-auto mt-1">
+                Photo uploads and geotagged audits unlock after saplings are registered.
+              </p>
+            </div>
+            <button (click)="openPackagePlantsModal()" class="text-xs text-[#15803d] font-bold hover:underline">
+              Select Plants to Unlock Photo Uploads →
+            </button>
+          </div>
+        }
       </div>
 
-      <!-- CARD 6: 6. 🪙 My Green Credits -->
+      <!-- CARD 6: 6. 🪙 My Green Credits (Subject to Plants - Requirement 3) -->
       <div class="carbon-card p-4 sm:p-6">
         <h3 class="text-base sm:text-lg font-extrabold text-slate-900 flex items-center gap-2 mb-3">
           <span>6.</span>
@@ -358,34 +551,53 @@
           <span>My Green Credits</span>
         </h3>
 
-        <!-- Points Value Matching Screenshot -->
+        <!-- Dynamic Points Value -->
         <div class="flex items-center gap-2 mb-3.5">
           <span class="text-2xl">🪙</span>
-          <span class="text-2xl sm:text-3xl font-black text-[#15803d] font-mono">
-            {{ farmerService.greenCredits().points.toLocaleString() }}
+          <span class="text-2xl sm:text-3xl font-black font-mono"
+                [class.text-[#15803d]]="farmerService.hasPlants()"
+                [class.text-slate-400]="!farmerService.hasPlants()">
+            {{ farmerService.dynamicGreenCredits().points.toLocaleString() }}
           </span>
           <span class="text-xs font-bold text-slate-500 uppercase tracking-wide">Points</span>
+
+          @if (!farmerService.hasPlants()) {
+            <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-amber-100 text-amber-800 px-2 py-0.5 rounded-md border border-amber-200">
+              Inactive
+            </span>
+          } @else {
+            <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-md border border-emerald-200">
+              Active
+            </span>
+          }
         </div>
 
         <!-- Info Grid -->
         <div class="space-y-2 text-xs mb-3.5">
           <div class="flex items-center justify-between pb-1.5 border-b border-slate-100">
             <span class="text-slate-500">Verified Plantation</span>
-            <strong class="text-slate-900 font-mono font-bold">{{ farmerService.greenCredits().verifiedPlantation }}</strong>
+            <strong class="text-slate-900 font-mono font-bold">{{ farmerService.dynamicGreenCredits().verifiedPlantation }} Trees</strong>
           </div>
           <div class="flex items-center justify-between">
             <span class="text-slate-500">Verification Status</span>
-            <strong class="text-[#15803d] font-bold">{{ farmerService.greenCredits().verificationStatus }}</strong>
+            <strong [class.text-[#15803d]]="farmerService.hasPlants()" [class.text-amber-700]="!farmerService.hasPlants()" class="font-bold">
+              {{ farmerService.dynamicGreenCredits().verificationStatus }}
+            </strong>
           </div>
         </div>
 
-        <!-- Link Button -->
-        <a routerLink="/credits" class="text-xs font-extrabold text-[#15803d] hover:text-[#0c3823] flex items-center justify-center gap-1.5 py-1.5 hover:underline">
-          <span>View Credit History →</span>
-        </a>
+        @if (!farmerService.hasPlants()) {
+          <p class="text-[11px] text-slate-500 italic bg-amber-50/60 p-2 rounded-xl border border-amber-200/50 text-center">
+            ⚠️ Green Credits are subject to plants selected and remain inactive until saplings are chosen.
+          </p>
+        } @else {
+          <a routerLink="/credits" class="text-xs font-extrabold text-[#15803d] hover:text-[#0c3823] flex items-center justify-center gap-1.5 py-1.5 hover:underline">
+            <span>View Credit History →</span>
+          </a>
+        }
       </div>
 
-      <!-- CARD 7: 7. 🌍 My Green Impact -->
+      <!-- CARD 7: 7. 🌍 My Green Impact (Subject to Plants - Requirement 3) -->
       <div class="carbon-card p-4 sm:p-6">
         <h3 class="text-base sm:text-lg font-extrabold text-slate-900 flex items-center gap-2 mb-3.5">
           <span>7.</span>
@@ -393,13 +605,15 @@
           <span>My Green Impact</span>
         </h3>
 
-        <!-- 3 Metric Circles Matching Screenshot -->
+        <!-- 3 Metric Circles (Subject to Plants) -->
         <div class="grid grid-cols-3 gap-2 sm:gap-4 text-center mb-3.5">
           <!-- Circle 1 -->
           <div class="flex flex-col items-center">
             <div class="w-13 h-13 sm:w-16 sm:h-16 rounded-full bg-emerald-50 border-2 border-emerald-200 flex flex-col items-center justify-center mb-1 shadow-2xs">
               <span class="text-xs">🌱</span>
-              <span class="text-xs sm:text-base font-black text-slate-900 leading-none">40</span>
+              <span class="text-xs sm:text-base font-black leading-none" [class.text-slate-400]="!farmerService.hasPlants()" [class.text-slate-900]="farmerService.hasPlants()">
+                {{ farmerService.dynamicGreenImpact().plantsRegistered }}
+              </span>
             </div>
             <p class="text-[10px] sm:text-[11px] font-bold text-slate-600 leading-tight">Plants Reg.</p>
           </div>
@@ -408,7 +622,9 @@
           <div class="flex flex-col items-center">
             <div class="w-13 h-13 sm:w-16 sm:h-16 rounded-full bg-emerald-50 border-2 border-emerald-300 flex flex-col items-center justify-center mb-1 shadow-2xs">
               <span class="text-xs">🍃</span>
-              <span class="text-xs sm:text-base font-black text-[#15803d] leading-none">38</span>
+              <span class="text-xs sm:text-base font-black leading-none" [class.text-slate-400]="!farmerService.hasPlants()" [class.text-[#15803d]]="farmerService.hasPlants()">
+                {{ farmerService.dynamicGreenImpact().plantsActive }}
+              </span>
             </div>
             <p class="text-[10px] sm:text-[11px] font-bold text-slate-600 leading-tight">Plants Active</p>
           </div>
@@ -417,15 +633,17 @@
           <div class="flex flex-col items-center">
             <div class="w-13 h-13 sm:w-16 sm:h-16 rounded-full bg-emerald-50 border-2 border-emerald-200 flex flex-col items-center justify-center mb-1 shadow-2xs">
               <span class="text-xs">☁️</span>
-              <span class="text-[10px] sm:text-xs font-black text-slate-900 leading-none">CO₂</span>
+              <span class="text-[10px] sm:text-xs font-black leading-none" [class.text-slate-400]="!farmerService.hasPlants()" [class.text-slate-900]="farmerService.hasPlants()">
+                {{ farmerService.dynamicGreenImpact().co2OffsetKg }} kg
+              </span>
             </div>
-            <p class="text-[10px] sm:text-[11px] font-bold text-slate-600 leading-tight">Data Logged</p>
+            <p class="text-[10px] sm:text-[11px] font-bold text-slate-600 leading-tight">CO₂ Logged</p>
           </div>
         </div>
 
-        <!-- Impact Caption Matching Screenshot -->
+        <!-- Impact Caption -->
         <p class="text-center text-[11px] text-slate-500 font-medium">
-          Impact data will update as plantation grows.
+          {{ farmerService.dynamicGreenImpact().statusText }}
         </p>
       </div>
 
@@ -436,4 +654,14 @@
 <!-- Photo Upload Modal Component -->
 @if (showPhotoModal()) {
   <app-photo-modal (close)="closePhotoModal()"></app-photo-modal>
+}
+
+<!-- Package & Plants Selection Modal (Requirement 1) -->
+@if (showPackagePlantsModal()) {
+  <app-package-plants-modal (close)="closePackagePlantsModal()"></app-package-plants-modal>
+}
+
+<!-- Farm Details Entry Modal (Requirement 2) -->
+@if (showFarmDetailsModal()) {
+  <app-farm-details-modal (close)="closeFarmDetailsModal()"></app-farm-details-modal>
 }

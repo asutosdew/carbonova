@@ -76,6 +76,7 @@ export interface PlantItem {
   status: string;
   carbonRatePerYearKg: number;
   category: 'Fruit' | 'Medicinal' | 'Timber' | 'Bamboo';
+  unitPrice?: number;
 }
 
 export interface VerificationStep {

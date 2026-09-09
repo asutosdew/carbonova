@@ -1,0 +1,145 @@
+<div class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
+  <div class="bg-white rounded-2xl sm:rounded-3xl shadow-2xl border border-emerald-100 max-w-xl w-full overflow-hidden transition-all transform flex flex-col max-h-[92vh]">
+
+    <!-- Modal Header -->
+    <div class="bg-gradient-to-r from-[#0c3823] via-[#124b2d] to-[#186039] p-4 sm:p-5 text-white flex items-center justify-between flex-shrink-0">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center text-xl border border-white/20">
+          📍
+        </div>
+        <div>
+          <h3 class="text-base sm:text-lg font-black text-white leading-tight">
+            Farm Overview & Land Details
+          </h3>
+          <p class="text-xs text-emerald-100/80 mt-0.5">
+            Add or update your agricultural land specifications
+          </p>
+        </div>
+      </div>
+
+      <button (click)="close.emit()" 
+              class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center text-sm font-bold transition-all border border-white/15 active:scale-95"
+              aria-label="Close modal">
+        ✕
+      </button>
+    </div>
+
+    <!-- Modal Body -->
+    <div class="p-4 sm:p-6 overflow-y-auto space-y-4 text-xs">
+
+      @if (!isSuccess()) {
+        <!-- Land Area -->
+        <div class="space-y-1.5">
+          <label class="font-extrabold text-slate-800 flex items-center justify-between">
+            <span>Farm Land Area *</span>
+            <span class="text-slate-400 font-normal text-[11px]">e.g., 0.25 Acre, 1 Acre</span>
+          </label>
+          <div class="flex items-center gap-2 mb-2">
+            @for (preset of areaPresets; track preset) {
+              <button type="button"
+                      (click)="setArea(preset)"
+                      [class.bg-[#16a34a]]="farmArea() === preset"
+                      [class.text-white]="farmArea() === preset"
+                      [class.bg-slate-100]="farmArea() !== preset"
+                      [class.text-slate-700]="farmArea() !== preset"
+                      class="px-2.5 py-1 rounded-lg font-bold text-[11px] transition-all hover:bg-emerald-100 active:scale-95">
+                {{ preset }}
+              </button>
+            }
+          </div>
+          <input type="text"
+                 [ngModel]="farmArea()"
+                 (ngModelChange)="farmArea.set($event)"
+                 placeholder="e.g. 0.5 Acre or 1.2 Hectare"
+                 class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-hidden focus:border-[#16a34a] focus:ring-2 focus:ring-[#16a34a]/20 text-slate-800 font-medium text-xs">
+        </div>
+
+        <!-- Soil Type Dropdown -->
+        <div class="space-y-1.5">
+          <label class="font-extrabold text-slate-800 block">Soil Type *</label>
+          <select [ngModel]="soilType()"
+                  (ngModelChange)="soilType.set($event)"
+                  class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-hidden focus:border-[#16a34a] focus:ring-2 focus:ring-[#16a34a]/20 text-slate-800 font-medium text-xs bg-white">
+            @for (soil of soilOptions; track soil) {
+              <option [value]="soil">{{ soil }}</option>
+            }
+          </select>
+        </div>
+
+        <!-- Irrigation Source Dropdown -->
+        <div class="space-y-1.5">
+          <label class="font-extrabold text-slate-800 block">Irrigation Source *</label>
+          <select [ngModel]="irrigationSource()"
+                  (ngModelChange)="irrigationSource.set($event)"
+                  class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-hidden focus:border-[#16a34a] focus:ring-2 focus:ring-[#16a34a]/20 text-slate-800 font-medium text-xs bg-white">
+            @for (irr of irrigationOptions; track irr) {
+              <option [value]="irr">{{ irr }}</option>
+            }
+          </select>
+        </div>
+
+        <!-- Plantation / Setup Date -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div class="space-y-1.5">
+            <label class="font-extrabold text-slate-800 block">Plantation / Setup Date</label>
+            <input type="text"
+                   [ngModel]="plantationDate()"
+                   (ngModelChange)="plantationDate.set($event)"
+                   placeholder="e.g. 15 Aug 2026"
+                   class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-hidden focus:border-[#16a34a] focus:ring-2 focus:ring-[#16a34a]/20 text-slate-800 font-medium text-xs">
+          </div>
+
+          <div class="space-y-1.5">
+            <label class="font-extrabold text-slate-800 block">District / Region</label>
+            <input type="text"
+                   [ngModel]="district()"
+                   (ngModelChange)="district.set($event)"
+                   placeholder="e.g. Surguja"
+                   class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-hidden focus:border-[#16a34a] focus:ring-2 focus:ring-[#16a34a]/20 text-slate-800 font-medium text-xs">
+          </div>
+        </div>
+
+        <!-- Village & Location -->
+        <div class="space-y-1.5">
+          <label class="font-extrabold text-slate-800 block">Village & Tehsil / Address</label>
+          <input type="text"
+                 [ngModel]="village()"
+                 (ngModelChange)="village.set($event)"
+                 placeholder="e.g. Kalyanpur, Ambikapur Tehsil"
+                 class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-hidden focus:border-[#16a34a] focus:ring-2 focus:ring-[#16a34a]/20 text-slate-800 font-medium text-xs">
+        </div>
+
+        <!-- Submit & Cancel Buttons -->
+        <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+          <button type="button"
+                  (click)="close.emit()"
+                  class="py-2.5 px-4 rounded-xl border border-slate-300 hover:bg-slate-50 text-slate-700 font-bold text-xs transition-all">
+            Cancel
+          </button>
+          <button type="button"
+                  (click)="saveFarmDetails()"
+                  [disabled]="!farmArea() || isSubmitting()"
+                  class="py-2.5 px-6 rounded-xl bg-[#0c3823] hover:bg-[#145335] disabled:opacity-40 text-white font-bold text-xs transition-all shadow-sm active:scale-98 flex items-center gap-2">
+            @if (isSubmitting()) {
+              <span>Saving...</span>
+            } @else {
+              <span>✓ Save Farm Details</span>
+            }
+          </button>
+        </div>
+      } @else {
+        <!-- Success State -->
+        <div class="text-center py-8 space-y-2">
+          <div class="w-12 h-12 rounded-full bg-[#16a34a] text-white flex items-center justify-center text-2xl mx-auto shadow-md animate-bounce">
+            ✓
+          </div>
+          <h4 class="text-base font-black text-slate-900">Farm Details Saved Successfully!</h4>
+          <p class="text-xs text-slate-500">Your land specifications have been updated on your dashboard.</p>
+        </div>
+      }
+
+    </div>
+
+  </div>
+</div>
+
