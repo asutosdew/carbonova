@@ -17,7 +17,7 @@
             </span>
           </div>
           <p class="text-xs text-emerald-100/80 mt-0.5">
-            {{ step() === 1 ? 'Choose your carbon farming package & inspect compulsory bio-inputs' : 'Select your tree species up to package price budget' }}
+            {{ step() === 1 ? 'Choose your carbon farming package & inspect compulsory bio-inputs' : 'Plant value must exactly equal package price (cannot be less or greater)' }}
           </p>
         </div>
       </div>
@@ -38,7 +38,7 @@
           <div class="mb-3">
             <h4 class="text-sm font-black text-slate-900 flex items-center gap-1.5">
               <span>1. Choose Farming Package</span>
-              <span class="text-xs font-normal text-slate-500">(Sets maximum plant allowance)</span>
+              <span class="text-xs font-normal text-slate-500">(Sets mandatory plant budget)</span>
             </h4>
           </div>
 
@@ -96,7 +96,7 @@
                     </span>
                   </h5>
                   <p class="text-[11px] text-slate-600 font-medium">
-                    As required by Carbonova agronomy standards, organic fertilizer and bio-pesticide protection kits are mandatory and bundled automatically with all packages.
+                    As required by Carbonova agronomy standards, organic bio-NPK fertilizer and bio-pesticides are mandatory and bundled automatically with all packages.
                   </p>
                 </div>
               </div>
@@ -139,26 +139,32 @@
               <div class="flex items-center gap-2">
                 <span class="text-xl">📦</span>
                 <div>
-                  <span class="text-[10px] uppercase font-bold text-slate-500 tracking-wider block">Active Package</span>
+                  <span class="text-[10px] uppercase font-bold text-slate-500 tracking-wider block">Target Package Price</span>
                   <span class="text-xs sm:text-sm font-black text-slate-900">{{ selectedPackage().name }}</span>
                 </div>
               </div>
 
               <div class="flex items-center gap-4 text-right">
                 <div>
-                  <span class="text-[10px] uppercase font-bold text-slate-400 block">Package Budget</span>
+                  <span class="text-[10px] uppercase font-bold text-slate-400 block">Required Price</span>
                   <span class="text-sm sm:text-base font-black text-slate-900">₹{{ selectedPackage().price.toLocaleString() }}</span>
                 </div>
                 <div>
-                  <span class="text-[10px] uppercase font-bold text-slate-400 block">Selected Value</span>
-                  <span class="text-sm sm:text-base font-black" [class.text-[#16a34a]]="!isOverBudget()" [class.text-rose-600]="isOverBudget()">
+                  <span class="text-[10px] uppercase font-bold text-slate-400 block">Selected Plants Value</span>
+                  <span class="text-sm sm:text-base font-black"
+                        [class.text-[#16a34a]]="isExactBudget()"
+                        [class.text-amber-600]="isUnderBudget()"
+                        [class.text-rose-600]="isOverBudget()">
                     ₹{{ totalPlantsCost().toLocaleString() }}
                   </span>
                 </div>
                 <div>
-                  <span class="text-[10px] uppercase font-bold text-slate-400 block">Remaining Balance</span>
-                  <span class="text-sm sm:text-base font-black" [class.text-emerald-700]="remainingBudget() >= 0" [class.text-rose-600]="remainingBudget() < 0">
-                    ₹{{ remainingBudget().toLocaleString() }}
+                  <span class="text-[10px] uppercase font-bold text-slate-400 block">Balance Difference</span>
+                  <span class="text-sm sm:text-base font-black"
+                        [class.text-emerald-700]="isExactBudget()"
+                        [class.text-amber-600]="isUnderBudget()"
+                        [class.text-rose-600]="isOverBudget()">
+                    {{ remainingBudget() === 0 ? '₹0 (Exact)' : (remainingBudget() > 0 ? '−₹' + remainingBudget().toLocaleString() : '+₹' + Math.abs(remainingBudget()).toLocaleString()) }}
                   </span>
                 </div>
               </div>
@@ -169,8 +175,8 @@
               <div class="w-full h-2.5 bg-slate-200 rounded-full overflow-hidden">
                 <div class="h-full transition-all duration-300"
                      [style.width.%]="Math.min(100, (totalPlantsCost() / selectedPackage().price) * 100)"
-                     [class.bg-[#16a34a]]="!isOverBudget() && remainingBudget() > 0"
-                     [class.bg-emerald-600]="remainingBudget() === 0"
+                     [class.bg-amber-500]="isUnderBudget()"
+                     [class.bg-[#16a34a]]="isExactBudget()"
                      [class.bg-rose-500]="isOverBudget()">
                 </div>
               </div>
@@ -182,16 +188,45 @@
                     <span>{{ totalPlantsCount() }} Trees Selected</span>
                   </span>
                   <span>•</span>
-                  <span class="text-slate-500">Est. {{ totalCarbonEst().toFixed(1) }} kg CO₂/yr absorption</span>
+                  <span class="text-slate-500">Est. {{ totalCarbonEst().toFixed(1) }} kg CO₂/yr</span>
                 </div>
-                <span>Max allowed: ₹{{ selectedPackage().price.toLocaleString() }}</span>
+                <span class="font-bold">Required Exact Total: ₹{{ selectedPackage().price.toLocaleString() }}</span>
               </div>
             </div>
 
+            <!-- STRICT VALIDATION BANNERS -->
+            @if (isExactBudget()) {
+              <div class="mt-2.5 text-[11px] font-bold text-emerald-800 bg-emerald-100/90 p-2.5 rounded-xl border border-emerald-300 flex items-center justify-between gap-2 shadow-2xs">
+                <div class="flex items-center gap-2">
+                  <span class="text-base">✅</span>
+                  <span><strong>Exact Match!</strong> Total plants value is exactly ₹{{ selectedPackage().price.toLocaleString() }} ({{ totalPlantsCount() }} trees). You can now confirm!</span>
+                </div>
+              </div>
+            }
+
+            @if (isUnderBudget()) {
+              <div class="mt-2.5 text-[11px] font-bold text-amber-900 bg-amber-50 p-2.5 rounded-xl border border-amber-300 flex items-center justify-between gap-2">
+                <div class="flex items-center gap-2">
+                  <span class="text-base">⚠️</span>
+                  <span><strong>Must not be less:</strong> Allocate ₹{{ remainingBudget().toLocaleString() }} more to reach the required package price of ₹{{ selectedPackage().price.toLocaleString() }}.</span>
+                </div>
+                <button (click)="autoBalanceBudget()" 
+                        class="px-2.5 py-1 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-[10px] font-black uppercase tracking-wider transition-all whitespace-nowrap shadow-2xs active:scale-95">
+                  ✨ Auto-Balance (₹{{ remainingBudget().toLocaleString() }})
+                </button>
+              </div>
+            }
+
             @if (isOverBudget()) {
-              <div class="mt-2 text-[11px] font-bold text-rose-700 bg-rose-50 p-2 rounded-lg border border-rose-200 flex items-center gap-1.5">
-                <span>⚠️</span>
-                <span>You have exceeded the package budget by ₹{{ (totalPlantsCost() - selectedPackage().price).toLocaleString() }}. Please reduce plant quantities.</span>
+              <div class="mt-2.5 text-[11px] font-bold text-rose-800 bg-rose-50 p-2.5 rounded-xl border border-rose-300 flex items-center justify-between gap-2">
+                <div class="flex items-center gap-2">
+                  <span class="text-base">🚫</span>
+                  <span><strong>Must not be greater:</strong> Plants total exceeds package budget by ₹{{ (totalPlantsCost() - selectedPackage().price).toLocaleString() }}. Please decrease quantities.</span>
+                </div>
+                <button (click)="autoBalanceBudget()" 
+                        class="px-2.5 py-1 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-[10px] font-black uppercase tracking-wider transition-all whitespace-nowrap shadow-2xs active:scale-95">
+                  Fix Over-Budget
+                </button>
               </div>
             }
           </div>
@@ -200,11 +235,19 @@
           <div class="flex items-center justify-between mb-3">
             <h4 class="text-sm font-black text-slate-900 flex items-center gap-1.5">
               <span>2. Choose Plants & Quantities</span>
-              <span class="text-xs font-normal text-slate-500">(Max plants up to package price)</span>
+              <span class="text-xs font-normal text-slate-500">(Total must equal ₹{{ selectedPackage().price.toLocaleString() }})</span>
             </h4>
-            <button (click)="resetPlants()" class="text-xs text-slate-500 hover:text-slate-800 underline font-medium">
-              Clear All
-            </button>
+            <div class="flex items-center gap-2">
+              <button (click)="autoBalanceBudget()" 
+                      [disabled]="isExactBudget()"
+                      class="text-xs font-bold text-[#15803d] hover:underline disabled:opacity-40">
+                ✨ Auto-Balance
+              </button>
+              <span>•</span>
+              <button (click)="resetPlants()" class="text-xs text-slate-500 hover:text-slate-800 underline font-medium">
+                Reset
+              </button>
+            </div>
           </div>
 
           <!-- Plant Items Selection Cards -->
@@ -299,17 +342,22 @@
               ← Back to Packages
             </button>
 
+            <!-- Confirm Button strictly requires isExactBudget() -->
             <button (click)="confirmAndActivate()"
-                    [disabled]="totalPlantsCount() === 0 || isOverBudget() || isSubmitting()"
-                    class="py-2.5 px-6 rounded-xl bg-[#16a34a] hover:bg-[#15803d] disabled:opacity-40 disabled:pointer-events-none text-white font-black text-xs sm:text-sm transition-all shadow-md active:scale-98 flex items-center gap-2">
+                    [disabled]="!isExactBudget() || isSubmitting()"
+                    class="py-2.5 px-6 rounded-xl bg-[#16a34a] hover:bg-[#15803d] disabled:opacity-40 disabled:cursor-not-allowed text-white font-black text-xs sm:text-sm transition-all shadow-md active:scale-98 flex items-center gap-2">
               @if (isSubmitting()) {
                 <svg class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                   <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
                 <span>Activating Farmer...</span>
+              } @else if (isExactBudget()) {
+                <span>✓ Confirm Plants & Activate Farm (Exactly ₹{{ selectedPackage().price.toLocaleString() }})</span>
+              } @else if (isUnderBudget()) {
+                <span>⚠️ Allocate ₹{{ remainingBudget().toLocaleString() }} more to reach ₹{{ selectedPackage().price.toLocaleString() }}</span>
               } @else {
-                <span>✓ Confirm Plants & Activate Farm ({{ totalPlantsCount() }} Trees)</span>
+                <span>🚫 Over budget by ₹{{ (totalPlantsCost() - selectedPackage().price).toLocaleString() }}</span>
               }
             </button>
           </div>
@@ -324,7 +372,7 @@
           </div>
           <h4 class="text-xl font-black text-slate-900">Congratulations, Farm Activated! 🎉</h4>
           <p class="text-xs text-slate-600 max-w-md mx-auto">
-            Your package and {{ totalPlantsCount() }} trees have been registered successfully with compulsory Bio-NPK and Bio-Pesticides. Your Green Credits and Impact tracking are now live!
+            Your package and {{ totalPlantsCount() }} trees have been registered successfully (Exactly ₹{{ selectedPackage().price.toLocaleString() }}) with compulsory Bio-NPK and Bio-Pesticides.
           </p>
         </div>
       }
@@ -333,4 +381,3 @@
 
   </div>
 </div>
-

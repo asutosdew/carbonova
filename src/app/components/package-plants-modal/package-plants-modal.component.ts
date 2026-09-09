@@ -42,16 +42,18 @@ export class PackagePlantsModalComponent {
   // Step 1: Package, Step 2: Plants & Review
   readonly step = signal<1 | 2>(1);
 
+  // Available Packages - Presets sum to EXACT package prices
   readonly packageOptions: PackageOption[] = [
     {
       id: 'PKG-01',
       name: 'Green Starter Package',
       price: 10000,
       badge: 'Most Popular',
-      description: 'Ideal starting kit for 0.25 acre. Complete with 40 high carbon trees & bio inputs.',
+      description: 'Ideal starting kit for 0.25 acre. Complete with 55 high carbon trees & bio inputs.',
       boxImage: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=300&auto=format&fit=crop&q=80',
       recommendedAcre: '0.25 Acre',
-      defaultPlants: { 'PLT-01': 10, 'PLT-02': 10, 'PLT-03': 20 }
+      // 20*250 (5,000) + 15*200 (3,000) + 20*100 (2,000) = ₹10,000 EXACT
+      defaultPlants: { 'PLT-01': 20, 'PLT-02': 15, 'PLT-03': 20, 'PLT-04': 0, 'PLT-05': 0 }
     },
     {
       id: 'PKG-02',
@@ -61,7 +63,8 @@ export class PackagePlantsModalComponent {
       description: 'High-yield timber, fruit & bamboo agroforestry kit for 0.75 - 1.0 Acre.',
       boxImage: 'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?w=300&auto=format&fit=crop&q=80',
       recommendedAcre: '0.75 - 1.0 Acre',
-      defaultPlants: { 'PLT-01': 30, 'PLT-04': 25, 'PLT-02': 20, 'PLT-05': 15 }
+      // 30*250 (7,500) + 25*200 (5,000) + 50*100 (5,000) + 10*500 (5,000) + 10*250 (2,500) = ₹25,000 EXACT
+      defaultPlants: { 'PLT-01': 30, 'PLT-02': 25, 'PLT-03': 50, 'PLT-04': 10, 'PLT-05': 10 }
     },
     {
       id: 'PKG-03',
@@ -71,38 +74,40 @@ export class PackagePlantsModalComponent {
       description: 'Multi-canopy maximum sequestration setup with Teak, Bamboo & Fruit trees.',
       boxImage: 'https://images.unsplash.com/photo-1448375240586-882707db888b?w=300&auto=format&fit=crop&q=80',
       recommendedAcre: '2.0+ Acres',
-      defaultPlants: { 'PLT-04': 50, 'PLT-05': 40, 'PLT-01': 50, 'PLT-03': 60 }
+      // 50*250 (12,500) + 50*200 (10,000) + 100*100 (10,000) + 25*500 (12,500) + 20*250 (5,000) = ₹50,000 EXACT
+      defaultPlants: { 'PLT-01': 50, 'PLT-02': 50, 'PLT-03': 100, 'PLT-04': 25, 'PLT-05': 20 }
     }
   ];
 
   readonly selectedPackage = signal<PackageOption>(this.packageOptions[0]);
 
+  // Clean round unit prices (multiples of 50/100) allowing exact budget matching
   readonly plantChoices = signal<PlantChoice[]>([
     {
       id: 'PLT-01',
       name: 'Vietnam Super Early Jackfruit',
       scientificName: 'Artocarpus heterophyllus',
-      unitPrice: 220,
+      unitPrice: 250,
       category: 'Fruit',
       carbonRatePerYearKg: 28.5,
       image: 'https://images.unsplash.com/photo-1596707325255-7a315e966b96?w=120&auto=format&fit=crop&q=80',
-      selectedQty: 10
+      selectedQty: 20
     },
     {
       id: 'PLT-02',
       name: 'Kumbhkat Seedless Lemon',
       scientificName: 'Citrus limon (Kumbhkat)',
-      unitPrice: 180,
+      unitPrice: 200,
       category: 'Fruit',
       carbonRatePerYearKg: 18.2,
       image: 'https://images.unsplash.com/photo-1534856966150-c832f817a508?w=120&auto=format&fit=crop&q=80',
-      selectedQty: 10
+      selectedQty: 15
     },
     {
       id: 'PLT-03',
       name: 'PKM-1 Super Moringa',
       scientificName: 'Moringa oleifera',
-      unitPrice: 95,
+      unitPrice: 100,
       category: 'Medicinal',
       carbonRatePerYearKg: 22.0,
       image: 'https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=120&auto=format&fit=crop&q=80',
@@ -112,7 +117,7 @@ export class PackagePlantsModalComponent {
       id: 'PLT-04',
       name: 'Tissue-Culture Super Teak',
       scientificName: 'Tectona grandis',
-      unitPrice: 350,
+      unitPrice: 500,
       category: 'Timber',
       carbonRatePerYearKg: 35.0,
       image: 'https://images.unsplash.com/photo-1542273917363-3b1817f69a2d?w=120&auto=format&fit=crop&q=80',
@@ -122,7 +127,7 @@ export class PackagePlantsModalComponent {
       id: 'PLT-05',
       name: 'Giant Beema Bamboo',
       scientificName: 'Bambusa balcooa',
-      unitPrice: 280,
+      unitPrice: 250,
       category: 'Bamboo',
       carbonRatePerYearKg: 45.0,
       image: 'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?w=120&auto=format&fit=crop&q=80',
@@ -168,6 +173,15 @@ export class PackagePlantsModalComponent {
     return this.selectedPackage().price - this.totalPlantsCost();
   });
 
+  // Strict validation: must not be greater and must not be less
+  readonly isExactBudget = computed(() => {
+    return this.totalPlantsCost() === this.selectedPackage().price;
+  });
+
+  readonly isUnderBudget = computed(() => {
+    return this.totalPlantsCost() < this.selectedPackage().price;
+  });
+
   readonly isOverBudget = computed(() => {
     return this.totalPlantsCost() > this.selectedPackage().price;
   });
@@ -177,7 +191,7 @@ export class PackagePlantsModalComponent {
 
   selectPackage(pkg: PackageOption) {
     this.selectedPackage.set(pkg);
-    // Apply recommended preset if available
+    // Apply recommended preset that equals the exact package price
     if (pkg.defaultPlants) {
       this.plantChoices.update(choices =>
         choices.map(c => ({
@@ -220,6 +234,7 @@ export class PackagePlantsModalComponent {
     this.plantChoices.update(choices => choices.map(p => ({ ...p, selectedQty: 0 })));
   }
 
+  // Quick action: auto-fill remaining amount with selected plant
   fillRemainingBudgetWith(plantId: string) {
     const plant = this.plantChoices().find(p => p.id === plantId);
     if (!plant) return;
@@ -229,9 +244,35 @@ export class PackagePlantsModalComponent {
     this.incrementPlant(plantId, canAdd);
   }
 
+  // Quick action: auto-balance budget to exactly match package price
+  autoBalanceBudget() {
+    const remaining = this.remainingBudget();
+    if (remaining === 0) return;
+
+    if (remaining > 0) {
+      // Allocate to Moringa (₹100) or Jackfruit/Bamboo (₹250) or Lemon (₹200)
+      const moringa = this.plantChoices().find(p => p.id === 'PLT-03');
+      if (moringa && remaining >= moringa.unitPrice) {
+        const count = Math.floor(remaining / moringa.unitPrice);
+        this.incrementPlant('PLT-03', count);
+      }
+    } else {
+      // Reduce from selected plants until exact
+      let excess = Math.abs(remaining);
+      for (const p of this.plantChoices()) {
+        if (excess <= 0) break;
+        if (p.selectedQty > 0) {
+          const reduceCount = Math.min(p.selectedQty, Math.ceil(excess / p.unitPrice));
+          this.decrementPlant(p.id, reduceCount);
+          excess = this.totalPlantsCost() - this.selectedPackage().price;
+        }
+      }
+    }
+  }
+
   confirmAndActivate() {
-    if (this.totalPlantsCount() === 0) return;
-    if (this.isOverBudget()) return;
+    // Strictly must not be less and must not be greater
+    if (!this.isExactBudget()) return;
 
     this.isSubmitting.set(true);
 
