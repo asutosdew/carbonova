@@ -93,7 +93,7 @@
     <div class="overflow-x-auto py-6 min-h-[420px] flex justify-center">
       <div class="flex flex-col items-center space-y-8 min-w-[700px]">
         
-        <!-- ROOT NODE (Sandeep) -->
+        <!-- ROOT NODE -->
         <div class="flex flex-col items-center">
           <div (click)="inspectNode(teamService.genealogyRoot())"
                class="p-4 rounded-3xl bg-gradient-to-br from-[#0c3823] to-[#15803d] text-white shadow-xl border-2 border-[#4ade80] cursor-pointer hover:scale-105 transition-all text-center w-56 relative group">
@@ -101,7 +101,7 @@
               YOU (SPONSOR)
             </span>
             <div class="w-12 h-12 rounded-full overflow-hidden border-2 border-white mx-auto mb-2 shadow-md">
-              <img [src]="teamService.genealogyRoot().avatar" alt="Sandeep" class="w-full h-full object-cover">
+              <img [src]="teamService.genealogyRoot().avatar" [alt]="teamService.genealogyRoot().name" class="w-full h-full object-cover">
             </div>
             <h4 class="font-extrabold text-sm">{{ teamService.genealogyRoot().name }}</h4>
             <p class="text-[11px] text-emerald-200 font-mono">{{ teamService.genealogyRoot().farmerId }}</p>
@@ -296,16 +296,16 @@
         🌿
       </div>
       <h3 class="font-black text-slate-900 text-base">Carbonova Referral QR</h3>
-      <p class="text-xs text-slate-500 mb-4">Scan with phone camera to join under Sandeep (CGC-157059)</p>
+      <p class="text-xs text-slate-500 mb-4">Scan with phone camera to join under {{ farmerService.farmer().name || 'Farmer' }} ({{ teamService.referralCode() }})</p>
 
       <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200 inline-block mb-4 shadow-inner">
-        <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=https://carbonova.eco/join?ref=CGC-157059" 
+        <img [src]="'https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=' + teamService.referralLink()" 
              alt="Referral QR Code" 
              class="w-44 h-44 mx-auto rounded-lg">
       </div>
 
       <div class="p-2.5 bg-emerald-50 rounded-xl text-emerald-950 font-mono text-xs font-bold mb-4">
-        Referral Code: CGC-157059
+        Referral Code: {{ teamService.referralCode() }}
       </div>
 
       <button (click)="showQrModal.set(false)" class="w-full py-2.5 rounded-xl bg-[#0c3823] text-white font-bold text-xs shadow-md">

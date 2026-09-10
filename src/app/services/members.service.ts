@@ -1,4 +1,4 @@
-﻿import { Injectable, inject } from "@angular/core";
+import { Injectable, inject, isDevMode } from "@angular/core";
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { firstValueFrom } from "rxjs";
 import { AuthService } from "./auth.service";
@@ -16,8 +16,11 @@ export class MembersService {
   private readonly http = inject(HttpClient);
   private readonly authServer = inject(AuthService);
 
+  // Live Backend Endpoint directly accessed
+  public static readonly LIVE_API_URL = "https://www.carbonovaworld.com/api/members.php";
+
   get authUrl(): string {
-    return this.authServer.getApiUrl();
+    return MembersService.LIVE_API_URL;
   }
 
   get token(): string {

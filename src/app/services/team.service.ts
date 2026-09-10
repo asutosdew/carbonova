@@ -8,8 +8,8 @@ import { MembersService } from './members.service';
 export class TeamService {
   private readonly membersService = inject(MembersService);
   // Referral Link
-  readonly referralLink = signal('https://carbonova.eco/join?ref=CGC-157059');
-  readonly referralCode = signal('CGC-157059');
+  readonly referralLink = signal('https://www.carbonovaworld.com/register.php?sid=MTIwODcz');
+  readonly referralCode = signal('CGC-120873');
 
   // Overall Team summary stats (10 Levels total: 128 Farmers)
   readonly teamStats = signal({
@@ -47,8 +47,8 @@ export class TeamService {
       avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=100&auto=format&fit=crop&q=80',
       rank: 'Green Starter',
       level: 1,
-      sponsorId: 'CGC-157059',
-      sponsorName: 'Sandeep',
+      sponsorId: 'CGC-120873',
+      sponsorName: 'You',
       package: 'Green Starter Package',
       packageAmount: 10000,
       joiningDate: '10 Aug 2026',
@@ -68,8 +68,8 @@ export class TeamService {
       avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&auto=format&fit=crop&q=80',
       rank: 'Agro Pro',
       level: 1,
-      sponsorId: 'CGC-157059',
-      sponsorName: 'Sandeep',
+      sponsorId: 'CGC-120873',
+      sponsorName: 'You',
       package: 'Commercial Agroforestry',
       packageAmount: 25000,
       joiningDate: '12 Aug 2026',
@@ -89,8 +89,8 @@ export class TeamService {
       avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=100&auto=format&fit=crop&q=80',
       rank: 'Green Starter',
       level: 1,
-      sponsorId: 'CGC-157059',
-      sponsorName: 'Sandeep',
+      sponsorId: 'CGC-120873',
+      sponsorName: 'You',
       package: 'Green Starter Package',
       packageAmount: 10000,
       joiningDate: '15 Aug 2026',
@@ -110,8 +110,8 @@ export class TeamService {
       avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&auto=format&fit=crop&q=80',
       rank: 'Green Starter',
       level: 1,
-      sponsorId: 'CGC-157059',
-      sponsorName: 'Sandeep',
+      sponsorId: 'CGC-120873',
+      sponsorName: 'You',
       package: 'Green Starter Package',
       packageAmount: 10000,
       joiningDate: '18 Aug 2026',
@@ -131,8 +131,8 @@ export class TeamService {
       avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&auto=format&fit=crop&q=80',
       rank: 'Green Starter',
       level: 1,
-      sponsorId: 'CGC-157059',
-      sponsorName: 'Sandeep',
+      sponsorId: 'CGC-120873',
+      sponsorName: 'You',
       package: 'Green Starter Package',
       packageAmount: 10000,
       joiningDate: '20 Aug 2026',
@@ -378,14 +378,14 @@ export class TeamService {
   // Deep Hierarchical 10-Level Partner Genealogy Tree structure
   readonly genealogyRoot = signal<GenealogyNode>({
     id: 'ROOT',
-    farmerId: 'CGC-157059',
-    name: 'Sandeep (You)',
+    farmerId: 'CGC-120873',
+    name: 'You',
     rank: 'Green Starter',
     avatar: 'assets/images/farmer-avatar.jpg',
     package: 'Green Starter Package (₹10,000)',
     packageAmount: 10000,
-    status: 'Active',
-    totalPlants: 40,
+    status: 'Pending',
+    totalPlants: 0,
     level: 0,
     directCount: 5,
     teamCount: 128,
@@ -670,9 +670,23 @@ export class TeamService {
         this.genealogyRoot.update(r => ({
           ...r,
           farmerId: 'CGC-' + uid,
+          name: data.name ? `${data.name} (You)` : r.name,
           directCount: directs,
-          teamCount: totalTeam
+          teamCount: totalTeam,
+          status: data.status || (Number(data.totalPlants || 0) > 0 ? 'Active' : 'Pending'),
+          totalPlants: Number(data.totalPlants ?? 0)
         }));
+
+        if (directs === 0 && !data.downlinelist?.length) {
+          // If live user has no directs yet, empty downline list
+          this.downlineMembers.set([]);
+        } else if (data.name) {
+          this.downlineMembers.update(list => list.map(m => ({
+            ...m,
+            sponsorId: 'CGC-' + uid,
+            sponsorName: data.name
+          })));
+        }
       }
     } catch (e) {
       console.warn('[TeamService] Live server downlinestatus skipped (offline or unauthenticated):', e);

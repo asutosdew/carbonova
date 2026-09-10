@@ -10,8 +10,17 @@
 
   <!-- Profile Header Banner -->
   <div class="bg-gradient-to-br from-[#0c3823] via-[#10482c] to-[#15803d] rounded-3xl p-4 sm:p-8 text-white shadow-xl flex flex-col md:flex-row items-center gap-5 border border-[#22c55e]/30">
-    <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden border-4 border-white shadow-xl flex-shrink-0">
-      <img [src]="farmerService.farmer().avatar" alt="Sandeep" class="w-full h-full object-cover">
+    <div class="relative w-20 h-20 sm:w-24 sm:h-24 flex-shrink-0 group">
+      <input #avatarInput type="file" accept="image/*" (change)="onAvatarSelected($event)" class="hidden">
+      <div class="w-full h-full rounded-full overflow-hidden border-4 border-white shadow-xl">
+        <img [src]="farmerService.farmer().avatar" alt="Profile avatar" class="w-full h-full object-cover">
+      </div>
+      <button type="button" 
+              (click)="avatarInput.click()"
+              class="absolute bottom-0 right-0 p-1.5 rounded-full bg-[#22c55e] text-[#061c11] hover:bg-emerald-300 shadow-md border-2 border-white transition-all"
+              title="Change Profile Photo">
+        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
+      </button>
     </div>
 
     <div class="space-y-1.5 text-center md:text-left flex-1 min-w-0">
@@ -287,14 +296,25 @@
           </div>
         </div>
 
-        <!-- Bank Passbook Document Preview -->
+        <!-- Bank Passbook Document Preview & Upload -->
         <div class="pt-3 border-t border-slate-100">
           <label class="font-bold text-slate-700 block mb-1.5">Passbook / Cancelled Cheque Photo (Document Proof)</label>
-          <div class="flex items-center gap-4">
-            <img [src]="bankForm.passbookPhotoUrl" alt="Passbook preview" class="w-28 h-20 rounded-xl object-cover border border-slate-300">
-            <div class="space-y-1 text-xs">
-              <p class="font-bold text-slate-800">Passbook photo attached</p>
-              <p class="text-[11px] text-slate-500">Penny drop ₹1 verification completed on 05 Aug 2026</p>
+          <input #passbookInput type="file" accept="image/*" (change)="onPassbookSelected($event)" class="hidden">
+          <div class="flex flex-col sm:flex-row sm:items-center gap-4">
+            <div class="relative w-32 h-20 rounded-xl overflow-hidden border border-slate-300 group cursor-pointer" (click)="passbookInput.click()">
+              <img [src]="bankForm.passbookPhotoUrl" alt="Passbook preview" class="w-full h-full object-cover">
+              <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-[10px] text-white font-bold">
+                Change Photo
+              </div>
+            </div>
+            <div class="space-y-1.5 text-xs">
+              <button type="button" 
+                      (click)="passbookInput.click()" 
+                      class="px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border border-emerald-300 font-bold text-xs flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5 text-emerald-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                <span>Select / Upload Cheque/Passbook</span>
+              </button>
+              <p class="text-[11px] text-slate-500">Supports JPG, PNG or PDF scans. Account holder name must be clearly legible.</p>
             </div>
           </div>
         </div>
@@ -335,7 +355,9 @@
       <form (ngSubmit)="saveKycDetails()" class="space-y-5 text-xs">
         <!-- Aadhaar & PAN -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <!-- Aadhaar Card -->
           <div class="p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-2">
+            <input #aadhaarInput type="file" accept="image/*" (change)="onAadhaarSelected($event)" class="hidden">
             <div class="flex justify-between items-center">
               <label class="font-bold text-slate-800">Aadhaar Card Number *</label>
               <span class="text-[10px] text-emerald-700 font-bold">✓ UIDAI Verified</span>
@@ -343,12 +365,27 @@
             <input type="text" [(ngModel)]="kycForm.aadhaarNumber" name="aadhaarNumber" class="w-full p-2.5 rounded-xl border border-slate-300 font-mono text-slate-900 focus:outline-none">
             
             <div class="flex items-center gap-3 pt-2">
-              <img [src]="kycForm.aadhaarFrontUrl" alt="Aadhaar Front" class="w-20 h-14 rounded-lg object-cover border border-slate-300">
-              <span class="text-[11px] text-slate-500">Aadhaar document front/back verified</span>
+              <div class="relative w-20 h-14 rounded-lg overflow-hidden border border-slate-300 group cursor-pointer" (click)="aadhaarInput.click()">
+                <img [src]="kycForm.aadhaarFrontUrl" alt="Aadhaar Front" class="w-full h-full object-cover">
+                <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-[9px] text-white font-bold">
+                  Change
+                </div>
+              </div>
+              <div class="space-y-1">
+                <button type="button" 
+                        (click)="aadhaarInput.click()"
+                        class="px-2.5 py-1 rounded-md bg-white border border-slate-300 hover:bg-emerald-50 text-[11px] font-bold text-slate-700 flex items-center gap-1">
+                  <svg class="w-3 h-3 text-emerald-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                  <span>Upload Aadhaar Photo</span>
+                </button>
+                <span class="text-[10px] text-slate-500 block">Clear photo of Front/Back required</span>
+              </div>
             </div>
           </div>
 
+          <!-- PAN Card -->
           <div class="p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-2">
+            <input #panInput type="file" accept="image/*" (change)="onPanSelected($event)" class="hidden">
             <div class="flex justify-between items-center">
               <label class="font-bold text-slate-800">PAN Card Number (5% TDS Compliance) *</label>
               <span class="text-[10px] text-emerald-700 font-bold">✓ ITD Active</span>
@@ -356,14 +393,28 @@
             <input type="text" [(ngModel)]="kycForm.panNumber" name="panNumber" class="w-full p-2.5 rounded-xl border border-slate-300 font-mono uppercase text-slate-900 focus:outline-none">
             
             <div class="flex items-center gap-3 pt-2">
-              <img [src]="kycForm.panCardUrl" alt="PAN Card" class="w-20 h-14 rounded-lg object-cover border border-slate-300">
-              <span class="text-[11px] text-slate-500">PAN linked for 5% TDS deductions</span>
+              <div class="relative w-20 h-14 rounded-lg overflow-hidden border border-slate-300 group cursor-pointer" (click)="panInput.click()">
+                <img [src]="kycForm.panCardUrl" alt="PAN Card" class="w-full h-full object-cover">
+                <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-[9px] text-white font-bold">
+                  Change
+                </div>
+              </div>
+              <div class="space-y-1">
+                <button type="button" 
+                        (click)="panInput.click()"
+                        class="px-2.5 py-1 rounded-md bg-white border border-slate-300 hover:bg-emerald-50 text-[11px] font-bold text-slate-700 flex items-center gap-1">
+                  <svg class="w-3 h-3 text-emerald-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                  <span>Upload PAN Photo</span>
+                </button>
+                <span class="text-[10px] text-slate-500 block">Required for ITD 5% TDS certification</span>
+              </div>
             </div>
           </div>
         </div>
 
         <!-- Land Records -->
         <div class="p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-3">
+          <input #landInput type="file" accept="image/*" (change)="onLandRecordSelected($event)" class="hidden">
           <h4 class="font-bold text-slate-900 text-xs">Farm Land Title / Khasra Document</h4>
           
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -384,8 +435,21 @@
           </div>
 
           <div class="flex items-center gap-3 pt-1">
-            <img [src]="kycForm.landRecordUrl" alt="Land Record" class="w-20 h-14 rounded-lg object-cover border border-slate-300">
-            <span class="text-[11px] text-slate-500">Land record approved for 0.25 Acre carbon offset contract</span>
+            <div class="relative w-20 h-14 rounded-lg overflow-hidden border border-slate-300 group cursor-pointer" (click)="landInput.click()">
+              <img [src]="kycForm.landRecordUrl" alt="Land Record" class="w-full h-full object-cover">
+              <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-[9px] text-white font-bold">
+                Change
+              </div>
+            </div>
+            <div class="space-y-1">
+              <button type="button" 
+                      (click)="landInput.click()"
+                      class="px-2.5 py-1 rounded-md bg-white border border-slate-300 hover:bg-emerald-50 text-[11px] font-bold text-slate-700 flex items-center gap-1">
+                <svg class="w-3 h-3 text-emerald-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                <span>Upload Khasra / Patta Document</span>
+              </button>
+              <span class="text-[10px] text-slate-500 block">Land record approved for carbon offset contract</span>
+            </div>
           </div>
         </div>
 

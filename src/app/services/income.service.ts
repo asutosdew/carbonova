@@ -10,14 +10,14 @@ export class IncomeService {
 
   // Income Summary State
   readonly breakdown = signal<IncomeBreakdown>({
-    directIncome: 12000,
-    levelIncome: 34550,
-    autopoolIncome: 15000,
-    carbonRoyalty: 3000,
-    fertilizerRebate: 1500,
-    totalEarned: 66050,
-    walletBalance: 32250,
-    withdrawnTotal: 33800,
+    directIncome: 0,
+    levelIncome: 0,
+    autopoolIncome: 0,
+    carbonRoyalty: 0,
+    fertilizerRebate: 0,
+    totalEarned: 0,
+    walletBalance: 0,
+    withdrawnTotal: 0,
     pendingPayouts: 0
   });
 
@@ -252,31 +252,57 @@ export class IncomeService {
 
   async loadLiveIncomeData(): Promise<void> {
     try {
-      const res = await this.membersService.downlinestatus();
-      const data = res?.result || res?.data || res;
-      if (data) {
-        const direct = data.directincome ? parseFloat(data.directincome) : this.breakdown().directIncome;
-        const level = data.levelincome ? parseFloat(data.levelincome) : this.breakdown().levelIncome;
-        const autopool = data.autopoolincome ? parseFloat(data.autopoolincome) : this.breakdown().autopoolIncome;
-        const carbonRoyalty = data.carbonroyalty !== undefined ? parseFloat(data.carbonroyalty) : (data.carbonRoyalty !== undefined ? parseFloat(data.carbonRoyalty) : this.breakdown().carbonRoyalty);
-        const fertilizerRebate = data.fertilizerrebate !== undefined ? parseFloat(data.fertilizerrebate) : (data.fertilizerRebate !== undefined ? parseFloat(data.fertilizerRebate) : this.breakdown().fertilizerRebate);
-        const current = this.breakdown();
-        const totalEarned = data.totalearned !== undefined ? parseFloat(data.totalearned) : (data.totalEarned !== undefined ? parseFloat(data.totalEarned) : (direct + level + (autopool || 0) + carbonRoyalty + fertilizerRebate));
-        const walletBalance = data.walletbalance !== undefined ? parseFloat(data.walletbalance) : (data.walletBalance !== undefined ? parseFloat(data.walletBalance) : (totalEarned - current.withdrawnTotal > 0 ? (totalEarned - current.withdrawnTotal) : current.walletBalance));
+      const [resDownline, resAccount] = await Promise.allSettled([
+        this.membersService.downlinestatus(),
+        this.membersService.myaccount()
+      ]);
+
+      const data = resDownline.status === 'fulfilled' ? (resDownline.value?.result || resDownline.value?.data || resDownline.value) : null;
+      const accountRes = resAccount.status === 'fulfilled' ? resAccount.value?.result : null;
+      const summary = accountRes?.summary;
+
+      if (summary) {
+        this.breakdown.set({
+          walletBalance: Number(summary.walletBalance ?? 0),
+          totalEarned: Number(summary.totalEarned ?? 0),
+          withdrawnTotal: Number(summary.withdrawnTotal ?? 0),
+          pendingPayouts: Number(summary.pendingPayouts ?? 0),
+          directIncome: Number(summary.directIncome ?? (data?.directincome ?? 0)),
+          levelIncome: Number(summary.levelIncome ?? (data?.levelincome ?? 0)),
+          autopoolIncome: Number(summary.autopoolIncome ?? (data?.autopoolincome ?? 0)),
+          carbonRoyalty: Number(summary.carbonRoyalty ?? 0),
+          fertilizerRebate: Number(summary.fertilizerRebate ?? 0)
+        });
+      } else if (data) {
+        const direct = data.directincome !== undefined ? parseFloat(data.directincome) : 0;
+        const level = data.levelincome !== undefined ? parseFloat(data.levelincome) : 0;
+        const autopool = data.autopoolincome !== undefined ? parseFloat(data.autopoolincome) : 0;
+        const carbonRoyalty = data.carbonroyalty !== undefined ? parseFloat(data.carbonroyalty) : 0;
+        const fertilizerRebate = data.fertilizerrebate !== undefined ? parseFloat(data.fertilizerrebate) : 0;
+        const totalEarned = data.totalearned !== undefined ? parseFloat(data.totalearned) : (direct + level + autopool + carbonRoyalty + fertilizerRebate);
+        const walletBalance = data.walletbalance !== undefined ? parseFloat(data.walletbalance) : totalEarned;
 
         this.breakdown.set({
-          ...current,
           directIncome: direct,
           levelIncome: level,
-          autopoolIncome: autopool || current.autopoolIncome,
+          autopoolIncome: autopool,
           carbonRoyalty,
           fertilizerRebate,
           totalEarned,
-          walletBalance
+          walletBalance,
+          withdrawnTotal: 0,
+          pendingPayouts: 0
         });
       }
+
+      if (Array.isArray(accountRes?.transactions) && accountRes.transactions.length > 0) {
+        this.transactions.set(accountRes.transactions);
+      }
+      if (Array.isArray(accountRes?.payoutHistory) && accountRes.payoutHistory.length > 0) {
+        this.payouts.set(accountRes.payoutHistory);
+      }
     } catch (e) {
-      console.warn('[IncomeService] Live server downlinestatus skipped (offline or unauthenticated):', e);
+      console.warn('[IncomeService] Live server data skipped (offline or unauthenticated):', e);
     }
   }
 }

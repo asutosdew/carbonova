@@ -138,24 +138,32 @@ export class CarbonCreditService {
     };
   });
 
-  // Official Carbon Certificate for Sandeep
-  readonly activeCertificate = signal<CarbonCertificate>({
-    certificateId: 'CERT-CGC-2026-8821',
-    certificateNumber: 'CN-VCU-994821-2026',
-    farmerName: 'Sandeep',
-    farmerId: 'CGC-157059',
-    issueDate: '15 Aug 2026',
-    validUntil: '14 Aug 2027',
-    location: 'Ambikapur, Chhattisgarh, India',
-    farmArea: '0.25 Acre',
-    totalTreesVerified: 38,
-    co2SequesteredTonnes: 0.91,
-    creditsIssued: 1250,
-    verificationAuditAgency: 'Global Carbon Registry & Agro-AI Audit Standards',
-    qrCodeUrl: 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://carbonova.eco/verify/CN-VCU-994821-2026',
-    blockchainHash: '0x8f3c92b8d841e170984a1e948c2b719488a0928e1c',
-    signatory: 'Dr. Alok Verma',
-    signatoryTitle: 'Chief Environmental Scientist & Carbon Auditor'
+  // Official Carbon Certificate dynamically tied to live Farmer profile
+  readonly activeCertificate = computed<CarbonCertificate>(() => {
+    const f = this.farmerService.farmer();
+    const verifiedTrees = f.activePlants || f.totalPlants || 0;
+    const co2Tonnes = Math.round((verifiedTrees * 25 * 0.001) * 100) / 100;
+    const credits = Math.round(verifiedTrees * 31.25);
+    const numericId = (f.farmerId || '120873').replace(/\D/g, '') || '120873';
+
+    return {
+      certificateId: `CERT-CGC-${numericId}`,
+      certificateNumber: `CN-VCU-${numericId}-2026`,
+      farmerName: f.name || 'Farmer',
+      farmerId: f.farmerId || 'CGC-120873',
+      issueDate: f.joiningDate || '21 Aug 2026',
+      validUntil: '20 Aug 2027',
+      location: f.location || 'Surguja, Chhattisgarh, India',
+      farmArea: f.farmArea || '0.25 Acre',
+      totalTreesVerified: verifiedTrees,
+      co2SequesteredTonnes: co2Tonnes,
+      creditsIssued: credits,
+      verificationAuditAgency: 'Global Carbon Registry & Agro-AI Audit Standards',
+      qrCodeUrl: `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://carbonova.eco/verify/CN-VCU-${numericId}-2026`,
+      blockchainHash: '0x8f3c92b8d841e170984a1e948c2b719488a0928e1c',
+      signatory: 'Dr. Alok Verma',
+      signatoryTitle: 'Chief Environmental Scientist & Carbon Auditor'
+    };
   });
 
   // Verification Audit History

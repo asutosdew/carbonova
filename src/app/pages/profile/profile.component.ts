@@ -1,4 +1,4 @@
-﻿import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FarmerService } from '../../services/farmer.service';
@@ -63,6 +63,68 @@ export class ProfileComponent {
 
   setTab(tab: 'profile' | 'bank' | 'kyc' | 'session') {
     this.activeTab.set(tab);
+  }
+
+  // File / Photo selection handlers
+  onAvatarSelected(event: Event) {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const dataUrl = e.target?.result as string;
+        this.farmerService.farmer.update(f => ({ ...f, avatar: dataUrl }));
+        this.showToast('Profile photo updated successfully!');
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  onPassbookSelected(event: Event) {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        this.bankForm.passbookPhotoUrl = e.target?.result as string;
+        this.showToast('Passbook / Cheque photo selected!');
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  onAadhaarSelected(event: Event) {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        this.kycForm.aadhaarFrontUrl = e.target?.result as string;
+        this.showToast('Aadhaar card document selected!');
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  onPanSelected(event: Event) {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        this.kycForm.panCardUrl = e.target?.result as string;
+        this.showToast('PAN card document selected!');
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  onLandRecordSelected(event: Event) {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        this.kycForm.landRecordUrl = e.target?.result as string;
+        this.showToast('Farm land / Khasra document selected!');
+      };
+      reader.readAsDataURL(file);
+    }
   }
 
   savePersonalProfile() {

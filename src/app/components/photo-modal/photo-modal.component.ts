@@ -15,6 +15,7 @@ export class PhotoModalComponent {
   @Output() close = new EventEmitter<void>();
 
   selectedImage = signal<string>('https://images.unsplash.com/photo-1592417817098-8f3d69106093?w=600&auto=format&fit=crop&q=80');
+  uploadedFileName = signal<string | null>(null);
   notes = signal<string>('Plants are healthy and growing well. Bio-NPK applied this morning.');
   isSubmitting = signal<boolean>(false);
   isSuccess = signal<boolean>(false);
@@ -27,6 +28,23 @@ export class PhotoModalComponent {
 
   selectSample(url: string) {
     this.selectedImage.set(url);
+    this.uploadedFileName.set(null);
+  }
+
+  onFileSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files[0]) {
+      const file = input.files[0];
+      this.uploadedFileName.set(file.name);
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        if (e.target?.result) {
+          this.selectedImage.set(e.target.result as string);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
   }
 
   submitPhoto() {

@@ -74,7 +74,7 @@
 
         <!-- Farmer Mini Profile Card in Drawer -->
         <div class="p-3 bg-white/10 backdrop-blur-md rounded-2xl border border-white/15 flex items-center gap-3">
-          <img [src]="farmerService.farmer().avatar" alt="Sandeep" class="w-11 h-11 rounded-full object-cover border-2 border-[#22c55e]">
+          <img [src]="farmerService.farmer().avatar" [alt]="farmerService.farmer().name" class="w-11 h-11 rounded-full object-cover border-2 border-[#22c55e]">
           <div class="flex-1 min-w-0">
             <h4 class="font-extrabold text-sm text-white truncate">{{ farmerService.farmer().name }}</h4>
             <p class="text-[11px] text-emerald-200 font-mono">{{ farmerService.farmer().farmerId }}</p>

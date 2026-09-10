@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, isDevMode } from '@angular/core';
 
 export interface AuthTokenData {
   token: string;
@@ -11,6 +11,10 @@ export interface AuthTokenData {
 export class AuthService {
   private readonly TOKEN_KEY = 'authToken';
   public readonly LOGIN_URL = 'https://www.carbonovaworld.com/login.php';
+
+  // Development Bypass Token accepted by members.php
+  public static readonly DEV_DEFAULT_TOKEN = '1111-1111-1111-1111-1111';
+  public static readonly DEV_DEFAULT_USERID = '120873';
 
   readonly currentUser = signal<AuthTokenData | null>(null);
 
@@ -29,10 +33,10 @@ export class AuthService {
         }
       }
 
-      // Default demo session token initialization for Sandeep if first visit
+      // In development: Default to live dev token to fetch real server data
       const defaultToken: AuthTokenData = {
-        token: 'cgc_jwt_session_' + Math.random().toString(36).substring(2, 15),
-        userId: 'CGC-157059'
+        token: AuthService.DEV_DEFAULT_TOKEN,
+        userId: AuthService.DEV_DEFAULT_USERID
       };
       this.setToken(defaultToken);
     } catch (e) {
@@ -51,18 +55,37 @@ export class AuthService {
     }
   }
 
+  // Token sent in all MembersService API requests
   user(): string {
+    // 1. In Production: Fetch strictly from localStorage
+    if (!isDevMode()) {
+      try {
+        const stored = localStorage.getItem(this.TOKEN_KEY);
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (parsed?.token) {
+            return parsed.token;
+          }
+        }
+      } catch (e) {
+        console.error('Error retrieving production token from localStorage:', e);
+      }
+      return '';
+    }
+
+    // 2. In Development: Use live dev token by default, or localStorage if user logged in
     try {
       const stored = localStorage.getItem(this.TOKEN_KEY);
       if (stored) {
         const parsed = JSON.parse(stored);
-        if (parsed?.token && !parsed.token.startsWith('cgc_jwt_session_')) {
+        if (parsed?.token && !parsed.token.startsWith('cgc_jwt_session_') && parsed.token !== 'demo') {
           return parsed.token;
         }
       }
     } catch {}
-    // Standard live backend token for development / testing
-    return '1111-1111-1111-1111-1111';
+
+    // Default development token for live server data fetching
+    return AuthService.DEV_DEFAULT_TOKEN;
   }
 
   userId(): string {
@@ -76,7 +99,7 @@ export class AuthService {
         }
       }
     } catch {}
-    return '120873';
+    return AuthService.DEV_DEFAULT_USERID;
   }
 
   getApiUrl(): string {

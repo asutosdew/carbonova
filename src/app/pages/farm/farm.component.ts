@@ -3,17 +3,19 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FarmerService } from '../../services/farmer.service';
 import { FarmDetailsModalComponent } from '../../components/farm-details-modal/farm-details-modal.component';
+import { PhotoModalComponent } from '../../components/photo-modal/photo-modal.component';
 
 @Component({
   selector: 'app-farm',
   standalone: true,
-  imports: [CommonModule, RouterModule, FarmDetailsModalComponent],
+  imports: [CommonModule, RouterModule, FarmDetailsModalComponent, PhotoModalComponent],
   templateUrl: './farm.component.html',
   styleUrls: ['./farm.component.scss']
 })
 export class FarmComponent {
   readonly farmerService = inject(FarmerService);
   readonly showFarmDetailsModal = signal(false);
+  readonly showPhotoModal = signal(false);
 
   openFarmDetailsModal() {
     this.showFarmDetailsModal.set(true);
@@ -21,6 +23,14 @@ export class FarmComponent {
 
   closeFarmDetailsModal() {
     this.showFarmDetailsModal.set(false);
+  }
+
+  openPhotoModal() {
+    this.showPhotoModal.set(true);
+  }
+
+  closePhotoModal() {
+    this.showPhotoModal.set(false);
   }
 
   farmTasks = [

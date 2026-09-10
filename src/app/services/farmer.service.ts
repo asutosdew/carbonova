@@ -153,54 +153,81 @@ export class FarmerService {
 
   async initLiveBackendData(): Promise<void> {
     try {
-      // Single unified API route for full Dashboard
-      const res = await this.membersService.downlinestatus();
-      const pf = res?.result || res?.data || res;
+      // Single unified API route for full Dashboard + Personal Info
+      const [resDownline, resPersonal] = await Promise.allSettled([
+        this.membersService.downlinestatus(),
+        this.membersService.personalinfo()
+      ]);
 
-      if (pf) {
+      const pf = resDownline.status === 'fulfilled' ? (resDownline.value?.result || resDownline.value?.data || resDownline.value) : null;
+      const pi = resPersonal.status === 'fulfilled' ? (resPersonal.value?.data || resPersonal.value?.result) : null;
+
+      if (pf || pi) {
         const current = this.farmer();
         const updated: FarmerProfile = {
           ...current,
-          ...(pf?.name ? { name: pf.name } : {}),
-          ...(pf?.mobile ? { phone: pf.mobile } : {}),
-          ...(pf?.phone ? { phone: pf.phone } : {}),
-          ...(pf?.email ? { email: pf.email } : {}),
-          ...(pf?.userid ? { farmerId: 'CGC-' + pf.userid } : {}),
-          ...(pf?.farmerId ? { farmerId: pf.farmerId } : {}),
-          ...(pf?.doj ? { joiningDate: new Date(pf.doj).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) } : {}),
-          ...(pf?.joiningDate ? { joiningDate: pf.joiningDate } : {}),
-          ...(pf?.totalPlants !== undefined ? { totalPlants: Number(pf.totalPlants) } : (pf?.totalplants !== undefined ? { totalPlants: Number(pf.totalplants) } : {})),
-          ...(pf?.activePlants !== undefined ? { activePlants: Number(pf.activePlants) } : (pf?.activeplants !== undefined ? { activePlants: Number(pf.activeplants) } : {})),
-          ...(pf?.survivalRate !== undefined ? { survivalRate: Number(pf.survivalRate) } : (pf?.survivalrate !== undefined ? { survivalRate: Number(pf.survivalrate) } : {})),
-          ...(pf?.village ? { village: pf.village } : {}),
-          ...(pf?.district ? { district: pf.district } : {}),
-          ...(pf?.city ? { district: pf.city } : {}),
-          ...(pf?.pinCode ? { pinCode: pf.pinCode } : (pf?.pincode ? { pinCode: pf.pincode } : {})),
-          location: pf?.location || (pf?.city ? `${pf.city}, ${pf.state || 'Chhattisgarh'}` : current.location),
+          name: pf?.name || pi?.name || current.name,
+          phone: pf?.mobile || pf?.phone || pi?.mobile || current.phone,
+          email: pf?.email || pi?.email || current.email,
+          farmerId: pf?.farmerId || (pf?.userid ? 'CGC-' + pf.userid : (pi?.userid ? 'CGC-' + pi.userid : current.farmerId)),
+          id: pf?.userid ? 'FARMER-' + pf.userid : (pi?.userid ? 'FARMER-' + pi.userid : current.id),
+          status: pf?.status || (Number(pf?.totalPlants || 0) > 0 ? 'Active' : 'Pending'),
+          joiningDate: pf?.doj ? new Date(pf.doj).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : (pi?.doj ? new Date(pi.doj).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : current.joiningDate),
+          totalPlants: Number(pf?.totalPlants !== undefined ? pf.totalPlants : (pf?.totalplants ?? 0)),
+          activePlants: Number(pf?.activePlants !== undefined ? pf.activePlants : (pf?.activeplants ?? 0)),
+          survivalRate: Number(pf?.survivalRate !== undefined ? pf.survivalRate : (pf?.survivalrate ?? 0)),
+          village: pf?.village || current.village,
+          district: pf?.district || pf?.city || pi?.city || current.district,
+          pinCode: pf?.pinCode || pf?.pincode || current.pinCode,
+          location: pf?.location || (pf?.district ? `${pf.district}, ${pf.state || 'Chhattisgarh'}` : (pf?.city ? `${pf.city}, ${pf.state || 'Chhattisgarh'}` : current.location)),
+          sponsorId: pi?.sponsorid ? 'CGC-' + pi.sponsorid : (pf?.sponsorId || current.sponsorId),
           bankDetails: {
             ...current.bankDetails,
-            ...(pf?.acno ? { accountNumber: pf.acno } : {}),
-            ...(pf?.ifsc ? { ifscCode: pf.ifsc } : {}),
-            ...(pf?.name ? { accountHolderName: pf.name } : {})
+            accountNumber: pf?.acno || pi?.acno || current.bankDetails.accountNumber,
+            ifscCode: pf?.ifsc || pi?.ifsc || current.bankDetails.ifscCode,
+            accountHolderName: pf?.name || pi?.name || current.bankDetails.accountHolderName,
+            isVerified: !!((pf?.acno || pi?.acno) && (pf?.ifsc || pi?.ifsc))
           },
           kycDetails: {
             ...current.kycDetails,
-            ...(pf?.pan ? { panNumber: pf.pan.toUpperCase() } : {})
+            panNumber: (pf?.pan || pi?.pan) ? (pf?.pan || pi?.pan).toUpperCase() : current.kycDetails.panNumber,
+            kycStatus: (pf?.pan || pi?.pan) ? 'Verified' : current.kycDetails.kycStatus
           },
-          accountNumber: pf?.acno ? `•••• •••• ${pf.acno.slice(-4)}` : current.accountNumber,
-          ifscCode: pf?.ifsc || current.ifscCode
+          accountNumber: (pf?.acno || pi?.acno) ? `•••• •••• ${(pf?.acno || pi?.acno).slice(-4)}` : current.accountNumber,
+          ifscCode: pf?.ifsc || pi?.ifsc || current.ifscCode,
+          bankVerified: !!((pf?.acno || pi?.acno) && (pf?.ifsc || pi?.ifsc))
         };
 
         // Dynamically update dashboard cards from downlinestatus response
-        if (Array.isArray(pf?.plants) && pf.plants.length > 0) {
-          this.plants.set(pf.plants);
+        if (Array.isArray(pf?.plants)) {
+          this.savePlants(pf.plants);
         }
+
         if (pf?.packageDetails) {
-          this.packageDetails.set({ ...this.packageDetails(), ...pf.packageDetails });
+          this.savePackageDetails(pf.packageDetails);
+        } else if (Number(pf?.totalPlants || 0) === 0 || !pf?.plants || pf.plants.length === 0) {
+          this.savePackageDetails({
+            name: 'No Package Selected',
+            price: 0,
+            status: 'Inactive',
+            includedItems: [],
+            boxImage: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=300&auto=format&fit=crop&q=80'
+          });
         }
+
         if (pf?.greenCredits) {
           this.greenCredits.set({ ...this.greenCredits(), ...pf.greenCredits });
+        } else if (Number(pf?.totalPlants || 0) === 0) {
+          this.greenCredits.set({
+            points: 0,
+            verifiedPlantation: 0,
+            verificationStatus: 'Inactive (No Plants)',
+            co2OffsetKg: 0,
+            lifetimePoints: 0,
+            redeemedPoints: 0
+          });
         }
+
         if (Array.isArray(pf?.verificationSteps) && pf.verificationSteps.length > 0) {
           this.verificationSteps.set(pf.verificationSteps);
         }
@@ -257,74 +284,74 @@ export class FarmerService {
       const stored = localStorage.getItem(this.PROFILE_STORAGE_KEY);
       if (stored) {
         const parsed = JSON.parse(stored);
-        if (!parsed.avatar || parsed.avatar.includes('unsplash.com/photo-1507003211169')) {
-          parsed.avatar = 'assets/images/farmer-avatar.jpg';
+        // Ignore stale demo/Sandeep profile
+        if (parsed && parsed.name && parsed.name !== 'Sandeep' && parsed.farmerId !== 'CGC-157059') {
+          if (!parsed.avatar || parsed.avatar.includes('unsplash.com/photo-1507003211169')) {
+            parsed.avatar = 'assets/images/farmer-avatar.jpg';
+          }
+          return parsed;
         }
-        return parsed;
       }
     } catch (e) {
       console.warn('Error loading stored profile', e);
     }
 
-    // Default initialized profile for Sandeep (Name & Mobile initially provided at signup)
+    // Default clean initial profile
     const initial: FarmerProfile = {
-      id: 'FARMER-157059',
-      farmerId: 'CGC-157059',
-      name: 'Sandeep', // Initially provided
-      phone: '+91 98271 54321', // Initially provided
+      id: 'FARMER-120873',
+      farmerId: 'CGC-120873',
+      name: 'Farmer',
+      phone: '',
       avatar: 'assets/images/farmer-avatar.jpg',
       rank: 'Green Starter',
-      sponsorId: 'CGC-102944',
-      sponsorName: 'Rajendra Verma',
-      location: 'Ambikapur, Chhattisgarh',
+      sponsorId: '112233',
+      sponsorName: '',
+      location: 'Surguja, Chhattisgarh',
       district: 'Surguja',
       state: 'Chhattisgarh',
-      village: 'Kalyanpur, Ambikapur Tehsil',
+      village: '',
       pinCode: '497001',
-      email: 'sandeep.farmer@carbonova.eco',
-      fatherOrSpouseName: 'Ramprasad',
-      gender: 'Male',
-      dateOfBirth: '1988-06-14',
-      plantationDate: '15 Aug 2026',
-      farmArea: '0.25 Acre',
-      soilType: 'Red & Yellow Loamy',
-      irrigationSource: 'Borewell & Drip Line',
-      totalPlants: 40,
-      activePlants: 38,
-      survivalRate: 95,
-      status: 'Active',
-      joiningDate: '01 Aug 2026',
-      profileCompletionPercentage: 90,
+      email: '',
+      fatherOrSpouseName: '',
+      gender: 'Other',
+      dateOfBirth: '',
+      plantationDate: '',
+      farmArea: '',
+      soilType: '',
+      irrigationSource: '',
+      totalPlants: 0,
+      activePlants: 0,
+      survivalRate: 0,
+      status: 'Pending',
+      joiningDate: '',
+      profileCompletionPercentage: 20,
       bankDetails: {
-        accountHolderName: 'Sandeep',
-        bankName: 'State Bank of India',
-        accountNumber: '38920194821',
-        ifscCode: 'SBIN0004128',
-        branchName: 'Ambikapur Main Branch',
-        upiId: 'sandeep.cgc@upi',
-        passbookPhotoUrl: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=400&auto=format&fit=crop&q=80',
-        isVerified: true,
-        verifiedAt: '05 Aug 2026'
+        accountHolderName: '',
+        bankName: '',
+        accountNumber: '',
+        ifscCode: '',
+        branchName: '',
+        upiId: '',
+        passbookPhotoUrl: '',
+        isVerified: false
       },
       kycDetails: {
-        aadhaarNumber: 'XXXX-XXXX-8492',
-        aadhaarFrontUrl: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=400&auto=format&fit=crop&q=80',
-        panNumber: 'ABCPS8492K',
+        aadhaarNumber: '',
+        aadhaarFrontUrl: '',
+        panNumber: '',
         landRecordType: 'Khasra-B1',
-        landKhasraNumber: 'Plot No. 142/2 (0.25 Acre)',
-        nomineeName: 'Sunita',
-        nomineeRelation: 'Spouse',
-        nomineeAge: 32,
-        kycStatus: 'Verified',
-        submittedAt: '03 Aug 2026',
-        verifiedAt: '05 Aug 2026'
+        landKhasraNumber: '',
+        nomineeName: '',
+        nomineeRelation: 'Other',
+        nomineeAge: 0,
+        kycStatus: 'Pending'
       },
-      aadhaarVerified: true,
-      bankVerified: true,
-      accountNumber: '•••• •••• 8492',
-      ifscCode: 'SBIN0004128',
-      bankName: 'State Bank of India - Ambikapur Branch',
-      upiId: 'sandeep.cgc@upi'
+      aadhaarVerified: false,
+      bankVerified: false,
+      accountNumber: '',
+      ifscCode: '',
+      bankName: '',
+      upiId: ''
     };
 
     return initial;
@@ -462,49 +489,15 @@ export class FarmerService {
     try {
       const stored = localStorage.getItem(this.PLANTS_STORAGE_KEY);
       if (stored) {
-        return JSON.parse(stored);
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) {
+          return parsed;
+        }
       }
     } catch (e) {
       console.warn('Error loading stored plants', e);
     }
-    return [
-      {
-        id: 'PL-01',
-        name: 'Vietnam Jackfruit',
-        scientificName: 'Artocarpus heterophyllus',
-        image: 'https://images.unsplash.com/photo-1596707325255-7a315e966b96?w=120&auto=format&fit=crop&q=80',
-        qty: 10,
-        activeQty: 10,
-        status: '10 Active',
-        carbonRatePerYearKg: 28.5,
-        category: 'Fruit',
-        unitPrice: 220
-      },
-      {
-        id: 'PL-02',
-        name: 'Kumbhkat Lemon',
-        scientificName: 'Citrus limon (Kumbhkat)',
-        image: 'https://images.unsplash.com/photo-1534856966150-c832f817a508?w=120&auto=format&fit=crop&q=80',
-        qty: 10,
-        activeQty: 9,
-        status: '9 Active',
-        carbonRatePerYearKg: 18.2,
-        category: 'Fruit',
-        unitPrice: 180
-      },
-      {
-        id: 'PL-03',
-        name: 'Moringa',
-        scientificName: 'Moringa oleifera',
-        image: 'https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=120&auto=format&fit=crop&q=80',
-        qty: 20,
-        activeQty: 19,
-        status: '19 Active',
-        carbonRatePerYearKg: 22.0,
-        category: 'Medicinal',
-        unitPrice: 95
-      }
-    ];
+    return [];
   }
 
   private loadInitialPackageDetails() {
@@ -517,17 +510,10 @@ export class FarmerService {
       console.warn('Error loading stored package details', e);
     }
     return {
-      name: 'Green Starter Package',
-      price: 10000,
-      status: 'Active',
-      includedItems: [
-        '10x Jackfruit Saplings',
-        '10x Lemon Saplings',
-        '20x Moringa Saplings',
-        '10kg Bio-NPK Microbial Granules (Compulsory)',
-        '1L Cold-Pressed Bio-Pesticide (Compulsory)',
-        'Training & Support License'
-      ],
+      name: 'No Package Selected',
+      price: 0,
+      status: 'Inactive',
+      includedItems: [],
       boxImage: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=300&auto=format&fit=crop&q=80'
     };
   }
