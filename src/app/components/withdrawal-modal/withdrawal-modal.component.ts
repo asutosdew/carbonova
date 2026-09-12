@@ -1,4 +1,4 @@
-﻿import { Component, EventEmitter, Output, inject, signal } from '@angular/core';
+import { Component, EventEmitter, Output, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IncomeService } from '../../services/income.service';
@@ -16,9 +16,8 @@ export class WithdrawalModalComponent {
   readonly farmerService = inject(FarmerService);
   @Output() close = new EventEmitter<void>();
 
-  withdrawAmount = signal<number>(5000);
+  withdrawAmount = signal<number>(500);
   payoutMethod = signal<'Bank Transfer' | 'UPI'>('Bank Transfer');
-  accountDetails = signal<string>('SBI (•••• 8492) - Ambikapur');
   
   isProcessing = signal<boolean>(false);
   feedbackMessage = signal<string | null>(null);
@@ -45,26 +44,28 @@ export class WithdrawalModalComponent {
     this.withdrawAmount.set(val);
   }
 
-  submitWithdrawal() {
+  async submitWithdrawal() {
     this.isProcessing.set(true);
     this.feedbackMessage.set(null);
 
-    setTimeout(() => {
-      const result = this.incomeService.requestWithdrawal(
-        this.withdrawAmount(),
-        this.payoutMethod(),
-        this.payoutMethod() === 'Bank Transfer' ? `${this.farmerService.farmer().bankName} (${this.farmerService.farmer().accountNumber})` : this.farmerService.farmer().upiId
-      );
+    const destination = this.payoutMethod() === 'Bank Transfer'
+      ? `${this.farmerService.farmer().bankName || 'Bank'} (${this.farmerService.farmer().accountNumber || ''})`
+      : (this.farmerService.farmer().upiId || '');
 
-      this.isProcessing.set(false);
-      this.feedbackMessage.set(result.message);
-      this.isSuccess.set(result.success);
+    const result = await this.incomeService.requestWithdrawalAsync(
+      this.withdrawAmount(),
+      this.payoutMethod(),
+      destination
+    );
 
-      if (result.success) {
-        setTimeout(() => {
-          this.close.emit();
-        }, 1500);
-      }
-    }, 1000);
+    this.isProcessing.set(false);
+    this.feedbackMessage.set(result.message);
+    this.isSuccess.set(result.success);
+
+    if (result.success) {
+      setTimeout(() => {
+        this.close.emit();
+      }, 1500);
+    }
   }
 }

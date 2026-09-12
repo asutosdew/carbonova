@@ -57,12 +57,12 @@ export class CarbonCreditService {
     }
   ]);
 
-  // Calculator Input State (Default initialized to Sandeep's 40 trees)
+  // Calculator Input State (Dynamic model synced to real farmer plants)
   readonly calculatorInput = signal<CarbonCalculationInput>({
     speciesQuantities: {
-      jackfruit: 10,
-      lemon: 10,
-      moringa: 20,
+      jackfruit: 0,
+      lemon: 0,
+      moringa: 0,
       teak: 0,
       bamboo: 0
     },
@@ -166,33 +166,8 @@ export class CarbonCreditService {
     };
   });
 
-  // Verification Audit History
-  readonly verificationLogs = signal<VerificationLog[]>([
-    {
-      id: 'VLOG-01',
-      timestamp: '08 Aug 2026, 11:30 AM',
-      stage: 'Plantation',
-      status: 'Approved',
-      auditorName: 'AI Satellite & Drone Audit',
-      remarks: '40 saplings detected in 0.25 acre layout. Healthy foliage spacing verified.',
-      healthIndex: 94,
-      foliageDensity: '92% Chlorophyll Index',
-      gpsCoordinates: '23.1189° N, 83.1979° E',
-      photoUrl: 'https://images.unsplash.com/photo-1592417817098-8f3d69106093?w=500&auto=format&fit=crop&q=80'
-    },
-    {
-      id: 'VLOG-02',
-      timestamp: '28 Aug 2026, 04:15 PM',
-      stage: 'Growth',
-      status: 'Pending',
-      auditorName: 'Field Inspector (Assigned: R. Sengupta)',
-      remarks: 'Farmer update photo submitted. AI pre-check passed with 95% survival confirmation.',
-      healthIndex: 95,
-      foliageDensity: '95% Healthy Vegetation',
-      gpsCoordinates: '23.1189° N, 83.1979° E',
-      photoUrl: 'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?w=500&auto=format&fit=crop&q=80'
-    }
-  ]);
+  // Verification Audit History (Empty by default, populated only with real audits)
+  readonly verificationLogs = signal<VerificationLog[]>([]);
 
   constructor() {
     this.syncFromFarmerPlants();

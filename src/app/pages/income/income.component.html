@@ -119,9 +119,9 @@
         <span class="text-emerald-600 text-base">👥</span>
       </div>
       <div class="text-2xl font-black text-slate-900 font-mono">
-        128 <span class="text-xs font-normal text-slate-500">Farmers</span>
+        {{ teamService.teamStats().totalDownlineTeam }} <span class="text-xs font-normal text-slate-500">Farmers</span>
       </div>
-      <p class="text-[11px] text-slate-500 mt-1 font-medium">122 verified active plantation nodes</p>
+      <p class="text-[11px] text-slate-500 mt-1 font-medium">{{ teamService.teamStats().activeDownlineTeam }} verified active plantation nodes</p>
     </div>
   </div>
 
@@ -136,7 +136,7 @@
         <p class="text-xs text-slate-500">Company-wide automated 2x2 & 3x3 spillover queue. No direct selling needed to cycle.</p>
       </div>
       <span class="text-xs font-bold text-emerald-800 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
-        Total Earned: ₹15,000
+        Total Earned: ₹{{ incomeService.breakdown().autopoolIncome.toLocaleString() }}
       </span>
     </div>
 
@@ -194,7 +194,7 @@
         <p class="text-xs text-slate-500">Dynamic compression commission rates on downline package activations & repeat repurchases.</p>
       </div>
       <div class="text-xs font-mono font-bold text-slate-700">
-        Unlocked Levels: <span class="text-emerald-700 font-black">10 of 10 Active</span> (128 Farmers • ₹34,550 Level Income)
+        Unlocked Levels: <span class="text-emerald-700 font-black">{{ teamService.levelStats().length }} of 10 Active</span> ({{ teamService.teamStats().totalDownlineTeam }} Farmers • ₹{{ incomeService.breakdown().levelIncome.toLocaleString() }} Level Income)
       </div>
     </div>
 
@@ -282,50 +282,60 @@
 
     <!-- Transactions List -->
     <div class="space-y-3">
-      @for (txn of paginatedTransactions(); track txn.id) {
-        <div class="p-4 bg-slate-50/80 hover:bg-white border border-slate-200/80 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition-all">
-          <div class="flex items-start gap-3.5">
-            <div class="w-10 h-10 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-base flex-shrink-0 mt-0.5">
-              @if (txn.type === 'direct') { 🤝 }
-              @else if (txn.type === 'level') { 📊 }
-              @else if (txn.type === 'autopool') { 🌐 }
-              @else if (txn.type === 'carbon_royalty') { 🍃 }
-              @else { 🧪 }
-            </div>
-            <div>
-              <div class="flex items-center gap-2">
-                <h5 class="text-xs sm:text-sm font-bold text-slate-900">{{ txn.title }}</h5>
-                <span class="text-[10px] px-2 py-0.5 rounded-md bg-slate-200 text-slate-700 font-mono font-bold">{{ txn.id }}</span>
-              </div>
-              <p class="text-xs text-slate-500 mt-0.5">{{ txn.description }}</p>
-              @if (txn.fromFarmerName) {
-                <p class="text-[11px] text-emerald-700 font-semibold mt-0.5">
-                  From: {{ txn.fromFarmerName }} ({{ txn.fromFarmerId }})
-                </p>
-              }
-            </div>
-          </div>
-
-          <div class="text-left sm:text-right flex sm:flex-col items-center sm:items-end justify-between border-t sm:border-t-0 pt-2 sm:pt-0 border-slate-200">
-            <span class="text-base font-black text-[#15803d] font-mono">+₹{{ txn.amount.toLocaleString() }}</span>
-            <div class="flex items-center gap-1.5 text-[11px] text-slate-400 mt-0.5">
-              <span>{{ txn.date }}</span>
-              <span>•</span>
-              <span class="text-emerald-700 font-bold">Completed</span>
-            </div>
-          </div>
+      @if (filteredTransactions().length === 0) {
+        <div class="text-center py-10 bg-slate-50/60 rounded-2xl border border-dashed border-slate-200">
+          <div class="text-3xl mb-2">📜</div>
+          <div class="text-slate-700 font-bold text-sm">No Transactions Found</div>
+          <div class="text-slate-400 text-xs mt-1">There are no income transactions recorded yet.</div>
         </div>
+      } @else {
+        @for (txn of paginatedTransactions(); track txn.id) {
+          <div class="p-4 bg-slate-50/80 hover:bg-white border border-slate-200/80 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition-all">
+            <div class="flex items-start gap-3.5">
+              <div class="w-10 h-10 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-base flex-shrink-0 mt-0.5">
+                @if (txn.type === 'direct') { 🤝 }
+                @else if (txn.type === 'level') { 📊 }
+                @else if (txn.type === 'autopool') { 🌐 }
+                @else if (txn.type === 'carbon_royalty') { 🍃 }
+                @else { 🧪 }
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <h5 class="text-xs sm:text-sm font-bold text-slate-900">{{ txn.title }}</h5>
+                  <span class="text-[10px] px-2 py-0.5 rounded-md bg-slate-200 text-slate-700 font-mono font-bold">{{ txn.id }}</span>
+                </div>
+                <p class="text-xs text-slate-500 mt-0.5">{{ txn.description }}</p>
+                @if (txn.fromFarmerName) {
+                  <p class="text-[11px] text-emerald-700 font-semibold mt-0.5">
+                    From: {{ txn.fromFarmerName }} ({{ txn.fromFarmerId }})
+                  </p>
+                }
+              </div>
+            </div>
+
+            <div class="text-left sm:text-right flex sm:flex-col items-center sm:items-end justify-between border-t sm:border-t-0 pt-2 sm:pt-0 border-slate-200">
+              <span class="text-base font-black text-[#15803d] font-mono">+₹{{ txn.amount.toLocaleString() }}</span>
+              <div class="flex items-center gap-1.5 text-[11px] text-slate-400 mt-0.5">
+                <span>{{ txn.date }}</span>
+                <span>•</span>
+                <span class="text-emerald-700 font-bold">Completed</span>
+              </div>
+            </div>
+          </div>
+        }
       }
     </div>
 
-    <!-- Transactions Pagination -->
-    <app-pagination [totalItems]="filteredTransactions().length"
-                    [pageSize]="txnPageSize()"
-                    [currentPage]="txnPage()"
-                    [pageSizeOptions]="[5, 10, 20]"
-                    (pageChange)="onTxnPageChange($event)"
-                    (pageSizeChange)="onTxnPageSizeChange($event)">
-    </app-pagination>
+    @if (filteredTransactions().length > 0) {
+      <!-- Transactions Pagination -->
+      <app-pagination [totalItems]="filteredTransactions().length"
+                      [pageSize]="txnPageSize()"
+                      [currentPage]="txnPage()"
+                      [pageSizeOptions]="[5, 10, 20]"
+                      (pageChange)="onTxnPageChange($event)"
+                      (pageSizeChange)="onTxnPageSizeChange($event)">
+      </app-pagination>
+    }
   </div>
 </div>
 

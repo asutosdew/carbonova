@@ -57,85 +57,97 @@
   </div>
 
   <!-- Products Grid -->
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-    @for (product of filteredProducts(); track product.id) {
-      <div class="carbon-card overflow-hidden flex flex-col justify-between group hover:border-emerald-400 transition-all duration-300">
-        <div>
-          <!-- Product Image Banner -->
-          <div class="relative h-48 w-full bg-slate-100 overflow-hidden">
-            <img [src]="product.image" [alt]="product.name" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
-            
-            @if (product.badge) {
-              <span class="absolute top-3 left-3 bg-[#0c3823] text-emerald-300 text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full shadow-md border border-emerald-400/40">
-                {{ product.badge }}
-              </span>
-            }
-
-            <span class="absolute bottom-3 right-3 bg-black/70 backdrop-blur-md text-white text-[11px] font-mono font-bold px-2 py-0.5 rounded-lg">
-              {{ product.category }}
-            </span>
-          </div>
-
-          <!-- Product Details -->
-          <div class="p-5 space-y-3">
-            <div class="flex items-start justify-between gap-2">
-              <h4 class="font-black text-slate-900 text-sm sm:text-base leading-snug group-hover:text-emerald-800 transition-colors">
-                {{ product.name }}
-              </h4>
-            </div>
-
-            <p class="text-xs text-slate-500 line-clamp-2 leading-relaxed">
-              {{ product.shortDesc }}
-            </p>
-
-            <!-- Carbon & Partner Badges -->
-            <div class="grid grid-cols-2 gap-2 pt-1 text-[11px]">
-              <div class="p-2 bg-emerald-50/80 rounded-xl border border-emerald-200/60 flex items-center gap-1.5">
-                <span class="text-emerald-700">🍃</span>
-                <div>
-                  <span class="text-[9px] text-emerald-800 font-bold uppercase block">Carbon Yield</span>
-                  <strong class="text-emerald-950 font-mono">+{{ product.carbonScoreKgPerYear }} kg/yr</strong>
-                </div>
-              </div>
-
-              <div class="p-2 bg-blue-50/80 rounded-xl border border-blue-200/60 flex items-center gap-1.5">
-                <span class="text-blue-600">📊</span>
-                <div>
-                  <span class="text-[9px] text-blue-800 font-bold uppercase block">Partner Volume</span>
-                  <strong class="text-blue-950 font-mono">{{ product.businessVolume }} BV</strong>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Price & Action Footer -->
-        <div class="p-5 pt-0 border-t border-slate-100 mt-2">
-          <div class="flex items-center justify-between my-3">
-            <div>
-              <span class="text-lg font-black text-slate-900 font-mono">₹{{ product.price.toLocaleString() }}</span>
-              @if (product.originalPrice) {
-                <span class="text-xs text-slate-400 line-through ml-1.5 font-mono">₹{{ product.originalPrice.toLocaleString() }}</span>
-              }
-            </div>
-            <span class="text-[11px] font-bold text-emerald-700 bg-emerald-100/60 px-2 py-0.5 rounded-md">
-              🪙 +{{ product.affiliatePoints }} Pts
-            </span>
-          </div>
-
-          <div class="flex items-center gap-2">
-            <button (click)="openDetails(product)" class="py-2.5 px-3 rounded-xl border border-slate-300 hover:bg-slate-100 text-slate-700 font-bold text-xs transition-all">
-              Details
-            </button>
-            <button (click)="addToCart(product)" class="flex-1 py-2.5 px-3 rounded-xl bg-[#0c3823] hover:bg-[#145335] text-white font-bold text-xs shadow-md transition-all flex items-center justify-center gap-1.5 active:scale-95">
-              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-              <span>Add to Cart</span>
-            </button>
-          </div>
-        </div>
+  @if (filteredProducts().length === 0) {
+    <div class="carbon-card p-12 text-center text-slate-500 space-y-2">
+      <div class="w-14 h-14 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center text-2xl mx-auto mb-2">
+        🌱
       </div>
-    }
-  </div>
+      <h4 class="font-bold text-slate-800 text-sm">No Products Found</h4>
+      <p class="text-xs text-slate-500 max-w-sm mx-auto">
+        No items are currently available in this category.
+      </p>
+    </div>
+  } @else {
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      @for (product of filteredProducts(); track product.id) {
+        <div class="carbon-card overflow-hidden flex flex-col justify-between group hover:border-emerald-400 transition-all duration-300">
+          <div>
+            <!-- Product Image Banner -->
+            <div class="relative h-48 w-full bg-slate-100 overflow-hidden">
+              <img [src]="product.image" [alt]="product.name" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+              
+              @if (product.badge) {
+                <span class="absolute top-3 left-3 bg-[#0c3823] text-emerald-300 text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full shadow-md border border-emerald-400/40">
+                  {{ product.badge }}
+                </span>
+              }
+
+              <span class="absolute bottom-3 right-3 bg-black/70 backdrop-blur-md text-white text-[11px] font-mono font-bold px-2 py-0.5 rounded-lg">
+                {{ product.category }}
+              </span>
+            </div>
+
+            <!-- Product Details -->
+            <div class="p-5 space-y-3">
+              <div class="flex items-start justify-between gap-2">
+                <h4 class="font-black text-slate-900 text-sm sm:text-base leading-snug group-hover:text-emerald-800 transition-colors">
+                  {{ product.name }}
+                </h4>
+              </div>
+
+              <p class="text-xs text-slate-500 line-clamp-2 leading-relaxed">
+                {{ product.shortDesc }}
+              </p>
+
+              <!-- Carbon & Partner Badges -->
+              <div class="grid grid-cols-2 gap-2 pt-1 text-[11px]">
+                <div class="p-2 bg-emerald-50/80 rounded-xl border border-emerald-200/60 flex items-center gap-1.5">
+                  <span class="text-emerald-700">🍃</span>
+                  <div>
+                    <span class="text-[9px] text-emerald-800 font-bold uppercase block">Carbon Yield</span>
+                    <strong class="text-emerald-950 font-mono">+{{ product.carbonScoreKgPerYear }} kg/yr</strong>
+                  </div>
+                </div>
+
+                <div class="p-2 bg-blue-50/80 rounded-xl border border-blue-200/60 flex items-center gap-1.5">
+                  <span class="text-blue-600">📊</span>
+                  <div>
+                    <span class="text-[9px] text-blue-800 font-bold uppercase block">Partner Volume</span>
+                    <strong class="text-blue-950 font-mono">{{ product.businessVolume }} BV</strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Price & Action Footer -->
+          <div class="p-5 pt-0 border-t border-slate-100 mt-2">
+            <div class="flex items-center justify-between my-3">
+              <div>
+                <span class="text-lg font-black text-slate-900 font-mono">₹{{ product.price.toLocaleString() }}</span>
+                @if (product.originalPrice) {
+                  <span class="text-xs text-slate-400 line-through ml-1.5 font-mono">₹{{ product.originalPrice.toLocaleString() }}</span>
+                }
+              </div>
+              <span class="text-[11px] font-bold text-emerald-700 bg-emerald-100/60 px-2 py-0.5 rounded-md">
+                🪙 +{{ product.affiliatePoints }} Pts
+              </span>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <button (click)="openDetails(product)" class="py-2.5 px-3 rounded-xl border border-slate-300 hover:bg-slate-100 text-slate-700 font-bold text-xs transition-all">
+                Details
+              </button>
+              <button (click)="addToCart(product)" class="flex-1 py-2.5 px-3 rounded-xl bg-[#0c3823] hover:bg-[#145335] text-white font-bold text-xs shadow-md transition-all flex items-center justify-center gap-1.5 active:scale-95">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                <span>Add to Cart</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
 </div>
 
 <!-- Product Details Modal -->

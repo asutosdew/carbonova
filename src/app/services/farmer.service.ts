@@ -30,8 +30,8 @@ export class FarmerService {
       title: 'Plantation',
       status: 'completed',
       icon: 'check',
-      date: '08 Aug 2026',
-      note: 'Saplings planted & geotagged'
+      date: 'Registered',
+      note: 'Saplings registration'
     },
     {
       id: 2,
@@ -39,46 +39,35 @@ export class FarmerService {
       status: 'in-progress',
       icon: 'refresh-cw',
       date: 'Pending',
-      note: 'Growth Verification Pending'
+      note: 'Growth audit pending'
     },
     {
       id: 3,
       title: 'Care',
       status: 'locked',
       icon: 'lock',
-      date: 'Next: 08 Sep 2026',
+      date: 'Next Stage',
       note: 'Fertilization & health audit'
     }
   ]);
 
   readonly verificationStatusInfo = signal({
     currentStatus: 'Growth Verification Pending',
-    lastVerification: '08 Aug 2026',
-    nextVerification: '08 Sep 2026'
+    lastVerification: 'Pending',
+    nextVerification: 'Scheduled'
   });
 
-  // Last plantation update matching Card 4
-  readonly lastPlantationUpdate = signal<PlantationUpdate>({
-    id: 'UPD-2026-08-08',
-    date: '08 Aug 2026',
-    image: 'https://images.unsplash.com/photo-1592417817098-8f3d69106093?w=600&auto=format&fit=crop&q=80',
-    statusText: 'Plants are healthy and growing well.',
-    growthStage: 'Early Vegetative (Stage 1)',
-    healthScore: 94,
-    soilMoisture: 'Optimal (68%)',
-    fertilizerUsed: 'Carbonova Bio-NPK Granules',
-    verifiedBy: 'Dr. A. Sharma (Carbonova Agronomist)',
-    isVerified: true
-  });
+  // Last plantation update matching Card 4 (Defaults to null until uploaded or fetched from server)
+  readonly lastPlantationUpdate = signal<PlantationUpdate | null>(null);
 
   // Green Credits matching Card 6 (base signal)
   readonly greenCredits = signal({
-    points: 1250,
-    verifiedPlantation: 40,
-    verificationStatus: 'Active',
-    co2OffsetKg: 912,
-    lifetimePoints: 1650,
-    redeemedPoints: 400
+    points: 0,
+    verifiedPlantation: 0,
+    verificationStatus: 'Pending',
+    co2OffsetKg: 0,
+    lifetimePoints: 0,
+    redeemedPoints: 0
   });
 
   // Computed state: Whether farmer has selected any plants
@@ -114,12 +103,12 @@ export class FarmerService {
     const pts = Math.round(totalPlants * 31.25);
     const co2 = this.plants().reduce((acc, p) => acc + ((p.carbonRatePerYearKg || 25) * p.qty), 0);
     return {
-      points: pts > 0 ? pts : 1250,
+      points: pts,
       verifiedPlantation: totalPlants,
       verificationStatus: 'Active',
-      co2OffsetKg: Math.round(co2) > 0 ? Math.round(co2) : 912,
-      lifetimePoints: (pts > 0 ? pts : 1250) + 400,
-      redeemedPoints: 400
+      co2OffsetKg: Math.round(co2),
+      lifetimePoints: pts,
+      redeemedPoints: 0
     };
   });
 
@@ -139,7 +128,7 @@ export class FarmerService {
     return {
       plantsRegistered: registered,
       plantsActive: active,
-      co2OffsetKg: Math.round(co2) > 0 ? Math.round(co2) : 912,
+      co2OffsetKg: Math.round(co2),
       statusText: 'Impact data will update as plantation grows.'
     };
   });
@@ -228,11 +217,58 @@ export class FarmerService {
           });
         }
 
+        // Also fetch real farm details from get_farm_details
+        try {
+          const resFarm = await this.membersService.getFarmDetails();
+          const farmData = resFarm?.result;
+          if (farmData && farmData.hasFarmDetails) {
+            updated.farmArea = farmData.farmArea || updated.farmArea;
+            updated.soilType = farmData.soilType || updated.soilType;
+            updated.irrigationSource = farmData.irrigationSource || updated.irrigationSource;
+            updated.plantationDate = farmData.plantationDate || updated.plantationDate;
+            if (farmData.village) updated.village = farmData.village;
+            if (farmData.district) updated.district = farmData.district;
+          }
+        } catch (farmErr) {
+          // non-blocking
+        }
+
+        const hasPlantsNow = (Array.isArray(pf?.plants) && pf.plants.length > 0) || Number(updated.totalPlants || 0) > 0;
         if (Array.isArray(pf?.verificationSteps) && pf.verificationSteps.length > 0) {
           this.verificationSteps.set(pf.verificationSteps);
+        } else {
+          this.verificationSteps.set([
+            {
+              id: 1,
+              title: 'Plantation',
+              status: hasPlantsNow ? 'completed' : 'in-progress',
+              icon: 'check',
+              date: updated.plantationDate || (hasPlantsNow ? 'Completed' : 'Pending'),
+              note: hasPlantsNow ? 'Saplings registered & geotagged' : 'Select package to plant'
+            },
+            {
+              id: 2,
+              title: 'Growth',
+              status: pf?.lastPlantationUpdate ? 'completed' : (hasPlantsNow ? 'in-progress' : 'locked'),
+              icon: 'refresh-cw',
+              date: pf?.lastPlantationUpdate?.date || (hasPlantsNow ? 'Pending' : 'Locked'),
+              note: pf?.lastPlantationUpdate ? pf.lastPlantationUpdate.statusText : (hasPlantsNow ? 'Growth audit pending' : 'Awaiting plantation')
+            },
+            {
+              id: 3,
+              title: 'Care',
+              status: (hasPlantsNow && pf?.lastPlantationUpdate?.isVerified) ? 'in-progress' : 'locked',
+              icon: 'lock',
+              date: hasPlantsNow ? 'Quarterly Audit' : 'Locked',
+              note: hasPlantsNow ? 'Fertilization & health audit' : 'Awaiting plantation'
+            }
+          ]);
         }
+
         if (pf?.lastPlantationUpdate) {
-          this.lastPlantationUpdate.set({ ...this.lastPlantationUpdate(), ...pf.lastPlantationUpdate });
+          this.lastPlantationUpdate.set(pf.lastPlantationUpdate);
+        } else {
+          this.lastPlantationUpdate.set(null);
         }
 
         this.saveProfile(updated);
@@ -248,36 +284,8 @@ export class FarmerService {
     this.weatherService.detectAndFetchWeather(fallbackLocation);
   }
 
-  // Notifications
-  readonly notifications = signal<NotificationItem[]>([
-    {
-      id: 'N1',
-      title: 'Direct Referral Commission',
-      message: 'You earned ₹1,000 direct commission from Ramesh Patel (CGC-158201)',
-      time: '10 mins ago',
-      read: false,
-      type: 'income',
-      icon: 'wallet'
-    },
-    {
-      id: 'N2',
-      title: 'Growth Verification Due',
-      message: 'Please capture and upload new geotagged photos before 08 Sep 2026.',
-      time: '2 hours ago',
-      read: false,
-      type: 'verification',
-      icon: 'camera'
-    },
-    {
-      id: 'N3',
-      title: 'Autopool Cycle Advance',
-      message: 'Silver Carbon Autopool reached 75% completion. Expected payout ₹10,000.',
-      time: 'Yesterday',
-      read: false,
-      type: 'team',
-      icon: 'layers'
-    }
-  ]);
+  // Notifications (Clean empty state, no mock items)
+  readonly notifications = signal<NotificationItem[]>([]);
 
   private loadInitialProfile(): FarmerProfile {
     try {
@@ -386,7 +394,8 @@ export class FarmerService {
     }
 
     // Sync with live server
-    if (updated.village || updated.district || updated.pinCode) {
+    Promise.allSettled([
+      this.membersService.updatePersonalProfile(updated),
       this.membersService.saveShippingAddress({
         name: updated.name,
         mobile: updated.phone,
@@ -397,8 +406,8 @@ export class FarmerService {
         city: updated.district || 'Ambikapur',
         state: updated.state || 'Chhattisgarh',
         pincode: updated.pinCode || '497001'
-      }).catch(err => console.warn('[FarmerService] Server saveShippingAddress error:', err));
-    }
+      })
+    ]).catch(err => console.warn('[FarmerService] Server profile update error:', err));
   }
 
   // Update Bank Details
@@ -415,7 +424,7 @@ export class FarmerService {
       ...current,
       bankDetails: updatedBank,
       bankVerified: true,
-      bankName: `${updatedBank.bankName} - ${updatedBank.branchName}`,
+      bankName: `${updatedBank.bankName || ''} - ${updatedBank.branchName || ''}`,
       accountNumber: updatedBank.accountNumber ? `•••• •••• ${updatedBank.accountNumber.slice(-4)}` : current.accountNumber,
       ifscCode: updatedBank.ifscCode,
       upiId: updatedBank.upiId
@@ -424,14 +433,17 @@ export class FarmerService {
     this.saveProfile(updated);
 
     // Sync with live server
-    this.membersService.updateprofile(
-      current.district || 'Ambikapur',
-      bank.accountNumber || current.bankDetails.accountNumber || '',
-      bank.ifscCode || current.bankDetails.ifscCode || '',
-      current.kycDetails.panNumber || ''
-    ).catch(err => console.warn('[FarmerService] Server updateprofile error:', err));
+    Promise.allSettled([
+      this.membersService.updateBankDetails(updatedBank),
+      this.membersService.updateprofile(
+        current.district || 'Ambikapur',
+        bank.accountNumber || current.bankDetails.accountNumber || '',
+        bank.ifscCode || current.bankDetails.ifscCode || '',
+        current.kycDetails.panNumber || ''
+      )
+    ]).catch(err => console.warn('[FarmerService] Server bank update error:', err));
 
-    return { success: true, message: 'Bank account verified via Penny Drop and saved successfully!' };
+    return { success: true, message: 'Bank account details saved and submitted to server!' };
   }
 
   // Update KYC Documents & Nominee
@@ -452,7 +464,11 @@ export class FarmerService {
     };
 
     this.saveProfile(updated);
-    return { success: true, message: 'Aadhaar, PAN & Land KYC documents verified successfully!' };
+
+    // Sync with live server
+    this.membersService.updateKyc(updatedKyc).catch(err => console.warn('[FarmerService] Server KYC update error:', err));
+
+    return { success: true, message: 'Aadhaar, PAN & Land KYC documents submitted to server!' };
   }
 
   private calculateProfileScore(p: FarmerProfile): number {
@@ -483,6 +499,9 @@ export class FarmerService {
       isVerified: true
     };
     this.lastPlantationUpdate.set(newUpdate);
+
+    // Sync with live server
+    this.membersService.addPhotoUpdate(imageUrl, note).catch(err => console.warn('[FarmerService] Server addPhotoUpdate error:', err));
   }
 
   private loadInitialPlants(): PlantItem[] {
@@ -578,10 +597,25 @@ export class FarmerService {
 
     this.saveProfile(updated);
 
-    this.lastPlantationUpdate.update(u => ({
-      ...u,
-      statusText: `${totalPlants} saplings registered with Bio-NPK & Bio-Pesticide kit.`
-    }));
+    if (this.lastPlantationUpdate()) {
+      this.lastPlantationUpdate.update(u => u ? ({
+        ...u,
+        statusText: `${totalPlants} saplings registered with Bio-NPK & Bio-Pesticide kit.`
+      }) : null);
+    } else {
+      this.lastPlantationUpdate.set({
+        id: `UPD-${Date.now().toString().slice(-4)}`,
+        date: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+        image: 'https://images.unsplash.com/photo-1592417817098-8f3d69106093?w=600',
+        statusText: `${totalPlants} saplings registered with Bio-NPK & Bio-Pesticide kit.`,
+        growthStage: 'Plantation Stage (Stage 1)',
+        healthScore: 100,
+        soilMoisture: '70% (Optimal)',
+        fertilizerUsed: 'Bio-NPK Granules & Neem Shield',
+        verifiedBy: 'AI Agro-Vision & Field Agent',
+        isVerified: true
+      });
+    }
   }
 
   // Update Farm Details (Requirement 2)
@@ -608,8 +642,17 @@ export class FarmerService {
 
     this.saveProfile(updated);
 
-    // Sync to backend address if available
-    if (updated.village || updated.district) {
+    // Sync to backend farm details & shipping address
+    Promise.allSettled([
+      this.membersService.saveFarmDetails({
+        farmArea: details.farmArea,
+        soilType: details.soilType,
+        irrigationSource: details.irrigationSource,
+        plantationDate: details.plantationDate || new Date().toISOString().split('T')[0],
+        village: details.village,
+        district: details.district,
+        state: current.state || 'Chhattisgarh'
+      }),
       this.membersService.saveShippingAddress({
         name: updated.name,
         mobile: updated.phone,
@@ -620,103 +663,17 @@ export class FarmerService {
         city: updated.district || 'Ambikapur',
         state: updated.state || 'Chhattisgarh',
         pincode: updated.pinCode || '497001'
-      }).catch(err => console.warn('[FarmerService] Error saving shipping address:', err));
-    }
+      })
+    ]).catch(err => console.warn('[FarmerService] Error saving farm details to server:', err));
   }
 
-  // Demo state: Simulate New Unactivated Farmer (no plants & no farm details)
+  // Reload live server state
   setDemoUnactivatedState() {
-    this.savePlants([]);
-    this.savePackageDetails({
-      name: 'No Package Selected',
-      price: 0,
-      status: 'Inactive',
-      includedItems: [],
-      boxImage: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=300&auto=format&fit=crop&q=80'
-    });
-
-    const current = this.farmer();
-    const updated: FarmerProfile = {
-      ...current,
-      status: 'Pending',
-      totalPlants: 0,
-      activePlants: 0,
-      survivalRate: 0,
-      farmArea: '',
-      soilType: '',
-      irrigationSource: ''
-    };
-    this.saveProfile(updated);
+    this.initLiveBackendData();
   }
 
-  // Demo state: Restore active state with sample plants & farm details
+  // Reload live server state
   setDemoActiveState() {
-    const defaultPlants: PlantItem[] = [
-      {
-        id: 'PL-01',
-        name: 'Vietnam Jackfruit',
-        scientificName: 'Artocarpus heterophyllus',
-        image: 'https://images.unsplash.com/photo-1596707325255-7a315e966b96?w=120&auto=format&fit=crop&q=80',
-        qty: 10,
-        activeQty: 10,
-        status: '10 Active',
-        carbonRatePerYearKg: 28.5,
-        category: 'Fruit',
-        unitPrice: 220
-      },
-      {
-        id: 'PL-02',
-        name: 'Kumbhkat Lemon',
-        scientificName: 'Citrus limon (Kumbhkat)',
-        image: 'https://images.unsplash.com/photo-1534856966150-c832f817a508?w=120&auto=format&fit=crop&q=80',
-        qty: 10,
-        activeQty: 9,
-        status: '9 Active',
-        carbonRatePerYearKg: 18.2,
-        category: 'Fruit',
-        unitPrice: 180
-      },
-      {
-        id: 'PL-03',
-        name: 'Moringa',
-        scientificName: 'Moringa oleifera',
-        image: 'https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=120&auto=format&fit=crop&q=80',
-        qty: 20,
-        activeQty: 19,
-        status: '19 Active',
-        carbonRatePerYearKg: 22.0,
-        category: 'Medicinal',
-        unitPrice: 95
-      }
-    ];
-    this.savePlants(defaultPlants);
-
-    this.savePackageDetails({
-      name: 'Green Starter Package',
-      price: 10000,
-      status: 'Active',
-      includedItems: [
-        '10x Jackfruit Saplings',
-        '10x Lemon Saplings',
-        '20x Moringa Saplings',
-        '10kg Bio-NPK Microbial Granules (Compulsory)',
-        '1L Cold-Pressed Bio-Pesticide (Compulsory)',
-        'Training & Support License'
-      ],
-      boxImage: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=300&auto=format&fit=crop&q=80'
-    });
-
-    const current = this.farmer();
-    const updated: FarmerProfile = {
-      ...current,
-      status: 'Active',
-      totalPlants: 40,
-      activePlants: 38,
-      survivalRate: 95,
-      farmArea: '0.25 Acre',
-      soilType: 'Red & Yellow Loamy',
-      irrigationSource: 'Borewell & Drip Line'
-    };
-    this.saveProfile(updated);
+    this.initLiveBackendData();
   }
 }

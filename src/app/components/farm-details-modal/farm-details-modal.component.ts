@@ -14,17 +14,6 @@ export class FarmDetailsModalComponent {
   readonly farmerService = inject(FarmerService);
   @Output() close = new EventEmitter<void>();
 
-  // Pre-fill existing farm info if available
-  farmArea = signal<string>(this.farmerService.farmer().farmArea || '0.25 Acre');
-  soilType = signal<string>(this.farmerService.farmer().soilType || 'Red & Yellow Loamy');
-  irrigationSource = signal<string>(this.farmerService.farmer().irrigationSource || 'Borewell & Drip Line');
-  plantationDate = signal<string>(this.farmerService.farmer().plantationDate || new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }));
-  village = signal<string>(this.farmerService.farmer().village || 'Kalyanpur, Ambikapur Tehsil');
-  district = signal<string>(this.farmerService.farmer().district || 'Surguja');
-
-  isSubmitting = signal(false);
-  isSuccess = signal(false);
-
   readonly soilOptions = [
     'Red & Yellow Loamy',
     'Black Cotton (Regur)',
@@ -49,6 +38,17 @@ export class FarmDetailsModalComponent {
     '2.0 Acres',
     '5.0 Acres'
   ];
+
+  // Pre-fill existing farm info if available
+  farmArea = signal<string>(this.farmerService.farmer().farmArea || '');
+  soilType = signal<string>(this.farmerService.farmer().soilType || this.soilOptions[0]);
+  irrigationSource = signal<string>(this.farmerService.farmer().irrigationSource || this.irrigationOptions[0]);
+  plantationDate = signal<string>(this.farmerService.farmer().plantationDate || '');
+  village = signal<string>(this.farmerService.farmer().village || '');
+  district = signal<string>(this.farmerService.farmer().district || '');
+
+  isSubmitting = signal(false);
+  isSuccess = signal(false);
 
   setArea(preset: string) {
     this.farmArea.set(preset);

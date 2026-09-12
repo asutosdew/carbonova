@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IncomeService } from '../../services/income.service';
 import { FarmerService } from '../../services/farmer.service';
+import { TeamService } from '../../services/team.service';
 import { WithdrawalModalComponent } from '../../components/withdrawal-modal/withdrawal-modal.component';
 import { IncomeType, LevelCommissionRate, IncomeTransaction } from '../../models/income.model';
 import { PaginationComponent } from '../../components/pagination/pagination.component';
@@ -17,6 +18,7 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
 export class IncomeComponent {
   readonly incomeService = inject(IncomeService);
   readonly farmerService = inject(FarmerService);
+  readonly teamService = inject(TeamService);
 
   readonly showWithdrawalModal = signal(false);
   readonly selectedFilter = signal<'ALL' | IncomeType>('ALL');

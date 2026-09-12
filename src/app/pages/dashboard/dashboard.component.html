@@ -1,31 +1,4 @@
 <div class="space-y-4 sm:space-y-6 max-w-7xl mx-auto pb-10">
-  
-  <!-- Demo Mode / Testing Switcher -->
-  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 px-4 py-2.5 bg-slate-100/90 rounded-2xl text-xs border border-slate-200">
-    <div class="flex items-center gap-2">
-      <span class="text-base">🧪</span>
-      <span class="font-black text-slate-800">Demo Testing Controls:</span>
-      <span class="text-slate-500 hidden md:inline">Test the dashboard in both unactivated and active states</span>
-    </div>
-    <div class="flex items-center gap-2 flex-wrap">
-      <button (click)="switchToUnactivatedDemo()"
-              [class.bg-amber-600]="!farmerService.hasPlants()"
-              [class.text-white]="!farmerService.hasPlants()"
-              [class.border-amber-600]="!farmerService.hasPlants()"
-              class="px-3 py-1.5 rounded-xl font-bold text-[11px] bg-white border border-slate-300 hover:bg-amber-50 hover:text-amber-800 transition-all shadow-2xs active:scale-95 flex items-center gap-1.5">
-        <span>⚠️</span>
-        <span>Simulate New Farmer (0 Plants / Inactive)</span>
-      </button>
-      <button (click)="switchToActiveDemo()"
-              [class.bg-[#16a34a]]="farmerService.hasPlants()"
-              [class.text-white]="farmerService.hasPlants()"
-              [class.border-[#16a34a]]="farmerService.hasPlants()"
-              class="px-3 py-1.5 rounded-xl font-bold text-[11px] bg-white border border-slate-300 hover:bg-emerald-50 hover:text-emerald-800 transition-all shadow-2xs active:scale-95 flex items-center gap-1.5">
-        <span>🌿</span>
-        <span>Simulate Active Farmer (40 Plants)</span>
-      </button>
-    </div>
-  </div>
 
   <!-- Welcome Greeting Banner (Conditional on Activation) -->
   @if (farmerService.hasPlants()) {
@@ -499,25 +472,39 @@
         </h3>
 
         @if (farmerService.hasPlants()) {
-          <div class="relative h-40 sm:h-44 w-full rounded-2xl overflow-hidden mb-3 border border-slate-200 group">
-            <img [src]="farmerService.lastPlantationUpdate().image" 
-                 alt="Plantation farm rows" 
-                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
-            <div class="absolute top-2 right-2 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full text-[10px] text-white font-mono flex items-center gap-1">
-              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-              Verified
+          @if (farmerService.lastPlantationUpdate(); as update) {
+            <div class="relative h-40 sm:h-44 w-full rounded-2xl overflow-hidden mb-3 border border-slate-200 group">
+              <img [src]="update.image" 
+                   alt="Plantation farm rows" 
+                   class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+              <div class="absolute top-2 right-2 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full text-[10px] text-white font-mono flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                Verified
+              </div>
             </div>
-          </div>
 
-          <div class="space-y-1 text-xs mb-3.5">
-            <p class="text-slate-500 font-medium">
-              Last Photo: <strong class="text-slate-800">{{ farmerService.lastPlantationUpdate().date }}</strong>
-            </p>
-            <p class="text-slate-800 font-bold flex items-center gap-1.5">
-              <span>🌱</span>
-              <span>{{ farmerService.lastPlantationUpdate().statusText }}</span>
-            </p>
-          </div>
+            <div class="space-y-1 text-xs mb-3.5">
+              <p class="text-slate-500 font-medium">
+                Last Photo: <strong class="text-slate-800">{{ update.date }}</strong>
+              </p>
+              <p class="text-slate-800 font-bold flex items-center gap-1.5">
+                <span>🌱</span>
+                <span>{{ update.statusText }}</span>
+              </p>
+            </div>
+          } @else {
+            <div class="py-5 px-3 border border-dashed border-emerald-300 rounded-2xl bg-emerald-50/40 text-center space-y-2 mb-3">
+              <div class="w-10 h-10 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center text-lg mx-auto">
+                📸
+              </div>
+              <div>
+                <h4 class="font-bold text-slate-800 text-xs">No Farm Photos Uploaded Yet</h4>
+                <p class="text-[11px] text-slate-500 max-w-xs mx-auto mt-0.5">
+                  Capture your first geotagged sapling photo to begin verification.
+                </p>
+              </div>
+            </div>
+          }
 
           <button (click)="openPhotoModal()" 
                   class="w-full py-2.5 px-4 rounded-xl border border-[#16a34a] bg-white hover:bg-emerald-50 text-[#15803d] font-bold text-xs transition-all flex items-center justify-center gap-2 shadow-2xs active:scale-98">

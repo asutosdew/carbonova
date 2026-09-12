@@ -156,4 +156,36 @@ export class MembersService {
   async activateuser(userid: string, planid: number): Promise<any> {
     return await this.postRequest("activateuser", [{ userid, planid }]);
   }
+
+  // Farm Land & Geotag Specifications
+  async getFarmDetails(): Promise<any> {
+    return await this.postRequest("get_farm_details");
+  }
+
+  async saveFarmDetails(farmData: any): Promise<any> {
+    return await this.postRequest("save_farm_details", [farmData]);
+  }
+
+  // Plantation Photo & Health Update
+  async addPhotoUpdate(imageUrl: string, note: string): Promise<any> {
+    return await this.postRequest("add_photo_update", [{ imageUrl, note }]);
+  }
+
+  // Personal Profile & KYC Updates
+  async updatePersonalProfile(profileData: any): Promise<any> {
+    return await this.postRequest("update_profile", [profileData]);
+  }
+
+  async updateBankDetails(bankData: any): Promise<any> {
+    return await this.postRequest("update_bank_details", [bankData]);
+  }
+
+  async updateKyc(kycData: any): Promise<any> {
+    return await this.postRequest("update_kyc", [kycData]);
+  }
+
+  // Payout / Withdrawal Request
+  async requestWithdrawal(amount: number, method: string, accountInfo: string): Promise<any> {
+    return await this.postRequest("request_withdrawal", [{ amount, method, accountInfo }]);
+  }
 }

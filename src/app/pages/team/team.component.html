@@ -116,41 +116,48 @@
         </div>
 
         <!-- LEVEL 1 BRANCH (Direct Referrals) -->
-        <div class="relative w-full">
-          <!-- Horizontal connector bar -->
-          <div class="absolute top-0 left-12 right-12 h-0.5 bg-emerald-300"></div>
-          
-          <div class="grid grid-cols-5 gap-3 pt-6">
-            @for (child of teamService.genealogyRoot().children; track child.id) {
-              <div class="flex flex-col items-center">
-                <!-- Vertical branch hook -->
-                <div class="w-0.5 h-6 bg-emerald-300 -mt-6"></div>
+        @if ((teamService.genealogyRoot().children?.length ?? 0) > 0) {
+          <div class="relative w-full">
+            <!-- Horizontal connector bar -->
+            <div class="absolute top-0 left-12 right-12 h-0.5 bg-emerald-300"></div>
+            
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 pt-6">
+              @for (child of (teamService.genealogyRoot().children || []); track child.id) {
+                <div class="flex flex-col items-center">
+                  <!-- Vertical branch hook -->
+                  <div class="w-0.5 h-6 bg-emerald-300 -mt-6"></div>
 
-                <!-- Farmer Card -->
-                <div (click)="inspectNode(child)"
-                     class="p-3 bg-white hover:bg-emerald-50/60 border border-emerald-200 rounded-2xl shadow-sm hover:shadow-md transition-all cursor-pointer text-center w-full max-w-[130px] group">
-                  <div class="w-9 h-9 rounded-full overflow-hidden border border-emerald-500 mx-auto mb-1.5">
-                    <img [src]="child.avatar" [alt]="child.name" class="w-full h-full object-cover">
+                  <!-- Farmer Card -->
+                  <div (click)="inspectNode(child)"
+                       class="p-3 bg-white hover:bg-emerald-50/60 border border-emerald-200 rounded-2xl shadow-sm hover:shadow-md transition-all cursor-pointer text-center w-full max-w-[130px] group">
+                    <div class="w-9 h-9 rounded-full overflow-hidden border border-emerald-500 mx-auto mb-1.5">
+                      <img [src]="child.avatar" [alt]="child.name" class="w-full h-full object-cover">
+                    </div>
+                    <h5 class="font-bold text-slate-900 text-xs truncate">{{ child.name }}</h5>
+                    <p class="text-[10px] text-slate-500 font-mono">{{ child.farmerId }}</p>
+                    <span class="inline-block mt-1 px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[9px] font-bold">
+                      {{ child.totalPlants }} Plants
+                    </span>
                   </div>
-                  <h5 class="font-bold text-slate-900 text-xs truncate">{{ child.name }}</h5>
-                  <p class="text-[10px] text-slate-500 font-mono">{{ child.farmerId }}</p>
-                  <span class="inline-block mt-1 px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[9px] font-bold">
-                    {{ child.totalPlants }} Plants
-                  </span>
-                </div>
 
-                <!-- Level 2 Sub-branch indicator if has children -->
-                @if (child.children && child.children.length > 0) {
-                  <div class="w-0.5 h-4 bg-emerald-200 mt-1"></div>
-                  <button (click)="inspectNode(child)" class="px-2 py-0.5 rounded-full bg-emerald-100 hover:bg-emerald-200 text-[#15803d] text-[9px] font-bold mt-0.5 flex items-center gap-1 transition-all">
-                    <span>Downline Levels (2 to 10)</span>
-                    <span>→</span>
-                  </button>
-                }
-              </div>
-            }
+                  <!-- Level 2 Sub-branch indicator if has children -->
+                  @if (child.children && child.children.length > 0) {
+                    <div class="w-0.5 h-4 bg-emerald-200 mt-1"></div>
+                    <button (click)="inspectNode(child)" class="px-2 py-0.5 rounded-full bg-emerald-100 hover:bg-emerald-200 text-[#15803d] text-[9px] font-bold mt-0.5 flex items-center gap-1 transition-all">
+                      <span>Downline Levels (2 to 10)</span>
+                      <span>→</span>
+                    </button>
+                  }
+                </div>
+              }
+            </div>
           </div>
-        </div>
+        } @else {
+          <div class="py-6 px-4 bg-slate-50 border border-dashed border-emerald-300 rounded-2xl text-center max-w-md mx-auto">
+            <p class="text-xs font-bold text-slate-700">No direct downline referrals yet</p>
+            <p class="text-[11px] text-slate-500 mt-1">Share your affiliate sponsor link above to grow your tree network.</p>
+          </div>
+        }
 
       </div>
     </div>
@@ -167,7 +174,7 @@
         <p class="text-xs text-slate-500">Breakdown of network members, package volume, and commission rate across each of the 10 levels.</p>
       </div>
       <span class="text-xs font-mono font-bold text-emerald-800 bg-emerald-100 px-3 py-1 rounded-full">
-        Total: 128 Farmers • ₹12,80,000 BV
+        Total: {{ teamService.teamStats().totalDownlineTeam }} Farmers • ₹{{ teamService.teamStats().totalNetworkVolume.toLocaleString() }} BV
       </span>
     </div>
 
@@ -212,7 +219,7 @@
         </div>
 
         <select [(ngModel)]="selectedLevelFilter" (ngModelChange)="onLevelChange()" class="w-full sm:w-auto px-3 py-1.5 rounded-xl border border-slate-200 text-xs bg-white font-medium text-slate-700 focus:outline-none">
-          <option [ngValue]="'ALL'">All 10 Levels (128 Farmers)</option>
+          <option [ngValue]="'ALL'">All 10 Levels ({{ teamService.teamStats().totalDownlineTeam }} Farmers)</option>
           <option [ngValue]="1">Level 1 (Directs • 10%)</option>
           <option [ngValue]="2">Level 2 (5%)</option>
           <option [ngValue]="3">Level 3 (3%)</option>
@@ -242,6 +249,15 @@
           </tr>
         </thead>
         <tbody class="divide-y divide-slate-100 font-medium">
+          @if (filteredMembers().length === 0) {
+            <tr>
+              <td colspan="7" class="py-12 text-center text-slate-400">
+                <div class="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-xl mx-auto mb-2">👥</div>
+                <h4 class="font-bold text-slate-700 text-sm">No Downline Members Found</h4>
+                <p class="text-xs text-slate-400 mt-0.5">Share your sponsor referral link above to register new farmers.</p>
+              </td>
+            </tr>
+          }
           @for (member of paginatedMembers(); track member.id) {
             <tr class="hover:bg-slate-50/80 transition-colors">
               <td class="py-3 flex items-center gap-3">
