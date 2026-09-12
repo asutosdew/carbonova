@@ -82,6 +82,30 @@ export class FarmerService {
     return !!(p.farmArea && p.farmArea.trim() !== '' && p.soilType && p.soilType.trim() !== '');
   });
 
+  // Dynamic total plants count computed from farmer profile and plant list
+  readonly totalPlantsCount = computed(() => {
+    const p = this.farmer().totalPlants;
+    if (p && p > 0) return p;
+    const list = this.plants();
+    return list.reduce((sum, item) => sum + (item.qty || 0), 0);
+  });
+
+  readonly activePlantsCount = computed(() => {
+    const p = this.farmer().activePlants;
+    if (p && p > 0) return p;
+    const list = this.plants();
+    const activeSum = list.reduce((sum, item) => sum + (item.activeQty !== undefined ? item.activeQty : (item.qty || 0)), 0);
+    return activeSum > 0 ? activeSum : this.totalPlantsCount();
+  });
+
+  readonly survivalRatePct = computed(() => {
+    const r = this.farmer().survivalRate;
+    if (r && r > 0) return r;
+    const total = this.totalPlantsCount();
+    const active = this.activePlantsCount();
+    return total > 0 ? Math.round((active / total) * 100) : 100;
+  });
+
   // Computed state: Farmer activated only when plants are chosen and status is Active
   readonly isFarmerActivated = computed(() => {
     return this.hasPlants() && this.farmer().status === 'Active';
@@ -99,7 +123,7 @@ export class FarmerService {
         redeemedPoints: 0
       };
     }
-    const totalPlants = this.farmer().totalPlants || this.plants().reduce((acc, p) => acc + p.qty, 0);
+    const totalPlants = this.totalPlantsCount();
     const pts = Math.round(totalPlants * 31.25);
     const co2 = this.plants().reduce((acc, p) => acc + ((p.carbonRatePerYearKg || 25) * p.qty), 0);
     return {
@@ -152,6 +176,16 @@ export class FarmerService {
       const pi = resPersonal.status === 'fulfilled' ? (resPersonal.value?.data || resPersonal.value?.result) : null;
 
       if (pf || pi) {
+        const rawPlants = Array.isArray(pf?.plants) ? pf.plants : [];
+        const plantQtySum = rawPlants.reduce((sum: number, p: any) => sum + Number(p.qty || 0), 0);
+        const activePlantQtySum = rawPlants.reduce((sum: number, p: any) => sum + Number(p.activeQty !== undefined ? p.activeQty : (p.qty || 0)), 0);
+
+        const totalPlants = (Number(pf?.totalPlants) > 0) ? Number(pf.totalPlants) : plantQtySum;
+        const activePlants = (Number(pf?.activePlants) > 0) ? Number(pf.activePlants) : (activePlantQtySum > 0 ? activePlantQtySum : totalPlants);
+        const survivalRate = (Number(pf?.survivalRate) > 0) 
+          ? Number(pf.survivalRate) 
+          : (totalPlants > 0 ? Math.round((activePlants / totalPlants) * 100) : 100);
+
         const current = this.farmer();
         const updated: FarmerProfile = {
           ...current,
@@ -160,11 +194,11 @@ export class FarmerService {
           email: pf?.email || pi?.email || current.email,
           farmerId: pf?.farmerId || (pf?.userid ? 'CGC-' + pf.userid : (pi?.userid ? 'CGC-' + pi.userid : current.farmerId)),
           id: pf?.userid ? 'FARMER-' + pf.userid : (pi?.userid ? 'FARMER-' + pi.userid : current.id),
-          status: pf?.status || (Number(pf?.totalPlants || 0) > 0 ? 'Active' : 'Pending'),
+          status: (totalPlants > 0 || pf?.status === 'Active') ? 'Active' : (pf?.status || 'Pending'),
           joiningDate: pf?.doj ? new Date(pf.doj).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : (pi?.doj ? new Date(pi.doj).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : current.joiningDate),
-          totalPlants: Number(pf?.totalPlants !== undefined ? pf.totalPlants : (pf?.totalplants ?? 0)),
-          activePlants: Number(pf?.activePlants !== undefined ? pf.activePlants : (pf?.activeplants ?? 0)),
-          survivalRate: Number(pf?.survivalRate !== undefined ? pf.survivalRate : (pf?.survivalrate ?? 0)),
+          totalPlants: totalPlants,
+          activePlants: activePlants,
+          survivalRate: survivalRate,
           village: pf?.village || current.village,
           district: pf?.district || pf?.city || pi?.city || current.district,
           pinCode: pf?.pinCode || pf?.pincode || current.pinCode,
@@ -194,7 +228,7 @@ export class FarmerService {
 
         if (pf?.packageDetails) {
           this.savePackageDetails(pf.packageDetails);
-        } else if (Number(pf?.totalPlants || 0) === 0 || !pf?.plants || pf.plants.length === 0) {
+        } else if (totalPlants === 0 || !pf?.plants || pf.plants.length === 0) {
           this.savePackageDetails({
             name: 'No Package Selected',
             price: 0,
@@ -204,9 +238,20 @@ export class FarmerService {
           });
         }
 
-        if (pf?.greenCredits) {
+        if (pf?.greenCredits && Number(pf.greenCredits.points || 0) > 0) {
           this.greenCredits.set({ ...this.greenCredits(), ...pf.greenCredits });
-        } else if (Number(pf?.totalPlants || 0) === 0) {
+        } else if (totalPlants > 0) {
+          const carbonOffset = rawPlants.reduce((acc: number, p: any) => acc + (Number(p.carbonRatePerYearKg || 25) * Number(p.qty || 0)), 0);
+          const pts = Math.round(totalPlants * 31.25);
+          this.greenCredits.set({
+            points: pts,
+            verifiedPlantation: totalPlants,
+            verificationStatus: 'Active',
+            co2OffsetKg: Math.round(carbonOffset),
+            lifetimePoints: pts,
+            redeemedPoints: 0
+          });
+        } else {
           this.greenCredits.set({
             points: 0,
             verifiedPlantation: 0,

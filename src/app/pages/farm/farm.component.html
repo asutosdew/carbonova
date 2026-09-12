@@ -31,10 +31,10 @@
       <span class="text-xs font-bold text-emerald-200 uppercase tracking-wider block">Survival Metric</span>
       @if (farmerService.hasPlants()) {
         <div class="text-3xl font-black text-white font-mono my-1">
-          {{ farmerService.farmer().activePlants }} / {{ farmerService.farmer().totalPlants }} <span class="text-xs font-normal text-emerald-200">Trees</span>
+          {{ farmerService.activePlantsCount() }} / {{ farmerService.totalPlantsCount() }} <span class="text-xs font-normal text-emerald-200">Trees</span>
         </div>
         <span class="text-xs font-bold text-[#86efac] bg-emerald-950/60 px-3 py-0.5 rounded-full inline-block mt-1">
-          {{ farmerService.farmer().survivalRate }}% Optimal Survival
+          {{ farmerService.survivalRatePct() }}% Optimal Survival
         </span>
       } @else {
         <div class="text-2xl font-black text-white font-mono my-1">
@@ -195,7 +195,7 @@
       </h3>
       @if (farmerService.hasPlants()) {
         <span class="text-xs font-bold text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-xl border border-emerald-200">
-          {{ farmerService.farmer().totalPlants }} Total Saplings
+          {{ farmerService.totalPlantsCount() }} Total Saplings
         </span>
       }
     </div>
