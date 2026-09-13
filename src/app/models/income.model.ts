@@ -1,4 +1,4 @@
-﻿export type IncomeType = 'direct' | 'level' | 'autopool' | 'carbon_royalty' | 'fertilizer_rebate';
+export type IncomeType = 'direct' | 'level' | 'autopool' | 'carbon_royalty' | 'fertilizer_rebate';
 
 export interface IncomeBreakdown {
   directIncome: number;
@@ -40,12 +40,13 @@ export interface AutopoolTier {
   id: string;
   name: string;
   badge: string;
-  entryFee: number;
-  level1Members: number; // e.g. 2 or 3
-  level2Members: number; // e.g. 4 or 9
-  level3Members: number;
-  totalMembers: number;
-  currentMembers: number;
+  entryFee?: number; // 0 (No Joining Fee - Free Entry)
+  requiredLevel1Members: number; // 10, 25, 50, 100
+  requiredTotalMembers: number;  // 50, 200, 500, 5000
+  currentLevel1Members: number;
+  currentTotalMembers: number;
+  level1ProgressPercentage?: number;
+  totalMembersProgressPercentage?: number;
   poolPayout: number;
   status: 'Active' | 'Completed' | 'Locked' | 'In-Progress';
   reEntryBonus?: number;

@@ -133,7 +133,7 @@
           <span>🌐</span>
           <span>Global Company Autopool Matrix Pools</span>
         </h3>
-        <p class="text-xs text-slate-500">Company-wide automated 2x2 & 3x3 spillover queue. No direct selling needed to cycle.</p>
+        <p class="text-xs text-slate-500">Zero joining fee autopool clubs. Qualify automatically based on your Level 1 direct partners and total downline team growth.</p>
       </div>
       <span class="text-xs font-bold text-emerald-800 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
         Total Earned: ₹{{ incomeService.breakdown().autopoolIncome.toLocaleString() }}
@@ -141,38 +141,66 @@
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-      @for (pool of incomeService.autopoolTiers(); track pool.id) {
-        <div [class]="pool.status === 'Completed' ? 'p-4 rounded-2xl bg-emerald-50/70 border-2 border-emerald-400/80 shadow-sm relative overflow-hidden'
-                    : pool.status === 'In-Progress' ? 'p-4 rounded-2xl bg-amber-50/70 border-2 border-amber-400 shadow-sm relative overflow-hidden'
-                    : pool.status === 'Active' ? 'p-4 rounded-2xl bg-white border border-slate-200 shadow-sm'
-                    : 'p-4 rounded-2xl bg-slate-50 border border-slate-200 opacity-60'">
+      @for (pool of autopoolTiers(); track pool.id) {
+        <div [class]="pool.status === 'Completed' ? 'p-4 rounded-2xl bg-emerald-50/70 border-2 border-emerald-400/80 shadow-sm relative overflow-hidden flex flex-col justify-between'
+                    : pool.status === 'In-Progress' ? 'p-4 rounded-2xl bg-amber-50/70 border-2 border-amber-400 shadow-sm relative overflow-hidden flex flex-col justify-between'
+                    : pool.status === 'Active' ? 'p-4 rounded-2xl bg-white border border-slate-200 shadow-sm flex flex-col justify-between'
+                    : 'p-4 rounded-2xl bg-slate-50 border border-slate-200 opacity-60 flex flex-col justify-between'">
           
-          <div class="flex items-center justify-between mb-3">
-            <span [class]="pool.status === 'Completed' ? 'px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-200 text-emerald-900'
-                         : pool.status === 'In-Progress' ? 'px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-200 text-amber-900'
-                         : 'px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-slate-200 text-slate-700'">
-              {{ pool.badge }} Pool
-            </span>
-            <span class="text-xs font-mono font-bold text-slate-700">Fee: ₹{{ pool.entryFee.toLocaleString() }}</span>
-          </div>
-
-          <h4 class="font-black text-slate-900 text-sm mb-1">{{ pool.name }}</h4>
-          <div class="text-xl font-black text-[#15803d] font-mono mb-3">
-            ₹{{ pool.poolPayout.toLocaleString() }} <span class="text-[10px] font-semibold text-slate-500">Payout</span>
-          </div>
-
-          <!-- Progress Bar -->
-          <div class="space-y-1 mb-3">
-            <div class="flex justify-between text-[11px] text-slate-600 font-semibold">
-              <span>Matrix Fill:</span>
-              <span>{{ pool.currentMembers }} / {{ pool.totalMembers }} Nodes</span>
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <span [class]="pool.status === 'Completed' ? 'px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-200 text-emerald-900'
+                           : pool.status === 'In-Progress' ? 'px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-200 text-amber-900'
+                           : 'px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-slate-200 text-slate-700'">
+                {{ pool.badge }} Pool
+              </span>
+              <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-100/80 px-2 py-0.5 rounded-md border border-emerald-300">
+                Free Entry
+              </span>
             </div>
-            <div class="h-2 w-full bg-slate-200 rounded-full overflow-hidden">
-              <div class="h-full bg-[#16a34a] rounded-full transition-all duration-500" [style.width.%]="pool.progressPercentage"></div>
+
+            <h4 class="font-black text-slate-900 text-sm mb-1">{{ pool.name }}</h4>
+            <div class="text-xl font-black text-[#15803d] font-mono mb-3">
+              ₹{{ pool.poolPayout.toLocaleString() }} <span class="text-[10px] font-semibold text-slate-500">Pool Payout</span>
+            </div>
+
+            <!-- Dual Criteria Requirements -->
+            <div class="space-y-2.5 mb-3 bg-white/80 rounded-xl p-3 border border-slate-200/70">
+              <!-- Req 1: Level 1 Directs -->
+              <div class="space-y-1">
+                <div class="flex justify-between text-[11px]">
+                  <span class="text-slate-600 font-semibold flex items-center gap-1">
+                    <span>👥</span> Level 1 Directs:
+                  </span>
+                  <span class="font-mono font-bold" [class.text-emerald-700]="pool.currentLevel1Members >= pool.requiredLevel1Members" [class.text-slate-700]="pool.currentLevel1Members < pool.requiredLevel1Members">
+                    {{ pool.currentLevel1Members }} / {{ pool.requiredLevel1Members }}
+                  </span>
+                </div>
+                <div class="h-1.5 w-full bg-slate-200 rounded-full overflow-hidden">
+                  <div class="h-full bg-emerald-600 rounded-full transition-all duration-500" 
+                       [style.width.%]="pool.level1ProgressPercentage"></div>
+                </div>
+              </div>
+
+              <!-- Req 2: Total Team Members -->
+              <div class="space-y-1">
+                <div class="flex justify-between text-[11px]">
+                  <span class="text-slate-600 font-semibold flex items-center gap-1">
+                    <span>🌳</span> Total Team:
+                  </span>
+                  <span class="font-mono font-bold" [class.text-emerald-700]="pool.currentTotalMembers >= pool.requiredTotalMembers" [class.text-slate-700]="pool.currentTotalMembers < pool.requiredTotalMembers">
+                    {{ pool.currentTotalMembers }} / {{ pool.requiredTotalMembers }}
+                  </span>
+                </div>
+                <div class="h-1.5 w-full bg-slate-200 rounded-full overflow-hidden">
+                  <div class="h-full bg-[#16a34a] rounded-full transition-all duration-500" 
+                       [style.width.%]="pool.totalMembersProgressPercentage"></div>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div class="flex items-center justify-between text-[11px] pt-2 border-t border-slate-200/60 font-medium">
+          <div class="flex items-center justify-between text-[11px] pt-2 border-t border-slate-200/60 font-medium mt-auto">
             <span class="text-slate-500">Status:</span>
             <strong [class]="pool.status === 'Completed' ? 'text-emerald-700' : pool.status === 'In-Progress' ? 'text-amber-700' : 'text-slate-600'">
               {{ pool.status }}
