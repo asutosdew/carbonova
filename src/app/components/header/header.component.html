@@ -17,15 +17,13 @@
           <span class="absolute bottom-0 right-0 w-3 h-3 bg-[#22c55e] border-2 border-white rounded-full"></span>
         </div>
 
-        <!-- Name & Rank/ID -->
+        <!-- Name & ID -->
         <div class="min-w-0">
-          <h3 class="font-extrabold text-sm text-[#143d28] leading-tight">
+          <h3 class="font-extrabold text-sm text-[#143d28] leading-tight truncate">
             {{ farmerService.farmer().name }}
           </h3>
-          <div class="flex items-center gap-1.5 text-[11px] text-[#15803d] font-bold leading-tight mt-0.5">
-            <span>{{ farmerService.farmer().rank }}</span>
-            <span class="text-slate-300">•</span>
-            <span class="font-mono text-slate-500 text-[10px]">{{ farmerService.farmer().farmerId }}</span>
+          <div class="font-mono text-slate-500 text-[10px] leading-tight mt-0.5">
+            {{ farmerService.farmer().farmerId }}
           </div>
         </div>
       </div>
@@ -61,9 +59,9 @@
       </div>
     </div>
 
-    <!-- ROW 2: Others (Menu Button, Active Status Badge, Wallet Balance, Cart, Notifications, Logout) -->
+    <!-- ROW 2: Navigation & Action Controls -->
     <div class="flex items-center justify-between gap-2 w-full pt-2 border-t border-[#e2ece2]/80">
-      <!-- Left: Navigation Menu Trigger + Plantation Active Status -->
+      <!-- Left: Navigation Menu Trigger -->
       <div class="flex items-center gap-2">
         <button (click)="toggleMobileDrawer()" 
                 class="flex items-center gap-1.5 px-2.5 py-1.5 bg-white hover:bg-emerald-50 text-[#0c3823] rounded-xl border border-[#e2ece2] shadow-2xs text-xs font-bold active:scale-95 transition-all"
@@ -71,12 +69,6 @@
           <svg class="w-4 h-4 text-[#15803d]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
           <span>Menu</span>
         </button>
-
-        <!-- Plantation Active Pill -->
-        <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#e6f7eb] border border-[#86efac]/60 text-[#145335] text-[11px] font-bold shadow-2xs">
-          <span class="w-1.5 h-1.5 rounded-full bg-[#22c55e] pulse-dot"></span>
-          <span>Plantation Active</span>
-        </div>
       </div>
 
       <!-- Right: Action Controls (Wallet, Cart, Notifications, Logout) -->
