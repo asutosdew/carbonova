@@ -10,6 +10,7 @@ export interface IncomeBreakdown {
   walletBalance: number;
   withdrawnTotal: number;
   pendingPayouts: number;
+  enrolledAutopoolId?: string | null;
 }
 
 export interface IncomeTransaction {
@@ -29,7 +30,7 @@ export interface IncomeTransaction {
 export interface LevelCommissionRate {
   level: number;
   percentage: number;
-  requiredDirects: number;
+  requiredDirects?: number; // Zero directs required (all levels unconditionally unlocked)
   unlocked: boolean;
   teamCount: number;
   businessVolume: number;

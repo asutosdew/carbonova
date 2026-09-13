@@ -263,10 +263,10 @@
           <span>📊</span>
           <span>10-Level Partner Affiliate Structure</span>
         </h3>
-        <p class="text-xs text-slate-500">Dynamic compression commission rates on downline package activations & repeat repurchases.</p>
+        <p class="text-xs text-slate-500">Unconditional multi-tier commission. Income calculated directly from live transactions ledger with zero direct requirements.</p>
       </div>
       <div class="text-xs font-mono font-bold text-slate-700">
-        Unlocked Levels: <span class="text-emerald-700 font-black">{{ teamService.levelStats().length }} of 10 Active</span> ({{ teamService.teamStats().totalDownlineTeam }} Farmers • ₹{{ incomeService.breakdown().levelIncome.toLocaleString() }} Level Income)
+        Unlocked Levels: <span class="text-emerald-700 font-black">All 10 Active (0 Directs Req.)</span> ({{ teamService.teamStats().totalDownlineTeam }} Farmers • ₹{{ incomeService.breakdown().levelIncome.toLocaleString() }} Level Income)
       </div>
     </div>
 
@@ -276,7 +276,6 @@
           <tr class="text-slate-400 border-b border-slate-200 uppercase tracking-wider font-bold text-[11px]">
             <th class="text-left py-2 font-bold">Level</th>
             <th class="text-center py-2 font-bold">Commission %</th>
-            <th class="text-center py-2 font-bold">Req. Directs</th>
             <th class="text-center py-2 font-bold">Downline Team</th>
             <th class="text-right py-2 font-bold">Total BV</th>
             <th class="text-right py-2 font-bold">Income Earned</th>
@@ -285,15 +284,12 @@
         </thead>
         <tbody class="divide-y divide-slate-100 font-medium">
           @for (lvl of paginatedLevels(); track lvl.level) {
-            <tr [class]="lvl.unlocked ? 'hover:bg-slate-50/80 transition-colors' : 'opacity-40 bg-slate-50/40'">
+            <tr class="hover:bg-slate-50/80 transition-colors">
               <td class="py-3 font-bold text-slate-900">
                 Level {{ lvl.level }}
               </td>
               <td class="py-3 text-center font-mono font-black text-emerald-800">
                 {{ lvl.percentage }}%
-              </td>
-              <td class="py-3 text-center text-slate-600">
-                {{ lvl.requiredDirects }} Directs
               </td>
               <td class="py-3 text-center font-bold text-slate-800">
                 {{ lvl.teamCount }} Farmers
@@ -305,15 +301,9 @@
                 ₹{{ lvl.totalIncomeEarned.toLocaleString() }}
               </td>
               <td class="py-3 text-center">
-                @if (lvl.unlocked) {
-                  <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-black">
-                    ✓ Unlocked
-                  </span>
-                } @else {
-                  <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-slate-200 text-slate-600 text-[10px] font-bold">
-                    🔒 Locked
-                  </span>
-                }
+                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-black">
+                  ✓ Active
+                </span>
               </td>
             </tr>
           }

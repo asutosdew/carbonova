@@ -18,21 +18,25 @@ export class IncomeService {
     totalEarned: 0,
     walletBalance: 0,
     withdrawnTotal: 0,
-    pendingPayouts: 0
+    pendingPayouts: 0,
+    enrolledAutopoolId: null
   });
 
-  // Level Commission Matrix (10 Levels - Initialized to 0 until populated)
+  // Active Enrolled Autopool ID (Fetched directly from API response)
+  readonly enrolledAutopoolId = signal<string | null>(null);
+
+  // Level Commission Matrix (10 Levels - All 10 Levels Unlocked with Zero Directs Required)
   readonly levelCommissionRates = signal<LevelCommissionRate[]>([
-    { level: 1, percentage: 10, requiredDirects: 1, unlocked: true, teamCount: 0, businessVolume: 0, totalIncomeEarned: 0 },
-    { level: 2, percentage: 5, requiredDirects: 2, unlocked: true, teamCount: 0, businessVolume: 0, totalIncomeEarned: 0 },
-    { level: 3, percentage: 3, requiredDirects: 3, unlocked: true, teamCount: 0, businessVolume: 0, totalIncomeEarned: 0 },
-    { level: 4, percentage: 2, requiredDirects: 4, unlocked: true, teamCount: 0, businessVolume: 0, totalIncomeEarned: 0 },
-    { level: 5, percentage: 2, requiredDirects: 5, unlocked: true, teamCount: 0, businessVolume: 0, totalIncomeEarned: 0 },
-    { level: 6, percentage: 1, requiredDirects: 6, unlocked: true, teamCount: 0, businessVolume: 0, totalIncomeEarned: 0 },
-    { level: 7, percentage: 1, requiredDirects: 7, unlocked: true, teamCount: 0, businessVolume: 0, totalIncomeEarned: 0 },
-    { level: 8, percentage: 1, requiredDirects: 8, unlocked: true, teamCount: 0, businessVolume: 0, totalIncomeEarned: 0 },
-    { level: 9, percentage: 0.5, requiredDirects: 9, unlocked: true, teamCount: 0, businessVolume: 0, totalIncomeEarned: 0 },
-    { level: 10, percentage: 0.5, requiredDirects: 10, unlocked: true, teamCount: 0, businessVolume: 0, totalIncomeEarned: 0 }
+    { level: 1, percentage: 10, requiredDirects: 0, unlocked: true, teamCount: 0, businessVolume: 0, totalIncomeEarned: 0 },
+    { level: 2, percentage: 5, requiredDirects: 0, unlocked: true, teamCount: 0, businessVolume: 0, totalIncomeEarned: 0 },
+    { level: 3, percentage: 3, requiredDirects: 0, unlocked: true, teamCount: 0, businessVolume: 0, totalIncomeEarned: 0 },
+    { level: 4, percentage: 2, requiredDirects: 0, unlocked: true, teamCount: 0, businessVolume: 0, totalIncomeEarned: 0 },
+    { level: 5, percentage: 2, requiredDirects: 0, unlocked: true, teamCount: 0, businessVolume: 0, totalIncomeEarned: 0 },
+    { level: 6, percentage: 1, requiredDirects: 0, unlocked: true, teamCount: 0, businessVolume: 0, totalIncomeEarned: 0 },
+    { level: 7, percentage: 1, requiredDirects: 0, unlocked: true, teamCount: 0, businessVolume: 0, totalIncomeEarned: 0 },
+    { level: 8, percentage: 1, requiredDirects: 0, unlocked: true, teamCount: 0, businessVolume: 0, totalIncomeEarned: 0 },
+    { level: 9, percentage: 0.5, requiredDirects: 0, unlocked: true, teamCount: 0, businessVolume: 0, totalIncomeEarned: 0 },
+    { level: 10, percentage: 0.5, requiredDirects: 0, unlocked: true, teamCount: 0, businessVolume: 0, totalIncomeEarned: 0 }
   ]);
 
   // Autopool Tiers (Zero Joining Fee, Single Active Pool Policy, Equal Distribution Community Fund)
@@ -209,6 +213,9 @@ export class IncomeService {
       const accountRes = resAccount.status === 'fulfilled' ? resAccount.value?.result : null;
       const summary = accountRes?.summary;
 
+      const activePoolId = summary?.enrolledAutopoolId || data?.enrolled_autopool_id || null;
+      this.enrolledAutopoolId.set(activePoolId);
+
       if (summary) {
         this.breakdown.set({
           walletBalance: Number(summary.walletBalance ?? 0),
@@ -219,7 +226,8 @@ export class IncomeService {
           levelIncome: Number(summary.levelIncome ?? (data?.levelincome ?? 0)),
           autopoolIncome: Number(summary.autopoolIncome ?? (data?.autopoolincome ?? 0)),
           carbonRoyalty: Number(summary.carbonRoyalty ?? 0),
-          fertilizerRebate: Number(summary.fertilizerRebate ?? 0)
+          fertilizerRebate: Number(summary.fertilizerRebate ?? 0),
+          enrolledAutopoolId: activePoolId
         });
       } else if (data) {
         const direct = data.directincome !== undefined ? parseFloat(data.directincome) : 0;
@@ -239,13 +247,33 @@ export class IncomeService {
           totalEarned,
           walletBalance,
           withdrawnTotal: 0,
-          pendingPayouts: 0
+          pendingPayouts: 0,
+          enrolledAutopoolId: activePoolId
         });
       }
 
       // Always bind real arrays from server, default to empty array if none
-      this.transactions.set(Array.isArray(accountRes?.transactions) ? accountRes.transactions : []);
+      const txList: IncomeTransaction[] = Array.isArray(accountRes?.transactions) ? accountRes.transactions : [];
+      this.transactions.set(txList);
       this.payouts.set(Array.isArray(accountRes?.payoutHistory) ? accountRes.payoutHistory : []);
+
+      // Calculate level income for each of the 10 levels directly from income_transactions
+      const serverLevelBreakdown = Array.isArray(accountRes?.levelBreakdown) ? accountRes.levelBreakdown : [];
+      const updatedLevelRates = this.levelCommissionRates().map(lvl => {
+        const sLvl = serverLevelBreakdown.find((item: any) => Number(item.level) === lvl.level);
+        const txEarned = txList
+          .filter(t => t.type === 'level' && Number(t.level) === lvl.level && t.status === 'Completed')
+          .reduce((sum, t) => sum + (Number(t.amount) || 0), 0);
+
+        const earned = sLvl ? Number(sLvl.totalEarned ?? sLvl.totalIncomeEarned) : txEarned;
+        return {
+          ...lvl,
+          totalIncomeEarned: earned,
+          unlocked: true,
+          requiredDirects: 0
+        };
+      });
+      this.levelCommissionRates.set(updatedLevelRates);
 
     } catch (e) {
       console.warn('[IncomeService] Live server data skipped (offline or unauthenticated):', e);

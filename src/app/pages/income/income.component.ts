@@ -30,12 +30,21 @@ export class IncomeComponent {
     const teamCount = stats.totalDownlineTeam;
     const rawTiers = this.incomeService.autopoolTiers();
 
-    // Determine the user's highest qualified tier (0: AP-1, 1: AP-2, 2: AP-3, 3: AP-4, -1: None)
+    // Determine user's active enrolled pool: Priority to API response (enrolledAutopoolId)
+    const apiEnrolledId = this.incomeService.enrolledAutopoolId();
     let highestQualified = -1;
-    for (let i = rawTiers.length - 1; i >= 0; i--) {
-      if (directCount >= rawTiers[i].requiredLevel1Members && teamCount >= rawTiers[i].requiredTotalMembers) {
-        highestQualified = i;
-        break;
+
+    if (apiEnrolledId) {
+      highestQualified = rawTiers.findIndex(p => p.id === apiEnrolledId);
+    }
+
+    // Fallback: If not explicitly set by API, calculate based on requirements
+    if (highestQualified === -1) {
+      for (let i = rawTiers.length - 1; i >= 0; i--) {
+        if (directCount >= rawTiers[i].requiredLevel1Members && teamCount >= rawTiers[i].requiredTotalMembers) {
+          highestQualified = i;
+          break;
+        }
       }
     }
 
@@ -57,7 +66,7 @@ export class IncomeComponent {
         // Automatically graduated & removed from previous lower pool
         status = 'Graduated';
       } else if (index === highestQualified) {
-        // User's single current active enrolled pool
+        // User's single current active enrolled pool (from API or qualification)
         status = 'Enrolled';
         isCurrent = true;
       } else if (index === highestQualified + 1) {
@@ -89,6 +98,23 @@ export class IncomeComponent {
     });
   });
 
+  // 10-Level Structure (Unifies team counts with income directly calculated from income_transactions)
+  readonly combinedLevels = computed<LevelCommissionRate[]>(() => {
+    const rates = this.incomeService.levelCommissionRates();
+    const stats = this.teamService.levelStats();
+
+    return rates.map(r => {
+      const s = stats.find(item => item.level === r.level);
+      return {
+        ...r,
+        teamCount: s ? s.totalMembers : r.teamCount,
+        businessVolume: s ? s.totalBusiness : r.businessVolume,
+        unlocked: true,
+        requiredDirects: 0
+      };
+    });
+  });
+
   // Pagination for 10-Level Table
   readonly levelPage = signal<number>(1);
   readonly levelPageSize = signal<number>(10);
@@ -105,7 +131,7 @@ export class IncomeComponent {
   }
 
   paginatedLevels(): LevelCommissionRate[] {
-    const list = this.incomeService.levelCommissionRates();
+    const list = this.combinedLevels();
     const start = (this.levelPage() - 1) * this.levelPageSize();
     return list.slice(start, start + this.levelPageSize());
   }
