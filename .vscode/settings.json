@@ -6,6 +6,6 @@
     "**/.angular/**": true,
     "**/dist/**": true
   },
-  "git.autorefresh": true,
+  "git.autorefresh": false,
   "git.autofetch": false
 }

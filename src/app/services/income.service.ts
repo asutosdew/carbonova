@@ -35,7 +35,7 @@ export class IncomeService {
     { level: 10, percentage: 0.5, requiredDirects: 10, unlocked: true, teamCount: 0, businessVolume: 0, totalIncomeEarned: 0 }
   ]);
 
-  // Autopool Tiers (Zero Joining Fee, Qualified by Level 1 & Total Downline Team)
+  // Autopool Tiers (Zero Joining Fee, Single Active Pool Policy, Equal Distribution Community Fund)
   readonly autopoolTiers = signal<AutopoolTier[]>([
     {
       id: 'AP-1',
@@ -48,6 +48,10 @@ export class IncomeService {
       currentTotalMembers: 0,
       level1ProgressPercentage: 0,
       totalMembersProgressPercentage: 0,
+      enrolledMembers: 14,
+      totalPoolFund: 70000,
+      perMemberShare: 5000,
+      isCurrentActivePool: false,
       poolPayout: 5000,
       status: 'Active',
       reEntryBonus: 0,
@@ -64,6 +68,10 @@ export class IncomeService {
       currentTotalMembers: 0,
       level1ProgressPercentage: 0,
       totalMembersProgressPercentage: 0,
+      enrolledMembers: 6,
+      totalPoolFund: 90000,
+      perMemberShare: 15000,
+      isCurrentActivePool: false,
       poolPayout: 15000,
       status: 'Locked',
       reEntryBonus: 0,
@@ -80,6 +88,10 @@ export class IncomeService {
       currentTotalMembers: 0,
       level1ProgressPercentage: 0,
       totalMembersProgressPercentage: 0,
+      enrolledMembers: 2,
+      totalPoolFund: 120000,
+      perMemberShare: 60000,
+      isCurrentActivePool: false,
       poolPayout: 60000,
       status: 'Locked',
       reEntryBonus: 0,
@@ -96,6 +108,10 @@ export class IncomeService {
       currentTotalMembers: 0,
       level1ProgressPercentage: 0,
       totalMembersProgressPercentage: 0,
+      enrolledMembers: 1,
+      totalPoolFund: 250000,
+      perMemberShare: 250000,
+      isCurrentActivePool: false,
       poolPayout: 250000,
       status: 'Locked',
       reEntryBonus: 0,

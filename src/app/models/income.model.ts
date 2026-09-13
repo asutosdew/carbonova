@@ -47,8 +47,12 @@ export interface AutopoolTier {
   currentTotalMembers: number;
   level1ProgressPercentage?: number;
   totalMembersProgressPercentage?: number;
+  enrolledMembers: number;        // Active members in this single pool company-wide
+  totalPoolFund: number;          // Total amount generated in this pool
+  perMemberShare: number;         // Equal distribution per enrolled member (totalPoolFund / enrolledMembers)
+  isCurrentActivePool: boolean;   // True if user is currently active in this pool
   poolPayout: number;
-  status: 'Active' | 'Completed' | 'Locked' | 'In-Progress';
+  status: 'Active' | 'Enrolled' | 'Graduated' | 'Target' | 'Completed' | 'Locked' | 'In-Progress';
   reEntryBonus?: number;
   progressPercentage: number;
 }

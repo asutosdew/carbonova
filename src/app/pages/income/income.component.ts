@@ -23,14 +23,23 @@ export class IncomeComponent {
   readonly showWithdrawalModal = signal(false);
   readonly selectedFilter = signal<'ALL' | IncomeType>('ALL');
 
-  // Dynamically compute Autopool tiers progress based on live team stats (Zero Joining Fee, Dual Qualification)
+  // Dynamically compute Autopool tiers with Single Active Pool Exclusivity & Equal Distribution Fund
   readonly autopoolTiers = computed<AutopoolTier[]>(() => {
     const stats = this.teamService.teamStats();
     const directCount = stats.totalDirects;
     const teamCount = stats.totalDownlineTeam;
     const rawTiers = this.incomeService.autopoolTiers();
 
-    return rawTiers.map((pool, index, arr) => {
+    // Determine the user's highest qualified tier (0: AP-1, 1: AP-2, 2: AP-3, 3: AP-4, -1: None)
+    let highestQualified = -1;
+    for (let i = rawTiers.length - 1; i >= 0; i--) {
+      if (directCount >= rawTiers[i].requiredLevel1Members && teamCount >= rawTiers[i].requiredTotalMembers) {
+        highestQualified = i;
+        break;
+      }
+    }
+
+    return rawTiers.map((pool, index) => {
       const l1Req = pool.requiredLevel1Members;
       const totalReq = pool.requiredTotalMembers;
       const l1Cur = directCount;
@@ -40,17 +49,29 @@ export class IncomeComponent {
       const totalPct = Math.min(100, Math.round((totalCur / totalReq) * 100));
       const overallPct = Math.min(100, Math.round(((Math.min(1, l1Cur / l1Req) + Math.min(1, totalCur / totalReq)) / 2) * 100));
 
-      const isCompleted = l1Cur >= l1Req && totalCur >= totalReq;
-      const prevCompleted = index === 0 || (l1Cur >= arr[index - 1].requiredLevel1Members && totalCur >= arr[index - 1].requiredTotalMembers);
+      // Single Active Pool Status & Exclusivity
+      let status: 'Enrolled' | 'Graduated' | 'Target' | 'Locked' = 'Locked';
+      let isCurrent = false;
 
-      let status: 'Completed' | 'In-Progress' | 'Active' | 'Locked' = 'Locked';
-      if (isCompleted) {
-        status = 'Completed';
-      } else if (prevCompleted) {
-        status = (l1Cur > 0 || totalCur > 0) ? 'In-Progress' : 'Active';
+      if (index < highestQualified) {
+        // Automatically graduated & removed from previous lower pool
+        status = 'Graduated';
+      } else if (index === highestQualified) {
+        // User's single current active enrolled pool
+        status = 'Enrolled';
+        isCurrent = true;
+      } else if (index === highestQualified + 1) {
+        // Next target pool user is striving to qualify for
+        status = 'Target';
       } else {
+        // Higher future pools locked
         status = 'Locked';
       }
+
+      // If user is currently enrolled, ensure at least 1 enrolled member in count
+      const enrolled = isCurrent ? Math.max(1, pool.enrolledMembers) : pool.enrolledMembers;
+      const fund = pool.totalPoolFund;
+      const share = enrolled > 0 ? Math.round(fund / enrolled) : 0;
 
       return {
         ...pool,
@@ -59,6 +80,10 @@ export class IncomeComponent {
         level1ProgressPercentage: l1Pct,
         totalMembersProgressPercentage: totalPct,
         progressPercentage: overallPct,
+        enrolledMembers: enrolled,
+        totalPoolFund: fund,
+        perMemberShare: share,
+        isCurrentActivePool: isCurrent,
         status
       };
     });
